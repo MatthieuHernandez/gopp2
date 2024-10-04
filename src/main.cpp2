@@ -1,0 +1,14 @@
+#define CPP2_IMPORT_STD
+
+#include "../src/io.h"
+
+main: () -> int = {
+    result: int = 0;
+    message: std::string =  "";
+    do {
+        printMenu(message);
+        selection: int = getResponseMenu();
+        std::tie(result, message) = processResponseMenu(selection);
+    } while (result != 0);
+  return result;
+}
