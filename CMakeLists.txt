@@ -10,7 +10,6 @@ include_directories(./src)
 include_directories(../cppfront/include)
 
 add_executable(gopp2
-    ./src/io.cpp
     ./generate/main.cpp)
 
     

@@ -1,14 +1,26 @@
-#define CPP2_IMPORT_STD
-
-#include "../src/io.h"
+#include "io.h2"
 
 main: () -> int = {
-    result: int = 0;
-    message: std::string =  "";
+    exit: bool = false;
+    printMenu();
     do {
-        printMenu(message);
-        selection: int = getResponseMenu();
-        std::tie(result, message) = processResponseMenu(selection);
-    } while (result != 0);
-  return result;
+        selection: int = getInputMenu();
+        exit = inspect selection -> bool {
+            is 1 = :()->bool={
+                clear();
+                printGoban();
+                print("Not yet implemented.");
+                return false;
+            }();
+           is 2 = :()->bool={
+            clear("Bye.");
+            return true;
+        }();
+            is _ = :()->bool={
+                print("Invalid selection.");
+                return false;
+            }();
+        };
+    } while !exit;
+  return 0;
 }
