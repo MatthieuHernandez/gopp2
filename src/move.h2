@@ -1,9 +1,7 @@
+#include "color.h2"
+
 Move: type = {
-
-    position: char[2];
-
-    color: @enum type = {
-    Black;
-    White;
-    }
+    position: std::array<u8, 2>;
+    color: Color;
 }
+

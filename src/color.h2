@@ -1,0 +1,4 @@
+Color: @enum<u8> type = {
+    Black := 0;
+    White := 1;
+}

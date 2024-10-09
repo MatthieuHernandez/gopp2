@@ -1,5 +1,5 @@
 #include "io.h2"
-#include "go_engine.h2"
+#include "engine.h2"
 
 main: () -> int = {
     exit: bool = false;

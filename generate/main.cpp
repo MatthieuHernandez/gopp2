@@ -13,7 +13,7 @@
 
 #line 1 "../src/main.cpp2"
 #include "io.h"
-#include "go_engine.h"
+#include "engine.h"
 
 #line 4 "../src/main.cpp2"
 [[nodiscard]] auto main() -> int;
