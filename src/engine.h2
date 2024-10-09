@@ -1,0 +1,9 @@
+#include "io.h2"
+#include "move.h2"
+
+Engine: type = {
+
+    startGame:() = {
+        printGoban();
+    }
+}
