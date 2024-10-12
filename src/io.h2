@@ -1,5 +1,7 @@
 #include "windows.h"
 
+#include "move.h2"
+
 clear:(message: std::string = "") = { std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
 
 resetCursor:() = { std::cout << "\033[0J"; }
@@ -32,14 +34,42 @@ getInputMenu:() -> int = {
     input : int = 0;
     std::cout << "> ";
     std::cin >> input;
-    if (std::cin.fail()){
+    if (std::cin.fail()) {
         return 0;
     }
-    std::cout << "in = " << input << std::endl;
     return input;
 }
 
-printGoban:() = {
+getInputMove:(player: Color) -> Move = {
+    /*input : std::string = 0;
+    std::cout << "> ";
+    std::cin >> input;
+    if (std::cin.fail()) {
+        return getInputMove(player);
+    }
+    if(input == "pass") {
+        print("Player pass.");
+        m: Move = (player);
+        return m;
+    }
+    if(input.size() < 2 ||  input.size() > 3 ||
+       input[0] < 'A' || input[0] > 'T' || input[2] < '1' || input[2] > '9' ||
+       input[2] > '1' && input.size() == 3) {
+        print("Invalid Move.");
+        return getInputMove(player);
+    }
+    x: u8 = input[0] - 64;
+    y: u8 = input[1];
+    print("Player play " + input[0] + input[1]+ ".");
+    p: std::array<u8, 2> = (x, y);
+    m: Move = (player, (x, y));
+    return m;*/
+    p: std::array<u8, 2> = (0, 0);
+    m: Move = (player, p, true);
+    return m;
+}
+
+printGoban:(goban_state: std::array<Color, 361>) = {
     std::cout << "    A B C D E F G H J K L M N O P Q R S T " << std::endl;
     std::cout << " 19 ┌─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┐ " << std::endl;
     std::cout << " 18 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
@@ -61,13 +91,4 @@ printGoban:() = {
     std::cout << "  2 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
     std::cout << "  1 └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ " << std::endl;
     std::cout << std::endl << std::endl << std::endl << std::endl << std::endl;
-
-    // moveCursor(3, 4);
-    // std::cout << "\033[" << 5 << ";" << 6 << "H";
-    // std::cout << "⚫ ⚪";
-    // std::cout << "\033[23;0H";
-    // resetCursor();
-
-    //char wait;
-    //cin >> wait;
 }

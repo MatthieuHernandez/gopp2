@@ -10,5 +10,3 @@ include_directories(../cppfront/include)
 
 add_executable(gopp2
     ./generate/main.cpp)
-
-    

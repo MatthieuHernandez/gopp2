@@ -7,17 +7,17 @@ main: () -> int = {
     do {
         selection: int = getInputMenu();
         exit = inspect selection -> bool {
-            is 1 = :()->bool={
+            is 1 = :()->bool = {
                 clear();
-                engine: Engine = ();
-                engine.startGame();
+                game: Game = ();
+                game.play();
                 return false;
             }();
            is 2 = :()->bool={
             clear("Bye.");
             return true;
         }();
-            is _ = :()->bool={
+            is _ = :()->bool = {
                 print("Invalid selection.");
                 return false;
             }();

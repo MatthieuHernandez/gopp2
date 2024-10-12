@@ -1,9 +1,18 @@
-#include "io.h2"
 #include "move.h2"
 
 Engine: type = {
 
-    startGame:() = {
-        printGoban();
+    goban_state: std::array<Color, 361> = (Color::None);
+
+    start:() = {
+        
+    }
+
+    playMove:() = {
+
+    }
+
+    isFinish:()  -> bool = {
+        return false;
     }
 }

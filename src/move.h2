@@ -1,7 +1,30 @@
-#include "color.h2"
-
-Move: type = {
-    position: std::array<u8, 2>;
-    color: Color;
+Color: @enum<u8> type = {
+    None := 0;
+    Black := 1;
+    White := 2;
 }
 
+Move: type = {
+    color: Color;
+    position: std::array<u8, 2>;
+    pass: bool;
+
+    operator=: (out this, col: Color, pos: std::array<u8, 2> = (), pas: bool = false) = {
+        color = col;
+        position = pos;
+        pass = pas;
+    }
+
+    operator=: (out this, that) = {
+    }
+}
+
+switchPlayer:(inout color: Color) = {
+    if(color == Color::Black)
+    {
+        color = Color::Black;
+    }
+    else if(color == Color::White){
+        color =  Color::White;
+    }
+}

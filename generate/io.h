@@ -17,7 +17,9 @@
 #line 1 "../src/io.h2"
 #include "windows.h"
 
-#line 3 "../src/io.h2"
+#include "move.h"
+
+#line 5 "../src/io.h2"
 auto clear(cpp2::impl::in<std::string> message = "") -> void;
 
 auto resetCursor() -> void;
@@ -26,29 +28,32 @@ auto moveCursor(cpp2::impl::in<uint8_t> x, cpp2::impl::in<uint8_t> y) -> void;
 
 auto print(cpp2::impl::in<std::string> message) -> void;
 
-#line 17 "../src/io.h2"
+#line 19 "../src/io.h2"
 auto printMenu() -> void;
 
-#line 31 "../src/io.h2"
+#line 33 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> int;
 
-#line 42 "../src/io.h2"
-auto printGoban() -> void;
+#line 43 "../src/io.h2"
+[[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
+
+#line 72 "../src/io.h2"
+auto printGoban(cpp2::impl::in<std::array<Color,361>> goban_state) -> void;
 
 //=== Cpp2 function definitions =================================================
 
 #line 1 "../src/io.h2"
 
-#line 3 "../src/io.h2"
+#line 5 "../src/io.h2"
 auto clear(cpp2::impl::in<std::string> message) -> void{std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
 
-#line 5 "../src/io.h2"
+#line 7 "../src/io.h2"
 auto resetCursor() -> void{std::cout << "\033[0J"; }
 
-#line 7 "../src/io.h2"
+#line 9 "../src/io.h2"
 auto moveCursor(cpp2::impl::in<uint8_t> x, cpp2::impl::in<uint8_t> y) -> void{std::cout << "\033[" << x << ";" << y << "H"; }
 
-#line 9 "../src/io.h2"
+#line 11 "../src/io.h2"
 auto print(cpp2::impl::in<std::string> message) -> void{
     std::cout << "\033[A\033[K" 
          << "\033[A\033[K" 
@@ -57,7 +62,7 @@ auto print(cpp2::impl::in<std::string> message) -> void{
     std::cout << std::endl;
 }
 
-#line 17 "../src/io.h2"
+#line 19 "../src/io.h2"
 auto printMenu() -> void{
     SetConsoleOutputCP(CP_UTF8);
     clear();
@@ -72,7 +77,7 @@ auto printMenu() -> void{
     std::cout << std::endl << std::endl;
 }
 
-#line 31 "../src/io.h2"
+#line 33 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> int{
     int input {0}; 
     std::cout << "> ";
@@ -80,12 +85,41 @@ auto printMenu() -> void{
     if ((CPP2_UFCS(fail)(std::cin))) {
         return 0; 
     }
-    std::cout << "in = " << input << std::endl;
     return input; 
 }
 
-#line 42 "../src/io.h2"
-auto printGoban() -> void{
+#line 43 "../src/io.h2"
+[[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move{
+    /*input : std::string = 0;
+    std::cout << "> ";
+    std::cin >> input;
+    if (std::cin.fail()) {
+        return getInputMove(player);
+    }
+    if(input == "pass") {
+        print("Player pass.");
+        m: Move = (player);
+        return m;
+    }
+    if(input.size() < 2 ||  input.size() > 3 ||
+       input[0] < 'A' || input[0] > 'T' || input[2] < '1' || input[2] > '9' ||
+       input[2] > '1' && input.size() == 3) {
+        print("Invalid Move.");
+        return getInputMove(player);
+    }
+    x: u8 = input[0] - 64;
+    y: u8 = input[1];
+    print("Player play " + input[0] + input[1]+ ".");
+    p: std::array<u8, 2> = (x, y);
+    m: Move = (player, (x, y));
+    return m;*/
+    std::array<cpp2::u8,2> p {0, 0}; 
+    Move m {player, cpp2::move(p), true}; 
+    return m; 
+}
+
+#line 72 "../src/io.h2"
+auto printGoban(cpp2::impl::in<std::array<Color,361>> goban_state) -> void{
     std::cout << "    A B C D E F G H J K L M N O P Q R S T " << std::endl;
     std::cout << " 19 ┌─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┐ " << std::endl;
     std::cout << " 18 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
@@ -107,15 +141,6 @@ auto printGoban() -> void{
     std::cout << "  2 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
     std::cout << "  1 └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ " << std::endl;
     std::cout << std::endl << std::endl << std::endl << std::endl << std::endl;
-
-    // moveCursor(3, 4);
-    // std::cout << "\033[" << 5 << ";" << 6 << "H";
-    // std::cout << "⚫ ⚪";
-    // std::cout << "\033[23;0H";
-    // resetCursor();
-
-    //char wait;
-    //cin >> wait;
 }
 #endif
 

@@ -11,26 +11,33 @@
 
 #line 1 "../src/engine.h2"
 
-#line 4 "../src/engine.h2"
+#line 3 "../src/engine.h2"
 class Engine;
 
 
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/engine.h2"
-#include "io.h"
 #include "move.h"
 
-#line 4 "../src/engine.h2"
+#line 3 "../src/engine.h2"
 class Engine {
 
-    public: static auto startGame() -> void;
+    private: std::array<Color,361> goban_state {Color::None}; 
+
+    public: static auto start() -> void;
+
+#line 11 "../src/engine.h2"
+    public: static auto playMove() -> void;
+
+#line 15 "../src/engine.h2"
+    public: [[nodiscard]] static auto isFinish() -> bool;
     public: Engine() = default;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 9 "../src/engine.h2"
+#line 18 "../src/engine.h2"
 };
 
 
@@ -38,9 +45,19 @@ class Engine {
 
 #line 1 "../src/engine.h2"
 
-#line 6 "../src/engine.h2"
-    auto Engine::startGame() -> void{
-        printGoban();
+#line 7 "../src/engine.h2"
+    auto Engine::start() -> void{
+
+    }
+
+#line 11 "../src/engine.h2"
+    auto Engine::playMove() -> void{
+
+    }
+
+#line 15 "../src/engine.h2"
+    [[nodiscard]] auto Engine::isFinish() -> bool{
+        return false; 
     }
 #endif
 
