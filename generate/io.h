@@ -15,56 +15,74 @@
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/io.h2"
-#include "windows.h"
+
 
 #include "move.h"
 
 #line 5 "../src/io.h2"
+extern std::string nextMessage;
+
+auto setNextMessage(cpp2::impl::in<std::string> message) -> void;
+
+#line 11 "../src/io.h2"
+[[nodiscard]] auto getNextMessage() -> std::string;
+
+#line 17 "../src/io.h2"
 auto clear(cpp2::impl::in<std::string> message = "") -> void;
 
-auto resetCursor() -> void;
+auto clearInput() -> void;
 
-auto moveCursor(cpp2::impl::in<uint8_t> x, cpp2::impl::in<uint8_t> y) -> void;
-
-auto print(cpp2::impl::in<std::string> message) -> void;
-
-#line 19 "../src/io.h2"
+#line 24 "../src/io.h2"
 auto printMenu() -> void;
 
-#line 33 "../src/io.h2"
-[[nodiscard]] auto getInputMenu() -> int;
+#line 38 "../src/io.h2"
+[[nodiscard]] auto getInputMenu() -> cpp2::i32;
 
-#line 43 "../src/io.h2"
+#line 46 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
 
-#line 72 "../src/io.h2"
-auto printGoban(cpp2::impl::in<std::array<Color,361>> goban_state) -> void;
+#line 83 "../src/io.h2"
+// Make it a coroutine without row and col parameter
+auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
+
+#line 119 "../src/io.h2"
+auto printGoban(cpp2::impl::in<std::array<cpp2::i16,361>> goban_state) -> void;
+#line 150 "../src/io.h2"
+
+
+#line 1 "../src/io.h2"
 
 //=== Cpp2 function definitions =================================================
 
 #line 1 "../src/io.h2"
 
 #line 5 "../src/io.h2"
-auto clear(cpp2::impl::in<std::string> message) -> void{std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
+std::string nextMessage {0}; 
 
 #line 7 "../src/io.h2"
-auto resetCursor() -> void{std::cout << "\033[0J"; }
-
-#line 9 "../src/io.h2"
-auto moveCursor(cpp2::impl::in<uint8_t> x, cpp2::impl::in<uint8_t> y) -> void{std::cout << "\033[" << x << ";" << y << "H"; }
-
-#line 11 "../src/io.h2"
-auto print(cpp2::impl::in<std::string> message) -> void{
-    std::cout << "\033[A\033[K" 
-         << "\033[A\033[K" 
-         << "\033[A\033[K" 
-         << "\033[A\033[K" << message << std::endl;
-    std::cout << std::endl;
+auto setNextMessage(cpp2::impl::in<std::string> message) -> void{
+    nextMessage = message;
 }
 
+#line 11 "../src/io.h2"
+[[nodiscard]] auto getNextMessage() -> std::string{
+    auto m {nextMessage}; 
+    nextMessage = "";
+    return m; 
+}
+
+#line 17 "../src/io.h2"
+auto clear(cpp2::impl::in<std::string> message) -> void{std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
+
 #line 19 "../src/io.h2"
+auto clearInput() -> void{
+    CPP2_UFCS(clear)(std::cin);
+    CPP2_UFCS(ignore)(std::cin, INT_MAX, '\n');
+}
+
+#line 24 "../src/io.h2"
 auto printMenu() -> void{
-    SetConsoleOutputCP(CP_UTF8);
+
     clear();
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                   GOPP2 Menu                   *" << std::endl;
@@ -74,73 +92,123 @@ auto printMenu() -> void{
     std::cout << "*     1. Start a game                            *" << std::endl;
     std::cout << "*     2. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 33 "../src/io.h2"
-[[nodiscard]] auto getInputMenu() -> int{
-    int input {0}; 
+#line 38 "../src/io.h2"
+[[nodiscard]] auto getInputMenu() -> cpp2::i32{
+    cpp2::i32 input {0}; 
     std::cout << "> ";
     std::cin >> input;
-    if ((CPP2_UFCS(fail)(std::cin))) {
-        return 0; 
-    }
+    clearInput();
     return input; 
 }
 
-#line 43 "../src/io.h2"
+#line 46 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move{
-    /*input : std::string = 0;
+    std::string input {0}; 
     std::cout << "> ";
     std::cin >> input;
-    if (std::cin.fail()) {
-        return getInputMove(player);
+    clearInput();
+    if ((input == "pass")) {
+        setNextMessage("Player pass.");
+        std::array<cpp2::i8,2> p {0, 0}; 
+        Move m {player, cpp2::move(p), true}; 
+        return m; 
     }
-    if(input == "pass") {
-        print("Player pass.");
-        m: Move = (player);
-        return m;
+    CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) = std::tolower(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0));
+    if ((cpp2::impl::cmp_less(CPP2_UFCS(ssize)(input),2) || cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(input),3) || 
+       cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0),'a') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0),'t') || CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) == 'i' || 
+       (CPP2_UFCS(ssize)(input) == 2 && (cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'1') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'9'))) || 
+       (CPP2_UFCS(ssize)(input) == 3 && (cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'1') || cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'0') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'9'))))) {
+        std::cout << "\033[A\033[K\033[A\033[K" << "Invalid Move." << std::endl;
+        return getInputMove(player); 
     }
-    if(input.size() < 2 ||  input.size() > 3 ||
-       input[0] < 'A' || input[0] > 'T' || input[2] < '1' || input[2] > '9' ||
-       input[2] > '1' && input.size() == 3) {
-        print("Invalid Move.");
-        return getInputMove(player);
+    cpp2::i8 col {0}; 
+    col = CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) - 96;
+    if (cpp2::impl::cmp_greater(col,8)) {// No I column
+        --col;
     }
-    x: u8 = input[0] - 64;
-    y: u8 = input[1];
-    print("Player play " + input[0] + input[1]+ ".");
-    p: std::array<u8, 2> = (x, y);
-    m: Move = (player, (x, y));
-    return m;*/
-    std::array<cpp2::u8,2> p {0, 0}; 
-    Move m {player, cpp2::move(p), true}; 
+    cpp2::i8 row {0}; 
+    if (CPP2_UFCS(ssize)(input) == 2) {
+        row = CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) - 48;
+    }else {
+        row = ((CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) - 48) * 10) + (CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2) - 48);
+    }
+  CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1);
+    setNextMessage("Player play " + cpp2::move(input) + ".");
+    std::array<cpp2::i8,2> p {cpp2::move(row), cpp2::move(col)}; 
+    Move m {player, cpp2::move(p), false}; 
     return m; 
 }
 
-#line 72 "../src/io.h2"
-auto printGoban(cpp2::impl::in<std::array<Color,361>> goban_state) -> void{
-    std::cout << "    A B C D E F G H J K L M N O P Q R S T " << std::endl;
-    std::cout << " 19 ┌─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┐ " << std::endl;
-    std::cout << " 18 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << " 17 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << " 16 ├─┼─┼─●─┼─┼─┼─┼─┼─●─┼─┼─┼─┼─┼─●─┼─┼─┤ " << std::endl;
-    std::cout << " 15 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << " 14 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << " 13 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << " 12 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << " 11 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << " 10 ├─┼─┼─●─┼─┼─┼─┼─┼─●─┼─┼─┼─┼─┼─●─┼─┼─┤ " << std::endl;
-    std::cout << "  9 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << "  8 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << "  7 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << "  6 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << "  5 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << "  4 ├─┼─┼─●─┼─┼─┼─┼─┼─●─┼─┼─┼─┼─┼─●─┼─┼─┤ " << std::endl;
-    std::cout << "  3 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << "  2 ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤ " << std::endl;
-    std::cout << "  1 └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘ " << std::endl;
-    std::cout << std::endl << std::endl << std::endl << std::endl << std::endl;
+#line 84 "../src/io.h2"
+auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
+    if ((row == 16 && (col == 4 || col == 10 || col == 16)) || 
+       (row == 10 && (col == 4 || col == 10 || col == 16)) || 
+       (row ==  4 && (col == 4 || col == 10 || col == 16))) {
+        std::cout << "─●";
+    }else {
+        if (row == 19) {
+            if (col == 1) {
+                std::cout << " ┌";
+            }
+            else {if (col == 19) {
+                std::cout << "─┐";
+            }else {
+                std::cout << "─┬";
+            }}
+        }else {if (row == 1) {
+            if (col == 1) {
+                std::cout << " └";
+            }else {if (col == 19) {
+                std::cout << "─┘";
+            }else {
+                std::cout << "─┴";
+            }}
+        }else {
+            if (col == 1) {
+                std::cout << " ├";
+            }else {if (col == 19) {
+                std::cout << "─┤";
+            }else {
+                std::cout << "─┼";
+            }}
+        }}
+    }
+}
+
+#line 119 "../src/io.h2"
+auto printGoban(cpp2::impl::in<std::array<cpp2::i16,361>> goban_state) -> void{
+    // First line
+    std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
+    cpp2::i16 row {19}; 
+    for( ; cpp2::impl::cmp_greater(row,0); 
+    --row ) 
+    {
+        if (cpp2::impl::cmp_less(row,10)) {
+            std::cout << "  " << cpp2::impl::as_<std::string>(row) << " ";
+        }else {
+             std::cout << " " << cpp2::impl::as_<std::string>(row) << " ";
+        }
+        cpp2::i8 col {1}; 
+        for( ; cpp2::impl::cmp_less_eq(col,19); 
+        ++col ) 
+        {
+            cpp2::i16 i {0}; 
+            i = (row - 1) * 19 + col - 1;
+            if (CPP2_ASSERT_IN_BOUNDS(goban_state, i) == 1) {
+                std::cout << "⚫";
+            }else {if (CPP2_ASSERT_IN_BOUNDS(goban_state, i) == 2) {
+                std::cout << "⚪";
+            }
+            else {if (CPP2_ASSERT_IN_BOUNDS(goban_state, cpp2::move(i)) == 0) {
+                printIntersection(row, col);
+            }}}
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl << getNextMessage() << std::endl;
 }
 #endif
 

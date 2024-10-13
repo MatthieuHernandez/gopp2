@@ -5,14 +5,15 @@
 Game : type = {
     play : () = {
         engine : Engine = ();
-        printGoban();
+        state: = engine.goban_state;
         current_player: = Color::Black;
         do {
-            move: = GetInputMove(current_player);
-            engine.playMove(x);
-            state = engine.moves;
             printGoban(state);
-        switchPlayer(current_player);
-        } while !game.isFinish
+            m: = getInputMove(current_player);
+            clear();
+            engine.playMove(m);
+            state = engine.goban_state;
+            switchPlayer(current_player);
+        } while !engine.isFinish();
 }
 }

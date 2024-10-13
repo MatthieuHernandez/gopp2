@@ -1,10 +1,13 @@
+#include "windows.h"
+
 #include "io.h2"
-#include "engine.h2"
+#include "game.h2"
 
 main: () -> int = {
+    SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
-    printMenu();
     do {
+        printMenu();
         selection: int = getInputMenu();
         exit = inspect selection -> bool {
             is 1 = :()->bool = {
@@ -18,7 +21,7 @@ main: () -> int = {
             return true;
         }();
             is _ = :()->bool = {
-                print("Invalid selection.");
+                setNextMessage("Invalid selection.");
                 return false;
             }();
         };

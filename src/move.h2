@@ -1,30 +1,33 @@
-Color: @enum<u8> type = {
-    None := 0;
-    Black := 1;
-    White := 2;
+enum Color: uint8_t {
+    None = 0,
+    Black = 1,
+    White = 2,
+};
+
+void switchPlayer(Color& c) {
+    if (c == Color::Black) {
+        c = Color::White;
+    }
+    else if (c == Color::White) {
+        c =  Color::Black;
+    }
 }
 
 Move: type = {
-    color: Color;
-    position: std::array<u8, 2>;
-    pass: bool;
+    public color: Color;
+    public position: std::array<i8, 2>;
+    public pass: bool;
 
-    operator=: (out this, col: Color, pos: std::array<u8, 2> = (), pas: bool = false) = {
+    operator=: (out this, col: Color, pos: std::array<i8, 2> = (), pas: bool = false) = {
         color = col;
         position = pos;
         pass = pas;
     }
 
     operator=: (out this, that) = {
+        color = that.color;
+        position = that.position;
+        pass = that.pass;
     }
 }
 
-switchPlayer:(inout color: Color) = {
-    if(color == Color::Black)
-    {
-        color = Color::Black;
-    }
-    else if(color == Color::White){
-        color =  Color::White;
-    }
-}

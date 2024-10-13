@@ -2,17 +2,26 @@
 
 Engine: type = {
 
-    goban_state: std::array<Color, 361> = (Color::None);
+    public goban_state: std::array<i16, 361> = (0);
+    public moves: std::vector<Move>;
 
-    start:() = {
-        
+    start:(inout this) = {
     }
 
-    playMove:() = {
-
+    playMove:(inout this, in m: Move) = {
+        moves.push_back(m);
+        i: i16 = 0;
+        i = (m.position[0]-1) * 19 + m.position[1] - 1;
+        goban_state[i] = m.color;
     }
 
-    isFinish:()  -> bool = {
+    isFinish:(this) -> bool = {
+        if moves.ssize() > 1 {
+            if moves[moves.size() - 1].pass == true
+            && moves[moves.size() - 2].pass == true {
+                return true;
+            }
+        }
         return false;
     }
 }

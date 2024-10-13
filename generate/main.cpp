@@ -12,32 +12,35 @@
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/main.cpp2"
-#include "io.h"
-#include "engine.h"
+#include "windows.h"
 
-#line 4 "../src/main.cpp2"
+#include "io.h"
+#include "game.h"
+
+#line 6 "../src/main.cpp2"
 [[nodiscard]] auto main() -> int;
 
 //=== Cpp2 function definitions =================================================
 
 #line 1 "../src/main.cpp2"
 
-#line 4 "../src/main.cpp2"
+#line 6 "../src/main.cpp2"
 [[nodiscard]] auto main() -> int{
+    SetConsoleOutputCP(CP_UTF8);
     bool exit {false}; 
-    printMenu();
     do {
+        printMenu();
         int selection {getInputMenu()}; 
         exit = [&] () -> bool { auto&& _expr = cpp2::move(selection);
             if (cpp2::impl::is(_expr, 1)) { if constexpr( requires{[]() -> bool{clear();Game game {}; CPP2_UFCS(play)(cpp2::move(game));return false; }();} ) if constexpr( std::is_convertible_v<CPP2_TYPEOF(([]() -> bool{clear();Game game {}; CPP2_UFCS(play)(cpp2::move(game));return false; }())),bool> ) return []() -> bool{clear();Game game {}; CPP2_UFCS(play)(cpp2::move(game));return false; }(); else return bool{}; else return bool{}; }
 
-#line 16 "../src/main.cpp2"
+#line 19 "../src/main.cpp2"
            else if (cpp2::impl::is(_expr, 2)) { if constexpr( requires{[]() -> bool{clear("Bye.");return true; }();} ) if constexpr( std::is_convertible_v<CPP2_TYPEOF(([]() -> bool{clear("Bye.");return true; }())),bool> ) return []() -> bool{clear("Bye.");return true; }(); else return bool{}; else return bool{}; }
 
-#line 20 "../src/main.cpp2"
-            else return []() -> bool{print("Invalid selection.");return false; }(); }
+#line 23 "../src/main.cpp2"
+            else return []() -> bool{setNextMessage("Invalid selection.");return false; }(); }
 
-#line 24 "../src/main.cpp2"
+#line 27 "../src/main.cpp2"
         ();
     } while ( !(exit));
   return 0; 
