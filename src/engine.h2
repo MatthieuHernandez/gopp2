@@ -12,17 +12,21 @@ Engine: type = {
 
     playMove:(inout this, in m: Move) = {
         moves.push_back(m);
-        i: i16 = m.getFlattenPosition();
-        goban_state[i] = m.color;
-        switchPlayer(nextMovePlayer);
+        if !m.pass {
+            i: i16 = m.getFlattenPosition();
+            goban_state[i] = m.color;
+            switchPlayer(nextMovePlayer);
+        }
     }
 
     isValidMove:(inout this, in m: Move) -> bool = {
-        i: i16 = m.getFlattenPosition();
-        if goban_state[i] == 0 {
-            return true;
+        if !m.pass {
+            i: i16 = m.getFlattenPosition();
+            if goban_state[i] != 0 {
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 
     isFinish:(this) -> bool = {

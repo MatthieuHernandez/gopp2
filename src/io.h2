@@ -136,7 +136,7 @@ printGoban:(goban_state: std::array<i16, 361>) = {
             if goban_state[i] == 1 {
                 std::cout << "⚫";
             } else if goban_state[i] == 2 {
-                std::cout << "⚪";
+                std::cout << "⚪"; 
             }
             else if goban_state[i] == 0 {
                 printIntersection(row, col);
