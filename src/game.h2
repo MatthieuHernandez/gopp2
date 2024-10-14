@@ -5,15 +5,18 @@
 Game : type = {
     play : () = {
         engine : Engine = ();
-        state: = engine.goban_state;
-        current_player: = Color::Black;
         do {
-            printGoban(state);
-            m: = getInputMove(current_player);
+            printGoban(engine.goban_state);
+            m: = getInputMove(engine.nextMovePlayer);
             clear();
-            engine.playMove(m);
-            state = engine.goban_state;
-            switchPlayer(current_player);
+            if engine.isValidMove(m) {
+                engine.playMove(m);
+                setNextMessage(colorName(m.color) + " played " + m.name + ".");
+            }
+            else {
+                setNextMessage(colorName(m.color) + " cannot play " + m.name + ".");
+            }
+
         } while !engine.isFinish();
 }
 }

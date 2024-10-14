@@ -3,16 +3,26 @@
 Engine: type = {
 
     public goban_state: std::array<i16, 361> = (0);
-    public moves: std::vector<Move>;
+    public moves: std::vector<Move> = ();
+    public nextMovePlayer: Color;
 
-    start:(inout this) = {
+   operator=:(out this) = {
+        nextMovePlayer = Color::Black;
     }
 
     playMove:(inout this, in m: Move) = {
         moves.push_back(m);
-        i: i16 = 0;
-        i = (m.position[0]-1) * 19 + m.position[1] - 1;
+        i: i16 = m.getFlattenPosition();
         goban_state[i] = m.color;
+        switchPlayer(nextMovePlayer);
+    }
+
+    isValidMove:(inout this, in m: Move) -> bool = {
+        i: i16 = m.getFlattenPosition();
+        if goban_state[i] == 0 {
+            return true;
+        }
+        return false;
     }
 
     isFinish:(this) -> bool = {

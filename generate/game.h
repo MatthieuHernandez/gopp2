@@ -30,7 +30,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 19 "../src/game.h2"
+#line 22 "../src/game.h2"
 };
 
 
@@ -41,15 +41,18 @@ class Game {
 #line 6 "../src/game.h2"
     auto Game::play() -> void{
         Engine engine {}; 
-        auto state {engine.goban_state}; 
-        auto current_player {Color::Black}; 
         do {
-            printGoban(state);
-            auto m {getInputMove(current_player)}; 
+            printGoban(engine.goban_state);
+            auto m {getInputMove(engine.nextMovePlayer)}; 
             clear();
-            CPP2_UFCS(playMove)(engine, cpp2::move(m));
-            state = engine.goban_state;
-            switchPlayer(current_player);
+            if (CPP2_UFCS(isValidMove)(engine, m)) {
+                CPP2_UFCS(playMove)(engine, m);
+                setNextMessage(colorName(m.color) + " played " + m.name + ".");
+            }
+            else {
+                setNextMessage(colorName(m.color) + " cannot play " + m.name + ".");
+            }
+
         } while ( !(CPP2_UFCS(isFinish)(engine)));
 }
 #endif

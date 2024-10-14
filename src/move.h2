@@ -13,20 +13,38 @@ void switchPlayer(Color& c) {
     }
 }
 
+std::string colorName(const Color& c) {
+    if (c == Color::Black) {
+        return "Black";
+    }
+    else if (c == Color::White) {
+        return "White";
+    }
+}
+
 Move: type = {
     public color: Color;
     public position: std::array<i8, 2>;
+    public name: std::string;
     public pass: bool;
 
-    operator=: (out this, col: Color, pos: std::array<i8, 2> = (), pas: bool = false) = {
+    getFlattenPosition:(this) -> i16 = {
+        i: i16 = 0;
+        i = (position[1] - 1) * 19 + position[0] - 1;
+        return i;
+    }
+
+    operator=:(out this, col: Color, pos: std::array<i8, 2>, nam: std::string, pas: bool = false) = {
         color = col;
         position = pos;
+        name = nam;
         pass = pas;
     }
 
-    operator=: (out this, that) = {
+    operator=:(out this, that) = {
         color = that.color;
         position = that.position;
+        name = that.name;
         pass = that.pass;
     }
 }
