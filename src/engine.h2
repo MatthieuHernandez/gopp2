@@ -2,7 +2,7 @@
 
 Engine: type = {
 
-    public goban_state: std::array<i16, 361> = (0);
+    public goban_state: std::array<std::array<i8, 19>, 19> = (0);
     public moves: std::vector<Move> = ();
     public nextMovePlayer: Color;
 
@@ -13,16 +13,22 @@ Engine: type = {
     playMove:(inout this, in m: Move) = {
         moves.push_back(m);
         if !m.pass {
-            i: i16 = m.getFlattenPosition();
-            goban_state[i] = m.color;
+            col:= m.position[0];
+            row:= m.position[1];
+            goban_state[col][row] = m.color;
             switchPlayer(nextMovePlayer);
         }
     }
 
+    /*numberOfLiberty:(std::array<i8, 2>) -> i16 = {
+
+    }*/
+
     isValidMove:(inout this, in m: Move) -> bool = {
         if !m.pass {
-            i: i16 = m.getFlattenPosition();
-            if goban_state[i] != 0 {
+            col:= m.position[0];
+            row:= m.position[1];
+            if goban_state[col][row] != 0 {
                 return false;
             }
         }

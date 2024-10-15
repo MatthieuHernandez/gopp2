@@ -41,13 +41,13 @@ auto printMenu() -> void;
 #line 46 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
 
-#line 82 "../src/io.h2"
+#line 81 "../src/io.h2"
 // Make it a coroutine without row and col parameter
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 118 "../src/io.h2"
-auto printGoban(cpp2::impl::in<std::array<cpp2::i16,361>> goban_state) -> void;
-#line 149 "../src/io.h2"
+#line 117 "../src/io.h2"
+auto printGoban(cpp2::impl::in<std::array<std::array<cpp2::i8,19>,19>> goban_state) -> void;
+#line 147 "../src/io.h2"
 
 
 #line 1 "../src/io.h2"
@@ -120,55 +120,54 @@ auto printMenu() -> void{
     if ((cpp2::impl::cmp_less(CPP2_UFCS(ssize)(input),2) || cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(input),3) || 
        cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0),'A') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0),'T') || CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) == 'I' || 
        (CPP2_UFCS(ssize)(input) == 2 && (cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'1') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'9'))) || 
-       (CPP2_UFCS(ssize)(input) == 3 && (cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'1') || cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'0') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'9'))))) {
+       (CPP2_UFCS(ssize)(input) == 3 && (CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) != '1' || cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'0') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'9'))))) {
         std::cout << "\033[A\033[A\033[A\033[A\033[K" << "Invalid Move." << std::endl;
         return getInputMove(player); 
     }
     cpp2::i8 col {0}; 
-    col = CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) - 64;
+    col = CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) - 65;
     if (cpp2::impl::cmp_greater(col,8)) {// No I column
         --col;
     }
     cpp2::i8 row {0}; 
     if (CPP2_UFCS(ssize)(input) == 2) {
-        row = CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) - 48;
+        row = CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) - 49;
     }else {
-        row = ((CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) - 48) * 10) + (CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2) - 48);
+        row = ((CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) - 48) * 10) + (CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2) - 49);
     }
-  CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1);
     std::array<cpp2::i8,2> p {cpp2::move(col), cpp2::move(row)}; 
     Move m {player, cpp2::move(p), cpp2::move(input), false}; 
     return m; 
 }
 
-#line 83 "../src/io.h2"
+#line 82 "../src/io.h2"
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     if ((row == 16 && (col == 4 || col == 10 || col == 16)) || 
        (row == 10 && (col == 4 || col == 10 || col == 16)) || 
        (row ==  4 && (col == 4 || col == 10 || col == 16))) {
         std::cout << "─●";
     }else {
-        if (row == 19) {
-            if (col == 1) {
+        if (row == 18) {
+            if (col == 0) {
                 std::cout << " ┌";
             }
-            else {if (col == 19) {
+            else {if (col == 18) {
                 std::cout << "─┐";
             }else {
                 std::cout << "─┬";
             }}
-        }else {if (row == 1) {
-            if (col == 1) {
+        }else {if (row == 0) {
+            if (col == 0) {
                 std::cout << " └";
-            }else {if (col == 19) {
+            }else {if (col == 18) {
                 std::cout << "─┘";
             }else {
                 std::cout << "─┴";
             }}
         }else {
-            if (col == 1) {
+            if (col == 0) {
                 std::cout << " ├";
-            }else {if (col == 19) {
+            }else {if (col == 18) {
                 std::cout << "─┤";
             }else {
                 std::cout << "─┼";
@@ -177,31 +176,30 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
     }
 }
 
-#line 118 "../src/io.h2"
-auto printGoban(cpp2::impl::in<std::array<cpp2::i16,361>> goban_state) -> void{
+#line 117 "../src/io.h2"
+auto printGoban(cpp2::impl::in<std::array<std::array<cpp2::i8,19>,19>> goban_state) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
-    cpp2::i16 row {19}; 
-    for( ; cpp2::impl::cmp_greater(row,0); 
+    cpp2::i8 row {18}; 
+    for( ; cpp2::impl::cmp_greater(row,-1); 
     --row ) 
     {
-        if (cpp2::impl::cmp_less(row,10)) {
-            std::cout << "  " << cpp2::impl::as_<std::string>(row) << " ";
+        //v: i8 = row + 1
+        if (cpp2::impl::cmp_less(row,9)) {
+            std::cout << "  " << cpp2::impl::as_<std::string>((row + 1)) << " ";
         }else {
-             std::cout << " " << cpp2::impl::as_<std::string>(row) << " ";
+             std::cout << " " << cpp2::impl::as_<std::string>((row + 1)) << " ";
         }
-        cpp2::i8 col {1}; 
-        for( ; cpp2::impl::cmp_less_eq(col,19); 
+        cpp2::i8 col {0}; 
+        for( ; cpp2::impl::cmp_less_eq(col,18); 
         ++col ) 
         {
-            cpp2::i16 i {0}; 
-            i = (row - 1) * 19 + col - 1;
-            if (CPP2_ASSERT_IN_BOUNDS(goban_state, i) == 1) {
+            if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban_state, col), row) == 1) {
                 std::cout << "⚫";
-            }else {if (CPP2_ASSERT_IN_BOUNDS(goban_state, i) == 2) {
+            }else {if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban_state, col), row) == 2) {
                 std::cout << "⚪";
             }
-            else {if (CPP2_ASSERT_IN_BOUNDS(goban_state, cpp2::move(i)) == 0) {
+            else {if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban_state, col), row) == 0) {
                 printIntersection(row, col);
             }}}
         }
