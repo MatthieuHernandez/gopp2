@@ -42,15 +42,15 @@ class Game {
     auto Game::play() -> void{
         Engine engine {}; 
         do {
-            printGoban(engine.goban_state);
+            printGoban(engine.goban);
             auto m {getInputMove(engine.nextMovePlayer)}; 
             clear();
             if (CPP2_UFCS(isValidMove)(engine, m)) {
                 CPP2_UFCS(playMove)(engine, m);
-                setNextMessage(colorName(m.color) + " played " + m.name + ".");
+                setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             }
             else {
-                setNextMessage(colorName(m.color) + " cannot play " + m.name + ".");
+                setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
             }
 
         } while ( !(CPP2_UFCS(isFinish)(engine)));

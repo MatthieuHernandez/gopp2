@@ -1,5 +1,4 @@
-
-
+#include "goban.h2"
 #include "move.h2"
 
 nextMessage: std::string = 0;
@@ -50,8 +49,7 @@ getInputMove:(player: Color) -> Move = {
     clearInput();
     if(input == "pass") {
         setNextMessage("Player pass.");
-        p: std::array<i8, 2> = (0, 0);
-        m: Move = (player, p, "pass", true);
+        m: Move = (player, 0, 0, "pass", true);
         return m;
     }
     input[0] = std::toupper(input[0]);
@@ -73,16 +71,15 @@ getInputMove:(player: Color) -> Move = {
     } else {
         row = ((input[1] - 48) * 10) + (input[2] - 49);
     }
-    p:  std::array<i8, 2> = (col, row);
-    m: Move = (player, p, input, false);
+    m: Move = (player, col, row, input, false);
     return m;
 }
 
 // Make it a coroutine without row and col parameter
 printIntersection:(row: i16, col: i16) = {
-    if (row == 16 && (col == 4 || col == 10 || col == 16)) ||
-       (row == 10 && (col == 4 || col == 10 || col == 16)) ||
-       (row ==  4 && (col == 4 || col == 10 || col == 16)) {
+    if (row == 15 && (col == 3 || col == 9 || col == 15)) ||
+       (row == 9 && (col == 3 || col == 9 || col == 15)) ||
+       (row ==  3 && (col == 3 || col == 9 || col == 15)) {
         std::cout << "─●";
     } else {
         if row == 18 {
@@ -114,7 +111,7 @@ printIntersection:(row: i16, col: i16) = {
     }
 }
 
-printGoban:(goban_state: std::array<std::array<i8, 19>, 19>) = {
+printGoban:(goban: Goban) = {
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
     row: i8 = 18;
@@ -131,12 +128,12 @@ printGoban:(goban_state: std::array<std::array<i8, 19>, 19>) = {
         while col <= 18
         next col++
         {
-            if goban_state[col][row] == 1 {
+            if goban.state[col][row].color == 1 {
                 std::cout << "⚫";
-            } else if goban_state[col][row] == 2 {
+            } else if goban.state[col][row].color == 2 {
                 std::cout << "⚪";
             }
-            else if goban_state[col][row] == 0 {
+            else if goban.state[col][row].color == 0 {
                 printIntersection(row, col);
             }
         }

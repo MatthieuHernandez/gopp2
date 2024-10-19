@@ -1,0 +1,21 @@
+#include "color.h2"
+
+Stone: type = {
+    public color: Color;
+    public col: i8;
+    public row: i8;
+    public has_been_processed: bool;
+
+    operator=:(out this, p: Color, c: i8, r: i8) = {
+        color = p;
+        col = c;
+        row = r;
+        has_been_processed = false;
+    }
+
+    operator=:(out this, that) = {
+        color = that.color;
+        col = that.col;
+        row = that.row;
+    }
+}

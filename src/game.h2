@@ -6,15 +6,15 @@ Game : type = {
     play : () = {
         engine : Engine = ();
         do {
-            printGoban(engine.goban_state);
+            printGoban(engine.goban);
             m: = getInputMove(engine.nextMovePlayer);
             clear();
             if engine.isValidMove(m) {
                 engine.playMove(m);
-                setNextMessage(colorName(m.color) + " played " + m.name + ".");
+                setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             }
             else {
-                setNextMessage(colorName(m.color) + " cannot play " + m.name + ".");
+                setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
             }
 
         } while !engine.isFinish();

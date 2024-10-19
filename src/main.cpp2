@@ -3,7 +3,7 @@
 #include "io.h2"
 #include "game.h2"
 
-main: () -> int = {
+main:() -> int = {
     SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
     do {

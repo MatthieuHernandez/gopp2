@@ -1,0 +1,27 @@
+#include "stone.h2"
+
+Goban: type = {
+
+    // BUG: Using vector because we cannot initialize std::array in cpp2.
+    public state: std::vector<std::vector<Stone>>;
+
+    operator=:(out this) = {
+        state = ();
+        size: i32 = 19;
+        state.reserve(size);
+        (copy col: i8 = 0)
+        while col < size
+        next col++
+        {
+            v: std::vector<Stone> = ();
+            state.push_back(v);
+            state[col].reserve(size);
+            (copy row: i8 = 0)
+            while row < size
+            next row++
+            {
+                state[col].emplace_back(Color::None, col, row);
+            }
+        }
+    }
+}

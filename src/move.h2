@@ -1,43 +1,18 @@
-enum Color: uint8_t {
-    None = 0,
-    Black = 1,
-    White = 2,
-};
-
-void switchPlayer(Color& c) {
-    if (c == Color::Black) {
-        c = Color::White;
-    }
-    else if (c == Color::White) {
-        c =  Color::Black;
-    }
-}
-
-std::string colorName(const Color& c) {
-    if (c == Color::Black) {
-        return "Black";
-    }
-    else if (c == Color::White) {
-        return "White";
-    }
-}
+#include "stone.h2"
 
 Move: type = {
-    public color: Color;
-    public position: std::array<i8, 2>;
+    public stone: Stone;
     public name: std::string;
     public pass: bool;
 
-    operator=:(out this, col: Color, pos: std::array<i8, 2>, nam: std::string, pas: bool = false) = {
-        color = col;
-        position = pos;
+    operator=:(out this, color: Color, col: i8, row: i8, nam: std::string, pas: bool = false) = {
+        stone = (color, col, row);
         name = nam;
         pass = pas;
     }
 
     operator=:(out this, that) = {
-        color = that.color;
-        position = that.position;
+        stone = that.stone;
         name = that.name;
         pass = that.pass;
     }
