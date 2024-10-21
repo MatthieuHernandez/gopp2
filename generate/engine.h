@@ -34,24 +34,24 @@ class Engine {
     public: auto playMove(cpp2::impl::in<Move> m) & -> void;
 
 #line 26 "../src/engine.h2"
-    public: auto countLiberties(Stone& stone, auto& count) & -> void;
+    public: auto countLiberties(Stone& stone, cpp2::i16& count) & -> void;
 
-#line 42 "../src/engine.h2"
+#line 44 "../src/engine.h2"
     public: [[nodiscard]] auto numberOfLiberties(Stone& stone) & -> cpp2::i16;
 
-#line 49 "../src/engine.h2"
+#line 51 "../src/engine.h2"
     public: [[nodiscard]] auto isValidMove(Move& m) & -> bool;
 
-#line 62 "../src/engine.h2"
+#line 64 "../src/engine.h2"
     public: [[nodiscard]] static auto captureStone() -> bool;
 
-#line 66 "../src/engine.h2"
+#line 68 "../src/engine.h2"
     public: [[nodiscard]] auto isFinish() const& -> bool;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 75 "../src/engine.h2"
+#line 77 "../src/engine.h2"
 };
 
 
@@ -72,39 +72,41 @@ class Engine {
         if (!(m.pass)) {
             auto col {m.stone.col}; 
             auto row {m.stone.row}; 
-            CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row) = m.stone;
-            std::cout << "The stone is " << cpp2::impl::as_<cpp2::i32>(m.stone.color) << std::endl;
-            std::cout << "The stone is " <<  cpp2::impl::as_<cpp2::i32>(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), cpp2::move(row)).color) << std::endl;
-            //switchPlayer(nextMovePlayer);
+            CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), row) = m.stone;
+            //std::cout << "The stone is " << m.stone.color as i32 << std::endl;
+            //std::cout << "The stone is " <<  goban.state[col][row].color as i32 << std::endl;
+            switchPlayer(nextMovePlayer);
         }
     }
 
 #line 26 "../src/engine.h2"
-    auto Engine::countLiberties(Stone& stone, auto& count) & -> void{
+    auto Engine::countLiberties(Stone& stone, cpp2::i16& count) & -> void{
+        CPP2_UFCS(processStone)(goban, stone);
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
         for ( 
-        auto& nextStone : cpp2::move(nextStones) ) 
-        {
-            if (nextStone.color == Color::None && !(nextStone.hasBeenProcessed)) {
-                nextStone.hasBeenProcessed = true;
-                ++count;
-            }else {if (nextStone.color == stone.color && !(nextStone.hasBeenProcessed)) {
-                nextStone.hasBeenProcessed = true;
-                countLiberties(nextStone, count);
-            }}
+        auto& nextStone : cpp2::move(nextStones) ) {
+            if (!(CPP2_UFCS(stonehasBeenProcessed)(goban, nextStone))) {
+                if (nextStone.color == Color::None) {
+                    CPP2_UFCS(processStone)(goban, nextStone);
+                    ++count;
+                    std::cout << "COUNT" << std::endl;
+                }else {if (nextStone.color == stone.color) {
+                    std::cout << "HERE" << std::endl;
+                    countLiberties(nextStone, count);
+                }}
+            }
         }
-        stone.hasBeenProcessed = true;
     }
 
-#line 42 "../src/engine.h2"
+#line 44 "../src/engine.h2"
     [[nodiscard]] auto Engine::numberOfLiberties(Stone& stone) & -> cpp2::i16{
-        auto count {0}; 
+        cpp2::i16 count {0}; 
         countLiberties(stone, count);
         CPP2_UFCS(clearProcessedStone)(goban);
         return count; 
     }
 
-#line 49 "../src/engine.h2"
+#line 51 "../src/engine.h2"
     [[nodiscard]] auto Engine::isValidMove(Move& m) & -> bool{
         if (m.pass) {
             return true; 
@@ -118,12 +120,12 @@ class Engine {
         return false; 
     }
 
-#line 62 "../src/engine.h2"
+#line 64 "../src/engine.h2"
     [[nodiscard]] auto Engine::captureStone() -> bool{
         return false; 
     }
 
-#line 66 "../src/engine.h2"
+#line 68 "../src/engine.h2"
     [[nodiscard]] auto Engine::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
             if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 

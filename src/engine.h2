@@ -17,30 +17,32 @@ Engine: type = {
             col:= m.stone.col;
             row:= m.stone.row;
             goban.state[col][row] = m.stone;
-            std::cout << "The stone is " << m.stone.color as i32 << std::endl;
-            std::cout << "The stone is " <<  goban.state[col][row].color as i32 << std::endl;
-            //switchPlayer(nextMovePlayer);
+            //std::cout << "The stone is " << m.stone.color as i32 << std::endl;
+            //std::cout << "The stone is " <<  goban.state[col][row].color as i32 << std::endl;
+            switchPlayer(nextMovePlayer);
         }
     }
 
-    countLiberties:(inout this, inout stone: Stone, inout count) = {
+    countLiberties:(inout this, inout stone: Stone, inout count: i16) = {
+        goban.processStone(stone);
         nextStones:= goban.getAdjacentStone(stone);
         for nextStones
-        do (inout nextStone)
-        {
-            if nextStone.color == Color::None && !nextStone.hasBeenProcessed {
-                nextStone.hasBeenProcessed = true;
-                count++;
-            } else if nextStone.color == stone.color && !nextStone.hasBeenProcessed {
-                nextStone.hasBeenProcessed = true;
-                countLiberties(nextStone, count);
+        do (inout nextStone) {
+            if !goban.stonehasBeenProcessed(nextStone) {
+                if nextStone.color == Color::None {
+                    goban.processStone(nextStone);
+                    count++;
+                    std::cout << "COUNT" << std::endl;
+                } else if nextStone.color == stone.color {
+                    std::cout << "HERE" << std::endl;
+                    countLiberties(nextStone, count);
+                }
             }
         }
-        stone.hasBeenProcessed = true;
     }
 
     numberOfLiberties:(inout this, inout stone: Stone) -> i16 = {
-        count:= 0;
+        count: i16 = 0;
         countLiberties(stone, count);
         goban.clearProcessedStone();
         return count;

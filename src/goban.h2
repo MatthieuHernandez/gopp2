@@ -23,36 +23,32 @@ Goban: type = {
         if s.col > 0 {
             if !state[s.col-1][s.row].hasBeenProcessed {
                 adjacent_stones.push_back(state[s.col-1][s.row]);
-                std::cout << "adjacent stone color is " << state[s.col-1][s.row].color as i32 << std::endl;
-                std::cout << "adjacent stone row is " << state[s.col-1][s.row].row as i32 << std::endl;
-                std::cout << "adjacent stone col is " << state[s.col-1][s.row].col as i32 << std::endl;
             }
         }
         if s.col < 18 {
             if !state[s.col+1][s.row].hasBeenProcessed {
                 adjacent_stones.push_back(state[s.col+1][s.row]);
-                std::cout << "adjacent stone color is " << state[s.col+1][s.row].color as i32 << std::endl;
-                std::cout << "adjacent stone row is " << state[s.col+1][s.row].row as i32 << std::endl;
-                std::cout << "adjacent stone col is " << state[s.col+1][s.row].col as i32 << std::endl;
             }
         }
         if s.row > 0 {
             if !state[s.col][s.row-1].hasBeenProcessed {
                 adjacent_stones.push_back(state[s.col][s.row-1]);
-                std::cout << "adjacent stone color is " << state[s.col][s.row-1].color as i32 << std::endl;
-                std::cout << "adjacent stone row is " << state[s.col][s.row-1].row as i32 << std::endl;
-                std::cout << "adjacent stone col is " << state[s.col][s.row-1].col as i32 << std::endl;
             }
         }
         if s.row < 18 {
             if !state[s.col][s.row+1].hasBeenProcessed {
                 adjacent_stones.push_back(state[s.col][s.row+1]);
-                std::cout << "adjacent stone color is " << state[s.col][s.row+1].color as i32 << std::endl;
-                std::cout << "adjacent stone row is " << state[s.col][s.row+1].row as i32 << std::endl;
-                std::cout << "adjacent stone col is " << state[s.col][s.row+1].col as i32 << std::endl;
             }
         }
         return adjacent_stones;
+    }
+
+    stonehasBeenProcessed:(inout this, s: Stone) -> bool = {
+        return state[s.col][s.row].hasBeenProcessed;
+    }
+
+    processStone:(inout this, s: Stone) = {
+        state[s.col][s.row].hasBeenProcessed = true;
     }
 
     clearProcessedStone:(inout this) = {

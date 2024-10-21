@@ -20,7 +20,7 @@ clearInput:() = {
     std::cin.ignore(INT_MAX, '\n');
 }
 
-printMenu:() =  {
+printMenu:() = {
     clear();
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                   GOPP2 Menu                   *" << std::endl;

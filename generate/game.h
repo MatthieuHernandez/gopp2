@@ -48,7 +48,7 @@ class Game {
             if (CPP2_UFCS(isValidMove)(engine, m)) {
                 CPP2_UFCS(playMove)(engine, m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + "." 
-                + " The stone has " + cpp2::impl::as_<std::string>(CPP2_UFCS(numberOfLiberties)(engine, m.stone)) + " liberties.");
+                + " The group has " + cpp2::impl::as_<std::string>(CPP2_UFCS(numberOfLiberties)(engine, m.stone)) + " liberties.");
             }
             else {
                 setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");

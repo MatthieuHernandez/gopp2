@@ -30,12 +30,18 @@ class Goban {
     public: [[nodiscard]] auto getAdjacentStone(cpp2::impl::in<Stone> s) const& -> std::vector<Stone>;
 
 #line 58 "../src/goban.h2"
+    public: [[nodiscard]] auto stonehasBeenProcessed(cpp2::impl::in<Stone> s) & -> bool;
+
+#line 62 "../src/goban.h2"
+    public: auto processStone(cpp2::impl::in<Stone> s) & -> void;
+
+#line 66 "../src/goban.h2"
     public: auto clearProcessedStone() & -> void;
     public: Goban(Goban const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Goban const&) -> void = delete;
 
 
-#line 71 "../src/goban.h2"
+#line 79 "../src/goban.h2"
 };
 
 
@@ -108,28 +114,38 @@ cpp2::i8 row{0};
     }
 
 #line 58 "../src/goban.h2"
+    [[nodiscard]] auto Goban::stonehasBeenProcessed(cpp2::impl::in<Stone> s) & -> bool{
+        return CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).hasBeenProcessed; 
+    }
+
+#line 62 "../src/goban.h2"
+    auto Goban::processStone(cpp2::impl::in<Stone> s) & -> void{
+        CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).hasBeenProcessed = true;
+    }
+
+#line 66 "../src/goban.h2"
     auto Goban::clearProcessedStone() & -> void{
 {
 cpp2::i8 col{0};
 
-#line 60 "../src/goban.h2"
+#line 68 "../src/goban.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 64 "../src/goban.h2"
+#line 72 "../src/goban.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(state, col))); 
             ++row ) 
             {
                 CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, col), row).hasBeenProcessed = false;
             }
 }
-#line 69 "../src/goban.h2"
+#line 77 "../src/goban.h2"
         }
 }
-#line 70 "../src/goban.h2"
+#line 78 "../src/goban.h2"
     }
 #endif
 

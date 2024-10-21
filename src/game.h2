@@ -12,7 +12,7 @@ Game : type = {
             if engine.isValidMove(m) {
                 engine.playMove(m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + "."
-                + " The stone has " + engine.numberOfLiberties(m.stone) as std::string + " liberties.");
+                + " The group has " + engine.numberOfLiberties(m.stone) as std::string + " liberties.");
             }
             else {
                 setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
