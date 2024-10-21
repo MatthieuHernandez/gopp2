@@ -34,19 +34,19 @@ auto clearInput() -> void;
 #line 23 "../src/io.h2"
 auto printMenu() -> void;
 
-#line 37 "../src/io.h2"
+#line 36 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32;
 
-#line 45 "../src/io.h2"
+#line 44 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
 
-#line 78 "../src/io.h2"
+#line 77 "../src/io.h2"
 // Make it a coroutine without row and col parameter
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 114 "../src/io.h2"
+#line 113 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void;
-#line 144 "../src/io.h2"
+#line 143 "../src/io.h2"
 
 
 #line 1 "../src/io.h2"
@@ -81,7 +81,6 @@ auto clearInput() -> void{
 
 #line 23 "../src/io.h2"
 auto printMenu() -> void{
-
     clear();
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                   GOPP2 Menu                   *" << std::endl;
@@ -94,7 +93,7 @@ auto printMenu() -> void{
     std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 37 "../src/io.h2"
+#line 36 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32{
     cpp2::i32 input {0}; 
     std::cout << "> ";
@@ -103,7 +102,7 @@ auto printMenu() -> void{
     return input; 
 }
 
-#line 45 "../src/io.h2"
+#line 44 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move{
     std::string input {""}; 
     std::cout << std::endl << colorName(player) << " to play:" << std::endl << "> ";
@@ -137,7 +136,7 @@ auto printMenu() -> void{
     return m; 
 }
 
-#line 79 "../src/io.h2"
+#line 78 "../src/io.h2"
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
        (row == 9 && (col == 3 || col == 9 || col == 15)) || 
@@ -173,7 +172,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
     }
 }
 
-#line 114 "../src/io.h2"
+#line 113 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;

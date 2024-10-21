@@ -33,28 +33,25 @@ class Engine {
 #line 14 "../src/engine.h2"
     public: auto playMove(cpp2::impl::in<Move> m) & -> void;
 
-#line 24 "../src/engine.h2"
-    /*numberOfLiberties :(stone: Stone, inout liberties: i8 = 0) -> i8 = {
-        
-        up_color: Color = goban.state[stone.row+1][stone.col];
-        up_stone: Stone = (stone.row+1, stone.col, up_color);
+#line 26 "../src/engine.h2"
+    public: auto countLiberties(Stone& stone, auto& count) & -> void;
 
-        if up_stone.color == Color.None {
-            liberties++;
-        } else if up_stone.color == stone.color {
-            numberOfLiberties(up_stone, liberties);
-        }
-    }*/
+#line 42 "../src/engine.h2"
+    public: [[nodiscard]] auto numberOfLiberties(Stone& stone) & -> cpp2::i16;
 
-    public: [[nodiscard]] auto isValidMove(cpp2::impl::in<Move> m) & -> bool;
+#line 49 "../src/engine.h2"
+    public: [[nodiscard]] auto isValidMove(Move& m) & -> bool;
 
-#line 47 "../src/engine.h2"
+#line 62 "../src/engine.h2"
+    public: [[nodiscard]] static auto captureStone() -> bool;
+
+#line 66 "../src/engine.h2"
     public: [[nodiscard]] auto isFinish() const& -> bool;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 56 "../src/engine.h2"
+#line 75 "../src/engine.h2"
 };
 
 
@@ -75,24 +72,58 @@ class Engine {
         if (!(m.pass)) {
             auto col {m.stone.col}; 
             auto row {m.stone.row}; 
-            CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), row) = m.stone;
-            switchPlayer(nextMovePlayer);
+            CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row) = m.stone;
+            std::cout << "The stone is " << cpp2::impl::as_<cpp2::i32>(m.stone.color) << std::endl;
+            std::cout << "The stone is " <<  cpp2::impl::as_<cpp2::i32>(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), cpp2::move(row)).color) << std::endl;
+            //switchPlayer(nextMovePlayer);
         }
     }
 
-#line 36 "../src/engine.h2"
-    [[nodiscard]] auto Engine::isValidMove(cpp2::impl::in<Move> m) & -> bool{
-        if (!(m.pass)) {
-            auto col {m.stone.col}; 
-            auto row {m.stone.row}; 
-            if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), cpp2::move(row)).color != Color::None) {
-                return false; 
-            }
+#line 26 "../src/engine.h2"
+    auto Engine::countLiberties(Stone& stone, auto& count) & -> void{
+        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
+        for ( 
+        auto& nextStone : cpp2::move(nextStones) ) 
+        {
+            if (nextStone.color == Color::None && !(nextStone.hasBeenProcessed)) {
+                nextStone.hasBeenProcessed = true;
+                ++count;
+            }else {if (nextStone.color == stone.color && !(nextStone.hasBeenProcessed)) {
+                nextStone.hasBeenProcessed = true;
+                countLiberties(nextStone, count);
+            }}
         }
-        return true; 
+        stone.hasBeenProcessed = true;
     }
 
-#line 47 "../src/engine.h2"
+#line 42 "../src/engine.h2"
+    [[nodiscard]] auto Engine::numberOfLiberties(Stone& stone) & -> cpp2::i16{
+        auto count {0}; 
+        countLiberties(stone, count);
+        CPP2_UFCS(clearProcessedStone)(goban);
+        return count; 
+    }
+
+#line 49 "../src/engine.h2"
+    [[nodiscard]] auto Engine::isValidMove(Move& m) & -> bool{
+        if (m.pass) {
+            return true; 
+        }
+        auto col {m.stone.col}; 
+        auto row {m.stone.row}; 
+        if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), cpp2::move(row)).color == Color::None && 
+            (cpp2::impl::cmp_greater(numberOfLiberties(m.stone),0) || captureStone() == true)) {
+            return true; 
+        }
+        return false; 
+    }
+
+#line 62 "../src/engine.h2"
+    [[nodiscard]] auto Engine::captureStone() -> bool{
+        return false; 
+    }
+
+#line 66 "../src/engine.h2"
     [[nodiscard]] auto Engine::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
             if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 

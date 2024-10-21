@@ -4,13 +4,20 @@ Stone: type = {
     public color: Color;
     public col: i8;
     public row: i8;
-    public has_been_processed: bool;
+    public hasBeenProcessed: bool;
+
+    operator=:(implicit out this) = {
+        color = Color::None;
+        col = 0;
+        row = 0;
+        hasBeenProcessed = false;
+    }
 
     operator=:(out this, p: Color, c: i8, r: i8) = {
         color = p;
         col = c;
         row = r;
-        has_been_processed = false;
+        hasBeenProcessed = false;
     }
 
     operator=:(out this, that) = {

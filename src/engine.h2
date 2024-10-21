@@ -17,31 +17,50 @@ Engine: type = {
             col:= m.stone.col;
             row:= m.stone.row;
             goban.state[col][row] = m.stone;
-            switchPlayer(nextMovePlayer);
+            std::cout << "The stone is " << m.stone.color as i32 << std::endl;
+            std::cout << "The stone is " <<  goban.state[col][row].color as i32 << std::endl;
+            //switchPlayer(nextMovePlayer);
         }
     }
 
-    /*numberOfLiberties :(stone: Stone, inout liberties: i8 = 0) -> i8 = {
-        
-        up_color: Color = goban.state[stone.row+1][stone.col];
-        up_stone: Stone = (stone.row+1, stone.col, up_color);
-
-        if up_stone.color == Color.None {
-            liberties++;
-        } else if up_stone.color == stone.color {
-            numberOfLiberties(up_stone, liberties);
-        }
-    }*/
-
-    isValidMove:(inout this, in m: Move) -> bool = {
-        if !m.pass {
-            col:= m.stone.col;
-            row:= m.stone.row;
-            if goban.state[col][row].color != Color::None {
-                return false;
+    countLiberties:(inout this, inout stone: Stone, inout count) = {
+        nextStones:= goban.getAdjacentStone(stone);
+        for nextStones
+        do (inout nextStone)
+        {
+            if nextStone.color == Color::None && !nextStone.hasBeenProcessed {
+                nextStone.hasBeenProcessed = true;
+                count++;
+            } else if nextStone.color == stone.color && !nextStone.hasBeenProcessed {
+                nextStone.hasBeenProcessed = true;
+                countLiberties(nextStone, count);
             }
         }
-        return true;
+        stone.hasBeenProcessed = true;
+    }
+
+    numberOfLiberties:(inout this, inout stone: Stone) -> i16 = {
+        count:= 0;
+        countLiberties(stone, count);
+        goban.clearProcessedStone();
+        return count;
+    }
+
+    isValidMove:(inout this, inout m: Move) -> bool = {
+        if m.pass {
+            return true;
+        }
+        col:= m.stone.col;
+        row:= m.stone.row;
+        if goban.state[col][row].color == Color::None &&
+            (numberOfLiberties(m.stone) > 0 || captureStone() == true ) {
+            return true;
+        }
+        return false;
+    }
+
+    captureStone:() -> bool = {
+        return false;
     }
 
     isFinish:(this) -> bool = {

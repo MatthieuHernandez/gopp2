@@ -1,26 +1,70 @@
 #include "stone.h2"
 
 Goban: type = {
-
-    // BUG: Using vector because we cannot initialize std::array in cpp2.
-    public state: std::vector<std::vector<Stone>>;
+    public state: std::array<std::array<Stone, 19>, 19> = ();
 
     operator=:(out this) = {
-        state = ();
-        size: i32 = 19;
-        state.reserve(size);
         (copy col: i8 = 0)
-        while col < size
+        while col < state.ssize()
         next col++
         {
-            v: std::vector<Stone> = ();
-            state.push_back(v);
-            state[col].reserve(size);
             (copy row: i8 = 0)
-            while row < size
+            while row < state[col].ssize()
             next row++
             {
-                state[col].emplace_back(Color::None, col, row);
+                state[col][row] = Stone(Color::None, col, row);
+            }
+        }
+    }
+
+    getAdjacentStone:(in this, s: Stone) -> std::vector<Stone>  = {
+        // vérifier les bounds.
+        adjacent_stones: std::vector<Stone> = ();
+        if s.col > 0 {
+            if !state[s.col-1][s.row].hasBeenProcessed {
+                adjacent_stones.push_back(state[s.col-1][s.row]);
+                std::cout << "adjacent stone color is " << state[s.col-1][s.row].color as i32 << std::endl;
+                std::cout << "adjacent stone row is " << state[s.col-1][s.row].row as i32 << std::endl;
+                std::cout << "adjacent stone col is " << state[s.col-1][s.row].col as i32 << std::endl;
+            }
+        }
+        if s.col < 18 {
+            if !state[s.col+1][s.row].hasBeenProcessed {
+                adjacent_stones.push_back(state[s.col+1][s.row]);
+                std::cout << "adjacent stone color is " << state[s.col+1][s.row].color as i32 << std::endl;
+                std::cout << "adjacent stone row is " << state[s.col+1][s.row].row as i32 << std::endl;
+                std::cout << "adjacent stone col is " << state[s.col+1][s.row].col as i32 << std::endl;
+            }
+        }
+        if s.row > 0 {
+            if !state[s.col][s.row-1].hasBeenProcessed {
+                adjacent_stones.push_back(state[s.col][s.row-1]);
+                std::cout << "adjacent stone color is " << state[s.col][s.row-1].color as i32 << std::endl;
+                std::cout << "adjacent stone row is " << state[s.col][s.row-1].row as i32 << std::endl;
+                std::cout << "adjacent stone col is " << state[s.col][s.row-1].col as i32 << std::endl;
+            }
+        }
+        if s.row < 18 {
+            if !state[s.col][s.row+1].hasBeenProcessed {
+                adjacent_stones.push_back(state[s.col][s.row+1]);
+                std::cout << "adjacent stone color is " << state[s.col][s.row+1].color as i32 << std::endl;
+                std::cout << "adjacent stone row is " << state[s.col][s.row+1].row as i32 << std::endl;
+                std::cout << "adjacent stone col is " << state[s.col][s.row+1].col as i32 << std::endl;
+            }
+        }
+        return adjacent_stones;
+    }
+
+    clearProcessedStone:(inout this) = {
+        (copy col: i8 = 0)
+        while col < state.ssize()
+        next col++
+        {
+            (copy row: i8 = 0)
+            while row < state[col].ssize()
+            next row++
+            {
+                state[col][row].hasBeenProcessed = false;
             }
         }
     }

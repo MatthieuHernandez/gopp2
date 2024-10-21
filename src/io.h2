@@ -21,7 +21,6 @@ clearInput:() = {
 }
 
 printMenu:() =  {
-
     clear();
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                   GOPP2 Menu                   *" << std::endl;

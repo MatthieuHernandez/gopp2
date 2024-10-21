@@ -30,7 +30,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 22 "../src/game.h2"
+#line 23 "../src/game.h2"
 };
 
 
@@ -44,10 +44,11 @@ class Game {
         do {
             printGoban(engine.goban);
             auto m {getInputMove(engine.nextMovePlayer)}; 
-            clear();
+            //clear();
             if (CPP2_UFCS(isValidMove)(engine, m)) {
                 CPP2_UFCS(playMove)(engine, m);
-                setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
+                setNextMessage(colorName(m.stone.color) + " played " + m.name + "." 
+                + " The stone has " + cpp2::impl::as_<std::string>(CPP2_UFCS(numberOfLiberties)(engine, m.stone)) + " liberties.");
             }
             else {
                 setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
