@@ -5,12 +5,14 @@ Stone: type = {
     public col: i8;
     public row: i8;
     public hasBeenProcessed: bool;
+    public isLocked: bool;
 
     operator=:(implicit out this) = {
         color = Color::None;
         col = 0;
         row = 0;
         hasBeenProcessed = false;
+        isLocked = false;
     }
 
     operator=:(out this, p: Color, c: i8, r: i8) = {
@@ -18,6 +20,7 @@ Stone: type = {
         col = c;
         row = r;
         hasBeenProcessed = false;
+        isLocked = false;
     }
 
     operator=:(out this, that) = {
@@ -25,4 +28,6 @@ Stone: type = {
         col = that.col;
         row = that.row;
     }
+
+    operator<=>: (this, that) -> std::strong_ordering;
 }

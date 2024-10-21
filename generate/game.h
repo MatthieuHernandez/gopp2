@@ -44,7 +44,7 @@ class Game {
         do {
             printGoban(engine.goban);
             auto m {getInputMove(engine.nextMovePlayer)}; 
-            clear();
+            //clear();
             if (CPP2_UFCS(isValidMove)(engine, m)) {
                 CPP2_UFCS(playMove)(engine, m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");

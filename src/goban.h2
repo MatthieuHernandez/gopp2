@@ -3,6 +3,8 @@
 Goban: type = {
     public state: std::array<std::array<Stone, 19>, 19> = ();
 
+    public lockedPosition: Stone = ();
+
     operator=:(out this) = {
         (copy col: i8 = 0)
         while col < state.ssize()
@@ -68,5 +70,14 @@ Goban: type = {
     removeStone:(inout this, s: Stone) = {
         state[s.col][s.row].color = Color::None;
         state[s.col][s.row].hasBeenProcessed = true;
+    }
+
+    lockPosition:(inout this, s: Stone, c: Color) = {
+        lockedPosition = s;
+        lockedPosition.color = c;
+    }
+
+    unlockPosition:(inout this) = {
+        lockedPosition.color = Color::None;
     }
 }

@@ -4,7 +4,7 @@ enum Color: uint8_t {
     White = 2,
 };
 
-Color otherColor(Color& c) {
+Color otherColor(const Color& c) {
     if (c == Color::Black) {
         return Color::White;
     }

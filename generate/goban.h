@@ -24,27 +24,35 @@ class Goban;
 class Goban {
     public: std::array<std::array<Stone,19>,19> state {}; 
 
+    public: Stone lockedPosition {}; 
+
     public: explicit Goban();
 
-#line 20 "../src/goban.h2"
+#line 22 "../src/goban.h2"
     public: [[nodiscard]] auto getAdjacentStone(cpp2::impl::in<Stone> s) const& -> std::vector<Stone>;
 
-#line 46 "../src/goban.h2"
+#line 48 "../src/goban.h2"
     public: [[nodiscard]] auto stonehasBeenProcessed(cpp2::impl::in<Stone> s) & -> bool;
 
-#line 50 "../src/goban.h2"
+#line 52 "../src/goban.h2"
     public: auto processStone(cpp2::impl::in<Stone> s) & -> void;
 
-#line 54 "../src/goban.h2"
+#line 56 "../src/goban.h2"
     public: auto clearProcessedStone() & -> void;
 
-#line 68 "../src/goban.h2"
+#line 70 "../src/goban.h2"
     public: auto removeStone(cpp2::impl::in<Stone> s) & -> void;
+
+#line 75 "../src/goban.h2"
+    public: auto lockPosition(cpp2::impl::in<Stone> s, cpp2::impl::in<Color> c) & -> void;
+
+#line 80 "../src/goban.h2"
+    public: auto unlockPosition() & -> void;
     public: Goban(Goban const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Goban const&) -> void = delete;
 
 
-#line 72 "../src/goban.h2"
+#line 83 "../src/goban.h2"
 };
 
 
@@ -52,32 +60,32 @@ class Goban {
 
 #line 1 "../src/goban.h2"
 
-#line 6 "../src/goban.h2"
+#line 8 "../src/goban.h2"
     Goban::Goban(){
 {
 cpp2::i8 col{0};
 
-#line 8 "../src/goban.h2"
+#line 10 "../src/goban.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 12 "../src/goban.h2"
+#line 14 "../src/goban.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(state, col))); 
             ++row ) 
             {
                 CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, col), row) = Stone(Color::None, col, row);
             }
 }
-#line 17 "../src/goban.h2"
+#line 19 "../src/goban.h2"
         }
 }
-#line 18 "../src/goban.h2"
+#line 20 "../src/goban.h2"
     }
 
-#line 20 "../src/goban.h2"
+#line 22 "../src/goban.h2"
     [[nodiscard]] auto Goban::getAdjacentStone(cpp2::impl::in<Stone> s) const& -> std::vector<Stone>{
         // vérifier les bounds.
         std::vector<Stone> adjacent_stones {}; 
@@ -104,45 +112,56 @@ cpp2::i8 row{0};
         return adjacent_stones; 
     }
 
-#line 46 "../src/goban.h2"
+#line 48 "../src/goban.h2"
     [[nodiscard]] auto Goban::stonehasBeenProcessed(cpp2::impl::in<Stone> s) & -> bool{
         return CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).hasBeenProcessed; 
     }
 
-#line 50 "../src/goban.h2"
+#line 52 "../src/goban.h2"
     auto Goban::processStone(cpp2::impl::in<Stone> s) & -> void{
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).hasBeenProcessed = true;
     }
 
-#line 54 "../src/goban.h2"
+#line 56 "../src/goban.h2"
     auto Goban::clearProcessedStone() & -> void{
 {
 cpp2::i8 col{0};
 
-#line 56 "../src/goban.h2"
+#line 58 "../src/goban.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 60 "../src/goban.h2"
+#line 62 "../src/goban.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(state, col))); 
             ++row ) 
             {
                 CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, col), row).hasBeenProcessed = false;
             }
 }
-#line 65 "../src/goban.h2"
+#line 67 "../src/goban.h2"
         }
 }
-#line 66 "../src/goban.h2"
+#line 68 "../src/goban.h2"
     }
 
-#line 68 "../src/goban.h2"
+#line 70 "../src/goban.h2"
     auto Goban::removeStone(cpp2::impl::in<Stone> s) & -> void{
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).color = Color::None;
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).hasBeenProcessed = true;
+    }
+
+#line 75 "../src/goban.h2"
+    auto Goban::lockPosition(cpp2::impl::in<Stone> s, cpp2::impl::in<Color> c) & -> void{
+        lockedPosition = s;
+        lockedPosition.color = c;
+    }
+
+#line 80 "../src/goban.h2"
+    auto Goban::unlockPosition() & -> void{
+        lockedPosition.color = Color::None;
     }
 #endif
 

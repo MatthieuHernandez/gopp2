@@ -55,6 +55,11 @@ Engine: type = {
                     count = count + 0;
                     goban.removeStone(nextStone);
                     count++;
+                    if count == 1 {
+                        //o:= otherColor(color);
+                        goban.lockPosition(nextStone, color);
+                        std::cout << "Stone " << nextStone.col as std::string << ", " << nextStone.row as std::string  << "    " << goban.lockedPosition.color as i32 << " locked." << std::endl;
+                    }
                     capture(nextStone, color, count);
                 }
             }
@@ -65,6 +70,10 @@ Engine: type = {
         count: i16 = 0;
         color:= otherColor(stone.color);
         capture(stone, color, count);
+        if count > 1 {
+            goban.unlockPosition();
+            std::cout << "Stone unlockled." << std::endl;
+        }
         return count;
     }
 
@@ -75,8 +84,16 @@ Engine: type = {
         col:= m.stone.col;
         row:= m.stone.row;
         if goban.state[col][row].color == Color::None &&
-            (captureStones(m.stone) > 0 || numberOfLiberties(m.stone) > 0 ) {
-            return true;
+            goban.state[col][row].isLocked == false {
+            numberOfcapturedStones:= captureStones(m.stone);
+            if numberOfLiberties(m.stone) > 0 ||
+                numberOfcapturedStones > 0 {
+                if goban.lockedPosition.color == m.stone.color {
+                    goban.unlockPosition();
+                    std::cout << "Stone unlockled." << std::endl;
+                }
+                return true;
+            }
         }
         return false;
     }
@@ -90,4 +107,8 @@ Engine: type = {
         }
         return false;
     }
+
+    /*countPoints(): int16 = {
+
+    }*/
 }

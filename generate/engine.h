@@ -42,19 +42,23 @@ class Engine {
 #line 48 "../src/engine.h2"
     public: auto capture(Stone& stone, cpp2::impl::in<Color> color, cpp2::i16& count) & -> void;
 
-#line 64 "../src/engine.h2"
+#line 69 "../src/engine.h2"
     public: [[nodiscard]] auto captureStones(Stone& stone) & -> cpp2::i16;
 
-#line 71 "../src/engine.h2"
+#line 80 "../src/engine.h2"
     public: [[nodiscard]] auto isValidMove(Move& m) & -> bool;
 
-#line 84 "../src/engine.h2"
+#line 101 "../src/engine.h2"
     public: [[nodiscard]] auto isFinish() const& -> bool;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 93 "../src/engine.h2"
+#line 111 "../src/engine.h2"
+    /*countPoints(): int16 = {
+
+    }*/
+#line 114 "../src/engine.h2"
 };
 
 
@@ -117,35 +121,52 @@ class Engine {
                     count = count + 0;
                     CPP2_UFCS(removeStone)(goban, nextStone);
                     ++count;
+                    if (count == 1) {
+                        //o:= otherColor(color);
+                        CPP2_UFCS(lockPosition)(goban, nextStone, color);
+                        std::cout << "Stone " << cpp2::impl::as_<std::string>(nextStone.col) << ", " << cpp2::impl::as_<std::string>(nextStone.row) << "    " << cpp2::impl::as_<cpp2::i32>(goban.lockedPosition.color) << " locked." << std::endl;
+                    }
                     capture(nextStone, color, count);
                 }
             }
         }
     }
 
-#line 64 "../src/engine.h2"
+#line 69 "../src/engine.h2"
     [[nodiscard]] auto Engine::captureStones(Stone& stone) & -> cpp2::i16{
         cpp2::i16 count {0}; 
         auto color {otherColor(stone.color)}; 
         capture(stone, cpp2::move(color), count);
+        if (cpp2::impl::cmp_greater(count,1)) {
+            CPP2_UFCS(unlockPosition)(goban);
+            std::cout << "Stone unlockled." << std::endl;
+        }
         return count; 
     }
 
-#line 71 "../src/engine.h2"
+#line 80 "../src/engine.h2"
     [[nodiscard]] auto Engine::isValidMove(Move& m) & -> bool{
         if (m.pass) {
             return true; 
         }
         auto col {m.stone.col}; 
         auto row {m.stone.row}; 
-        if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), cpp2::move(row)).color == Color::None && 
-            (cpp2::impl::cmp_greater(captureStones(m.stone),0) || cpp2::impl::cmp_greater(numberOfLiberties(m.stone),0))) {
-            return true; 
+        if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).color == Color::None && 
+            CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).isLocked == false) {
+            auto numberOfcapturedStones {captureStones(m.stone)}; 
+            if (cpp2::impl::cmp_greater(numberOfLiberties(m.stone),0) || 
+                cpp2::impl::cmp_greater(cpp2::move(numberOfcapturedStones),0)) {
+                if (goban.lockedPosition.color == m.stone.color) {
+                    CPP2_UFCS(unlockPosition)(goban);
+                    std::cout << "Stone unlockled." << std::endl;
+                }
+                return true; 
+            }
         }
         return false; 
     }
 
-#line 84 "../src/engine.h2"
+#line 101 "../src/engine.h2"
     [[nodiscard]] auto Engine::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
             if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 

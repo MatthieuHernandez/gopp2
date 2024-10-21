@@ -8,7 +8,7 @@ Game : type = {
         do {
             printGoban(engine.goban);
             m: = getInputMove(engine.nextMovePlayer);
-            clear();
+            //clear();
             if engine.isValidMove(m) {
                 engine.playMove(m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
