@@ -46,10 +46,6 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
 
 #line 113 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void;
-#line 143 "../src/io.h2"
-
-
-#line 1 "../src/io.h2"
 
 //=== Cpp2 function definitions =================================================
 

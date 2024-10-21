@@ -12,6 +12,7 @@ main:() -> int = {
         exit = inspect selection -> bool {
             is 1 = :()->bool = {
                 clear();
+                setNextMessage("Start a new game.");
                 game: Game = ();
                 game.play();
                 return false;

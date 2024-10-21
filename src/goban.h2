@@ -64,4 +64,9 @@ Goban: type = {
             }
         }
     }
+
+    removeStone:(inout this, s: Stone) = {
+        state[s.col][s.row].color = Color::None;
+        state[s.col][s.row].hasBeenProcessed = true;
+    }
 }

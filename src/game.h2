@@ -8,11 +8,10 @@ Game : type = {
         do {
             printGoban(engine.goban);
             m: = getInputMove(engine.nextMovePlayer);
-            //clear();
+            clear();
             if engine.isValidMove(m) {
                 engine.playMove(m);
-                setNextMessage(colorName(m.stone.color) + " played " + m.name + "."
-                + " The group has " + engine.numberOfLiberties(m.stone) as std::string + " liberties.");
+                setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             }
             else {
                 setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");

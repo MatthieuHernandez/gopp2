@@ -17,13 +17,11 @@ Engine: type = {
             col:= m.stone.col;
             row:= m.stone.row;
             goban.state[col][row] = m.stone;
-            //std::cout << "The stone is " << m.stone.color as i32 << std::endl;
-            //std::cout << "The stone is " <<  goban.state[col][row].color as i32 << std::endl;
-            switchPlayer(nextMovePlayer);
+            nextMovePlayer = otherColor(nextMovePlayer);
         }
     }
 
-    countLiberties:(inout this, inout stone: Stone, inout count: i16) = {
+    private countLiberties:(inout this, inout stone: Stone, inout count: i16) = {
         goban.processStone(stone);
         nextStones:= goban.getAdjacentStone(stone);
         for nextStones
@@ -32,9 +30,7 @@ Engine: type = {
                 if nextStone.color == Color::None {
                     goban.processStone(nextStone);
                     count++;
-                    std::cout << "COUNT" << std::endl;
                 } else if nextStone.color == stone.color {
-                    std::cout << "HERE" << std::endl;
                     countLiberties(nextStone, count);
                 }
             }
@@ -43,8 +39,32 @@ Engine: type = {
 
     numberOfLiberties:(inout this, inout stone: Stone) -> i16 = {
         count: i16 = 0;
+        goban.clearProcessedStone();
         countLiberties(stone, count);
         goban.clearProcessedStone();
+        return count;
+    }
+
+    capture:(inout this, inout stone: Stone, color: Color, inout count: i16) -> void = {
+        nextStones:= goban.getAdjacentStone(stone);
+        for nextStones
+        do (inout nextStone) {
+            if nextStone.color == color {
+                l:= numberOfLiberties(nextStone);
+                if l == 1 {
+                    count = count + 0;
+                    goban.removeStone(nextStone);
+                    count++;
+                    capture(nextStone, color, count);
+                }
+            }
+        }
+    }
+
+    captureStones:(inout this, inout stone: Stone) -> i16 = {
+        count: i16 = 0;
+        color:= otherColor(stone.color);
+        capture(stone, color, count);
         return count;
     }
 
@@ -55,13 +75,9 @@ Engine: type = {
         col:= m.stone.col;
         row:= m.stone.row;
         if goban.state[col][row].color == Color::None &&
-            (numberOfLiberties(m.stone) > 0 || captureStone() == true ) {
+            (captureStones(m.stone) > 0 || numberOfLiberties(m.stone) > 0 ) {
             return true;
         }
-        return false;
-    }
-
-    captureStone:() -> bool = {
         return false;
     }
 

@@ -4,13 +4,14 @@ enum Color: uint8_t {
     White = 2,
 };
 
-void switchPlayer(Color& c) {
+Color otherColor(Color& c) {
     if (c == Color::Black) {
-        c = Color::White;
+        return Color::White;
     }
     else if (c == Color::White) {
-        c =  Color::Black;
+        return Color::Black;
     }
+    return Color::None;
 }
 
 std::string colorName(const Color& c) {
