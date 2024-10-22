@@ -52,7 +52,7 @@ class Goban {
     public: auto operator=(Goban const&) -> void = delete;
 
 
-#line 83 "../src/goban.h2"
+#line 85 "../src/goban.h2"
 };
 
 
@@ -162,6 +162,8 @@ cpp2::i8 row{0};
 #line 80 "../src/goban.h2"
     auto Goban::unlockPosition() & -> void{
         lockedPosition.color = Color::None;
+        lockedPosition.row = -1;
+        lockedPosition.col = -1;
     }
 #endif
 

@@ -79,5 +79,7 @@ Goban: type = {
 
     unlockPosition:(inout this) = {
         lockedPosition.color = Color::None;
+        lockedPosition.row = -1;
+        lockedPosition.col = -1;
     }
 }

@@ -17,6 +17,10 @@ Engine: type = {
             col:= m.stone.col;
             row:= m.stone.row;
             goban.state[col][row] = m.stone;
+            if goban.lockedPosition.color == m.stone.color {
+                goban.unlockPosition();
+                std::cout << "Stone unlockled." << std::endl;
+            }
             nextMovePlayer = otherColor(nextMovePlayer);
         }
     }
@@ -83,15 +87,12 @@ Engine: type = {
         }
         col:= m.stone.col;
         row:= m.stone.row;
+        std::cout << "Check stone " << m.stone.col as std::string << ", " << m.stone.row as std::string  << "    " << goban.lockedPosition.color as i32 << " locked." << std::endl;
         if goban.state[col][row].color == Color::None &&
-            goban.state[col][row].isLocked == false {
+            (goban.lockedPosition.col != col || goban.lockedPosition.row != row) {
             numberOfcapturedStones:= captureStones(m.stone);
             if numberOfLiberties(m.stone) > 0 ||
                 numberOfcapturedStones > 0 {
-                if goban.lockedPosition.color == m.stone.color {
-                    goban.unlockPosition();
-                    std::cout << "Stone unlockled." << std::endl;
-                }
                 return true;
             }
         }

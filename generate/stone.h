@@ -54,8 +54,8 @@ class Stone {
 #line 10 "../src/stone.h2"
     Stone::Stone()
         : color{ Color::None }
-        , col{ 0 }
-        , row{ 0 }
+        , col{ -1 }
+        , row{ -1 }
         , hasBeenProcessed{ false }
         , isLocked{ false }{
 
