@@ -42,28 +42,28 @@ class Engine {
 #line 47 "../src/engine.h2"
     public: [[nodiscard]] auto numberOfLiberties(Stone& stone) & -> cpp2::i16;
 
-#line 54 "../src/engine.h2"
-    public: auto capture(Stone& stone, cpp2::impl::in<Color> color, cpp2::i16& count) & -> void;
+#line 55 "../src/engine.h2"
+    public: auto removeGroup(Stone& stone, cpp2::i16& count) & -> void;
 
-#line 73 "../src/engine.h2"
+#line 70 "../src/engine.h2"
     public: [[nodiscard]] auto captureStones(Stone& stone) & -> cpp2::i16;
 
-#line 83 "../src/engine.h2"
+#line 96 "../src/engine.h2"
     public: [[nodiscard]] auto isValidMove(Move& m) & -> bool;
 
-#line 100 "../src/engine.h2"
+#line 113 "../src/engine.h2"
     public: [[nodiscard]] auto isFinish() const& -> bool;
 
-#line 110 "../src/engine.h2"
+#line 123 "../src/engine.h2"
     public: auto countTerritory(Stone& stone, cpp2::i16& count, Color& color) & -> void;
 
-#line 136 "../src/engine.h2"
+#line 149 "../src/engine.h2"
     public: auto countScore() & -> void;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 171 "../src/engine.h2"
+#line 184 "../src/engine.h2"
 };
 
 
@@ -115,41 +115,54 @@ class Engine {
         CPP2_UFCS(clearProcessedStone)(goban);
         cpp2::i16 count {0}; 
         countLiberties(stone, count);
+        CPP2_UFCS(clearProcessedStone)(goban);
         return count; 
     }
 
-#line 54 "../src/engine.h2"
-    auto Engine::capture(Stone& stone, cpp2::impl::in<Color> color, cpp2::i16& count) & -> void{
+#line 55 "../src/engine.h2"
+    auto Engine::removeGroup(Stone& stone, cpp2::i16& count) & -> void{
+        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
+        for ( 
+        auto& nextStone : cpp2::move(nextStones) ) {
+            std::cout << "stone.color " << cpp2::impl::as_<cpp2::i32>(stone.color) << std::endl;
+            std::cout << "nextStone.color " << cpp2::impl::as_<cpp2::i32>(nextStone.color) << std::endl;
+            if (nextStone.color == stone.color) {
+                CPP2_UFCS(removeStone)(goban, nextStone);
+                std::cout << "nextStone removed" << std::endl;
+                ++count;
+                removeGroup(nextStone, count);
+            }
+        }
+    }
+
+#line 70 "../src/engine.h2"
+    [[nodiscard]] auto Engine::captureStones(Stone& stone) & -> cpp2::i16{
+        CPP2_UFCS(clearProcessedStone)(goban);
+        cpp2::i16 count {0}; 
+        auto color {otherColor(stone.color)}; 
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
         for ( 
         auto& nextStone : cpp2::move(nextStones) ) {
             if (nextStone.color == color) {
                 auto l {numberOfLiberties(nextStone)}; 
                 if (cpp2::move(l) == 1) {
-                    count = count + 0;
+                    std::cout << "Remove group." << std::endl;
+                    removeGroup(nextStone, count);
                     CPP2_UFCS(removeStone)(goban, nextStone);
                     ++count;
                     if (count == 1) {
                         CPP2_UFCS(lockPosition)(goban, nextStone, color);
                     }
-                    capture(nextStone, color, count);
                 }
             }
         }
-    }
-
-#line 73 "../src/engine.h2"
-    [[nodiscard]] auto Engine::captureStones(Stone& stone) & -> cpp2::i16{
-        cpp2::i16 count {0}; 
-        auto color {otherColor(stone.color)}; 
-        capture(stone, cpp2::move(color), count);
         if (cpp2::impl::cmp_greater(count,1)) {
             CPP2_UFCS(unlockPosition)(goban);
         }
         return count; 
     }
 
-#line 83 "../src/engine.h2"
+#line 96 "../src/engine.h2"
     [[nodiscard]] auto Engine::isValidMove(Move& m) & -> bool{
         if (m.pass) {
             return true; 
@@ -167,7 +180,7 @@ class Engine {
         return false; 
     }
 
-#line 100 "../src/engine.h2"
+#line 113 "../src/engine.h2"
     [[nodiscard]] auto Engine::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
             if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 
@@ -178,7 +191,7 @@ class Engine {
         return false; 
     }
 
-#line 110 "../src/engine.h2"
+#line 123 "../src/engine.h2"
     auto Engine::countTerritory(Stone& stone, cpp2::i16& count, Color& color) & -> void{
         if (count == 0) {
             return ; 
@@ -205,7 +218,7 @@ class Engine {
         }
     }
 
-#line 136 "../src/engine.h2"
+#line 149 "../src/engine.h2"
     auto Engine::countScore() & -> void{
         CPP2_UFCS(clearProcessedStone)(goban);
         blackPoint = 0;
@@ -213,14 +226,14 @@ class Engine {
 {
 cpp2::i8 col{0};
 
-#line 141 "../src/engine.h2"
+#line 154 "../src/engine.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(goban.state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 145 "../src/engine.h2"
+#line 158 "../src/engine.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(goban.state, col))); 
             ++row ) 
             {
@@ -246,10 +259,10 @@ cpp2::i8 row{0};
                 }
             }
 }
-#line 169 "../src/engine.h2"
+#line 182 "../src/engine.h2"
         }
 }
-#line 170 "../src/engine.h2"
+#line 183 "../src/engine.h2"
     }
 #endif
 

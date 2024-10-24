@@ -42,6 +42,7 @@ Goban: type = {
                 adjacent_stones.push_back(state[s.col][s.row+1]);
             }
         }
+        std::cout << adjacent_stones.ssize() << " adjacent_stones" << std::endl;
         return adjacent_stones;
     }
 

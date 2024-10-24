@@ -48,24 +48,21 @@ Engine: type = {
         goban.clearProcessedStone();
         count: i16 = 0;
         countLiberties(stone, count);
+        goban.clearProcessedStone();
         return count;
     }
 
-    capture:(inout this, inout stone: Stone, color: Color, inout count: i16) -> void = {
+    removeGroup:(inout this, inout stone: Stone, inout count: i16) = {
         nextStones:= goban.getAdjacentStone(stone);
         for nextStones
         do (inout nextStone) {
-            if nextStone.color == color {
-                l:= numberOfLiberties(nextStone);
-                if l == 1 {
-                    count = count + 0;
-                    goban.removeStone(nextStone);
-                    count++;
-                    if count == 1 {
-                        goban.lockPosition(nextStone, color);
-                    }
-                    capture(nextStone, color, count);
-                }
+            std::cout << "stone.color " << stone.color as i32 << std::endl;
+            std::cout << "nextStone.color " << nextStone.color as i32 << std::endl;
+            if nextStone.color == stone.color {
+                goban.removeStone(nextStone);
+                std::cout << "nextStone removed" << std::endl;
+                count++;
+                removeGroup(nextStone, count);
             }
         }
     }
@@ -74,7 +71,22 @@ Engine: type = {
         goban.clearProcessedStone();
         count: i16 = 0;
         color:= otherColor(stone.color);
-        capture(stone, color, count);
+        nextStones:= goban.getAdjacentStone(stone);
+        for nextStones
+        do (inout nextStone) {
+            if nextStone.color == color {
+                l:= numberOfLiberties(nextStone);
+                if l == 1 {
+                    std::cout << "Remove group." << std::endl;
+                    removeGroup(nextStone, count);
+                    goban.removeStone(nextStone);
+                    count++;
+                    if count == 1 {
+                        goban.lockPosition(nextStone, color);
+                    }
+                }
+            }
+        }
         if count > 1 {
             goban.unlockPosition();
         }
