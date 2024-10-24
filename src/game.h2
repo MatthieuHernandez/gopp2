@@ -16,7 +16,18 @@ Game : type = {
             else {
                 setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
             }
-
+            std::cout << "lockedPosition "<< engine.goban.lockedPosition.col as i32
+            << " " << engine.goban.lockedPosition.row as i32
+            << " " << engine.goban.lockedPosition.color as i32 << std::endl;
         } while !engine.isFinish();
+        engine.countScore();
+        if (engine.blackPoint > engine.whitePoint) {
+            setNextMessage("Black win " + engine.blackPoint as std::string + " to " + engine.whitePoint as std::string + ".5.");
+        }
+        else {
+            setNextMessage("White win " + engine.whitePoint as std::string + ".5 to " + engine.blackPoint as std::string + ".");
+        }
+        printGoban(engine.goban);
+        _ = getInputMenu();
 }
 }

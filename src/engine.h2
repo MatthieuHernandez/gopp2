@@ -6,6 +6,9 @@ Engine: type = {
     public goban: Goban = ();
     public moves: std::vector<Move> = ();
     public nextMovePlayer: Color;
+    
+    public blackPoint: i16 = 0;
+    public whitePoint: i16 = 0;
 
    operator=:(out this) = {
         nextMovePlayer = Color::Black;
@@ -21,8 +24,8 @@ Engine: type = {
                 goban.unlockPosition();
                 std::cout << "Stone unlockled." << std::endl;
             }
-            nextMovePlayer = otherColor(nextMovePlayer);
         }
+        nextMovePlayer = otherColor(nextMovePlayer);
     }
 
     private countLiberties:(inout this, inout stone: Stone, inout count: i16) = {
@@ -42,10 +45,9 @@ Engine: type = {
     }
 
     numberOfLiberties:(inout this, inout stone: Stone) -> i16 = {
+        goban.clearProcessedStone();
         count: i16 = 0;
-        goban.clearProcessedStone();
         countLiberties(stone, count);
-        goban.clearProcessedStone();
         return count;
     }
 
@@ -60,9 +62,7 @@ Engine: type = {
                     goban.removeStone(nextStone);
                     count++;
                     if count == 1 {
-                        //o:= otherColor(color);
                         goban.lockPosition(nextStone, color);
-                        std::cout << "Stone " << nextStone.col as std::string << ", " << nextStone.row as std::string  << "    " << goban.lockedPosition.color as i32 << " locked." << std::endl;
                     }
                     capture(nextStone, color, count);
                 }
@@ -71,12 +71,12 @@ Engine: type = {
     }
 
     captureStones:(inout this, inout stone: Stone) -> i16 = {
+        goban.clearProcessedStone();
         count: i16 = 0;
         color:= otherColor(stone.color);
         capture(stone, color, count);
         if count > 1 {
             goban.unlockPosition();
-            std::cout << "Stone unlockled." << std::endl;
         }
         return count;
     }
@@ -87,7 +87,6 @@ Engine: type = {
         }
         col:= m.stone.col;
         row:= m.stone.row;
-        std::cout << "Check stone " << m.stone.col as std::string << ", " << m.stone.row as std::string  << "    " << goban.lockedPosition.color as i32 << " locked." << std::endl;
         if goban.state[col][row].color == Color::None &&
             (goban.lockedPosition.col != col || goban.lockedPosition.row != row) {
             numberOfcapturedStones:= captureStones(m.stone);
@@ -109,7 +108,65 @@ Engine: type = {
         return false;
     }
 
-    /*countPoints(): int16 = {
+    countTerritory:(inout this, inout stone: Stone, inout count: i16, inout color: Color) = {
+        if count == 0 {
+            return;
+        }
+        nextStones:= goban.getAdjacentStone(stone);
+        for nextStones
+        do (inout nextStone) {
+            if nextStone.color == Color::None {
+                if goban.stonehasBeenProcessed(nextStone) == false {
+                    goban.processStone(nextStone);
+                    count++;
+                    countTerritory(nextStone, count, color);
+                }
+            }
+            else if nextStone.color == Color::Black && color != Color::White {
+                color = Color::Black;
+            }
+            else if nextStone.color == Color::White && color != Color::Black {
+                color = Color::White;
+            } else{
+                count = 0;
+                return;
+            }
+        }
+    }
 
-    }*/
+    countScore:(inout this) = {
+        goban.clearProcessedStone();
+        blackPoint = 0;
+        whitePoint = 7;
+        (copy col: i8 = 0)
+        while col < goban.state.ssize()
+        next col++
+        {
+            (copy row: i8 = 0)
+            while row < goban.state[col].ssize()
+            next row++
+            {
+                if goban.state[col][row].hasBeenProcessed == false {
+                    goban.state[col][row].hasBeenProcessed = true;
+                    if goban.state[col][row].color == Color::Black {
+                        blackPoint++;
+                    }
+                    else if goban.state[col][row].color == Color::White {
+                        whitePoint++;
+                    }
+                    else {
+                        count: i16 = 1;
+                        color:= Color::None;
+                        countTerritory(goban.state[col][row], count, color);
+                        if color == Color::Black {
+                            blackPoint+= count;
+                        }
+                        if color == Color::White {
+                            whitePoint+= count;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

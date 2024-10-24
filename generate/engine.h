@@ -28,37 +28,42 @@ class Engine {
     public: std::vector<Move> moves {}; 
     public: Color nextMovePlayer; 
 
+    public: cpp2::i16 blackPoint {0}; 
+    public: cpp2::i16 whitePoint {0}; 
+
    public: explicit Engine();
 
-#line 14 "../src/engine.h2"
+#line 17 "../src/engine.h2"
     public: auto playMove(cpp2::impl::in<Move> m) & -> void;
 
-#line 28 "../src/engine.h2"
+#line 31 "../src/engine.h2"
     private: auto countLiberties(Stone& stone, cpp2::i16& count) & -> void;
 
-#line 44 "../src/engine.h2"
+#line 47 "../src/engine.h2"
     public: [[nodiscard]] auto numberOfLiberties(Stone& stone) & -> cpp2::i16;
 
-#line 52 "../src/engine.h2"
+#line 54 "../src/engine.h2"
     public: auto capture(Stone& stone, cpp2::impl::in<Color> color, cpp2::i16& count) & -> void;
 
 #line 73 "../src/engine.h2"
     public: [[nodiscard]] auto captureStones(Stone& stone) & -> cpp2::i16;
 
-#line 84 "../src/engine.h2"
+#line 83 "../src/engine.h2"
     public: [[nodiscard]] auto isValidMove(Move& m) & -> bool;
 
-#line 102 "../src/engine.h2"
+#line 100 "../src/engine.h2"
     public: [[nodiscard]] auto isFinish() const& -> bool;
+
+#line 110 "../src/engine.h2"
+    public: auto countTerritory(Stone& stone, cpp2::i16& count, Color& color) & -> void;
+
+#line 136 "../src/engine.h2"
+    public: auto countScore() & -> void;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 112 "../src/engine.h2"
-    /*countPoints(): int16 = {
-
-    }*/
-#line 115 "../src/engine.h2"
+#line 171 "../src/engine.h2"
 };
 
 
@@ -66,14 +71,14 @@ class Engine {
 
 #line 1 "../src/engine.h2"
 
-#line 10 "../src/engine.h2"
+#line 13 "../src/engine.h2"
    Engine::Engine()
         : nextMovePlayer{ Color::Black }{
 
-#line 12 "../src/engine.h2"
+#line 15 "../src/engine.h2"
     }
 
-#line 14 "../src/engine.h2"
+#line 17 "../src/engine.h2"
     auto Engine::playMove(cpp2::impl::in<Move> m) & -> void{
         CPP2_UFCS(push_back)(moves, m);
         if (!(m.pass)) {
@@ -84,11 +89,11 @@ class Engine {
                 CPP2_UFCS(unlockPosition)(goban);
                 std::cout << "Stone unlockled." << std::endl;
             }
-            nextMovePlayer = otherColor(nextMovePlayer);
         }
+        nextMovePlayer = otherColor(nextMovePlayer);
     }
 
-#line 28 "../src/engine.h2"
+#line 31 "../src/engine.h2"
     auto Engine::countLiberties(Stone& stone, cpp2::i16& count) & -> void{
         CPP2_UFCS(processStone)(goban, stone);
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
@@ -105,16 +110,15 @@ class Engine {
         }
     }
 
-#line 44 "../src/engine.h2"
+#line 47 "../src/engine.h2"
     [[nodiscard]] auto Engine::numberOfLiberties(Stone& stone) & -> cpp2::i16{
+        CPP2_UFCS(clearProcessedStone)(goban);
         cpp2::i16 count {0}; 
-        CPP2_UFCS(clearProcessedStone)(goban);
         countLiberties(stone, count);
-        CPP2_UFCS(clearProcessedStone)(goban);
         return count; 
     }
 
-#line 52 "../src/engine.h2"
+#line 54 "../src/engine.h2"
     auto Engine::capture(Stone& stone, cpp2::impl::in<Color> color, cpp2::i16& count) & -> void{
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
         for ( 
@@ -126,9 +130,7 @@ class Engine {
                     CPP2_UFCS(removeStone)(goban, nextStone);
                     ++count;
                     if (count == 1) {
-                        //o:= otherColor(color);
                         CPP2_UFCS(lockPosition)(goban, nextStone, color);
-                        std::cout << "Stone " << cpp2::impl::as_<std::string>(nextStone.col) << ", " << cpp2::impl::as_<std::string>(nextStone.row) << "    " << cpp2::impl::as_<cpp2::i32>(goban.lockedPosition.color) << " locked." << std::endl;
                     }
                     capture(nextStone, color, count);
                 }
@@ -143,19 +145,17 @@ class Engine {
         capture(stone, cpp2::move(color), count);
         if (cpp2::impl::cmp_greater(count,1)) {
             CPP2_UFCS(unlockPosition)(goban);
-            std::cout << "Stone unlockled." << std::endl;
         }
         return count; 
     }
 
-#line 84 "../src/engine.h2"
+#line 83 "../src/engine.h2"
     [[nodiscard]] auto Engine::isValidMove(Move& m) & -> bool{
         if (m.pass) {
             return true; 
         }
         auto col {m.stone.col}; 
         auto row {m.stone.row}; 
-        std::cout << "Check stone " << cpp2::impl::as_<std::string>(m.stone.col) << ", " << cpp2::impl::as_<std::string>(m.stone.row) << "    " << cpp2::impl::as_<cpp2::i32>(goban.lockedPosition.color) << " locked." << std::endl;
         if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).color == Color::None && 
             (goban.lockedPosition.col != col || goban.lockedPosition.row != row)) {
             auto numberOfcapturedStones {captureStones(m.stone)}; 
@@ -167,7 +167,7 @@ class Engine {
         return false; 
     }
 
-#line 102 "../src/engine.h2"
+#line 100 "../src/engine.h2"
     [[nodiscard]] auto Engine::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
             if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 
@@ -176,6 +176,80 @@ class Engine {
             }
         }
         return false; 
+    }
+
+#line 110 "../src/engine.h2"
+    auto Engine::countTerritory(Stone& stone, cpp2::i16& count, Color& color) & -> void{
+        if (count == 0) {
+            return ; 
+        }
+        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
+        for ( 
+        auto& nextStone : cpp2::move(nextStones) ) {
+            if (nextStone.color == Color::None) {
+                if (CPP2_UFCS(stonehasBeenProcessed)(goban, nextStone) == false) {
+                    CPP2_UFCS(processStone)(goban, nextStone);
+                    ++count;
+                    countTerritory(nextStone, count, color);
+                }
+            }
+            else {if (nextStone.color == Color::Black && color != Color::White) {
+                color = Color::Black;
+            }
+            else {if (nextStone.color == Color::White && color != Color::Black) {
+                color = Color::White;
+            }else {
+                count = 0;
+                return ; 
+            }}}
+        }
+    }
+
+#line 136 "../src/engine.h2"
+    auto Engine::countScore() & -> void{
+        CPP2_UFCS(clearProcessedStone)(goban);
+        blackPoint = 0;
+        whitePoint = 7;
+{
+cpp2::i8 col{0};
+
+#line 141 "../src/engine.h2"
+        for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(goban.state)); 
+        ++col ) 
+        {
+{
+cpp2::i8 row{0};
+
+#line 145 "../src/engine.h2"
+            for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(goban.state, col))); 
+            ++row ) 
+            {
+                if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).hasBeenProcessed == false) {
+                    CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).hasBeenProcessed = true;
+                    if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).color == Color::Black) {
+                        ++blackPoint;
+                    }
+                    else {if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).color == Color::White) {
+                        ++whitePoint;
+                    }
+                    else {
+                        cpp2::i16 count {1}; 
+                        auto color {Color::None}; 
+                        countTerritory(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row), count, color);
+                        if (color == Color::Black) {
+                            blackPoint += count;
+                        }
+                        if (cpp2::move(color) == Color::White) {
+                            whitePoint += cpp2::move(count);
+                        }
+                    }}
+                }
+            }
+}
+#line 169 "../src/engine.h2"
+        }
+}
+#line 170 "../src/engine.h2"
     }
 #endif
 

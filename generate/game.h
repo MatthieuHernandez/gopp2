@@ -30,7 +30,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 22 "../src/game.h2"
+#line 33 "../src/game.h2"
 };
 
 
@@ -52,8 +52,19 @@ class Game {
             else {
                 setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
             }
-
+            std::cout << "lockedPosition " << cpp2::impl::as_<cpp2::i32>(engine.goban.lockedPosition.col) 
+            << " " << cpp2::impl::as_<cpp2::i32>(engine.goban.lockedPosition.row) 
+            << " " << cpp2::impl::as_<cpp2::i32>(engine.goban.lockedPosition.color) << std::endl;
         } while ( !(CPP2_UFCS(isFinish)(engine)));
+        CPP2_UFCS(countScore)(engine);
+        if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
+            setNextMessage("Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");
+        }
+        else {
+            setNextMessage("White win " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5 to " + cpp2::impl::as_<std::string>(engine.blackPoint) + ".");
+        }
+        printGoban(cpp2::move(engine).goban);
+        static_cast<void>(getInputMenu());
 }
 #endif
 
