@@ -1,7 +1,10 @@
 #include "stone.h2"
 
+template<class T>
+using State = std::array<std::array<T, 19>, 19>;
+
 Goban: type = {
-    public state: std::array<std::array<Stone, 19>, 19> = ();
+    public state: State<Stone> = ();
 
     public lockedPosition: Stone = ();
 
@@ -19,58 +22,35 @@ Goban: type = {
         }
     }
 
-    getAdjacentStone:(in this, s: Stone) -> std::vector<Stone>  = {
+    getAdjacentStone:(in this, in s: Stone, in processedStones: State<bool>) -> std::vector<Stone>  = {
         // vérifier les bounds.
         adjacent_stones: std::vector<Stone> = ();
         if s.col > 0 {
-            if !state[s.col-1][s.row].hasBeenProcessed {
+            if !processedStones[s.col-1][s.row] {
                 adjacent_stones.push_back(state[s.col-1][s.row]);
             }
         }
         if s.col < 18 {
-            if !state[s.col+1][s.row].hasBeenProcessed {
+            if !processedStones[s.col+1][s.row] {
                 adjacent_stones.push_back(state[s.col+1][s.row]);
             }
         }
         if s.row > 0 {
-            if !state[s.col][s.row-1].hasBeenProcessed {
+            if !processedStones[s.col][s.row-1] {
                 adjacent_stones.push_back(state[s.col][s.row-1]);
             }
         }
         if s.row < 18 {
-            if !state[s.col][s.row+1].hasBeenProcessed {
+            if !processedStones[s.col][s.row+1] {
                 adjacent_stones.push_back(state[s.col][s.row+1]);
             }
         }
-        std::cout << adjacent_stones.ssize() << " adjacent_stones" << std::endl;
+        //std::cout << adjacent_stones.ssize() << " adjacent_stones" << std::endl;
         return adjacent_stones;
-    }
-
-    stonehasBeenProcessed:(inout this, s: Stone) -> bool = {
-        return state[s.col][s.row].hasBeenProcessed;
-    }
-
-    processStone:(inout this, s: Stone) = {
-        state[s.col][s.row].hasBeenProcessed = true;
-    }
-
-    clearProcessedStone:(inout this) = {
-        (copy col: i8 = 0)
-        while col < state.ssize()
-        next col++
-        {
-            (copy row: i8 = 0)
-            while row < state[col].ssize()
-            next row++
-            {
-                state[col][row].hasBeenProcessed = false;
-            }
-        }
     }
 
     removeStone:(inout this, s: Stone) = {
         state[s.col][s.row].color = Color::None;
-        state[s.col][s.row].hasBeenProcessed = true;
     }
 
     lockPosition:(inout this, s: Stone, c: Color) = {

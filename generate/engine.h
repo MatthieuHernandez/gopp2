@@ -37,33 +37,34 @@ class Engine {
     public: auto playMove(cpp2::impl::in<Move> m) & -> void;
 
 #line 31 "../src/engine.h2"
-    private: auto countLiberties(Stone& stone, cpp2::i16& count) & -> void;
+    private: auto countLiberties(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void;
 
 #line 47 "../src/engine.h2"
     public: [[nodiscard]] auto numberOfLiberties(Stone& stone) & -> cpp2::i16;
 
 #line 55 "../src/engine.h2"
-    public: auto removeGroup(Stone& stone, cpp2::i16& count) & -> void;
+    public: auto removeGroup(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void;
 
-#line 70 "../src/engine.h2"
+#line 71 "../src/engine.h2"
     public: [[nodiscard]] auto captureStones(Stone& stone) & -> cpp2::i16;
 
-#line 96 "../src/engine.h2"
+#line 97 "../src/engine.h2"
     public: [[nodiscard]] auto isValidMove(Move& m) & -> bool;
 
-#line 113 "../src/engine.h2"
+#line 114 "../src/engine.h2"
     public: [[nodiscard]] auto isFinish() const& -> bool;
 
-#line 123 "../src/engine.h2"
-    public: auto countTerritory(Stone& stone, cpp2::i16& count, Color& color) & -> void;
+#line 124 "../src/engine.h2"
+    public: auto countTerritory(Stone& stone, cpp2::i16& count, Color& color, 
+        State<bool>& processedStones1, State<bool>& processedStones2) & -> void;
 
-#line 149 "../src/engine.h2"
+#line 153 "../src/engine.h2"
     public: auto countScore() & -> void;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 184 "../src/engine.h2"
+#line 190 "../src/engine.h2"
 };
 
 
@@ -94,17 +95,17 @@ class Engine {
     }
 
 #line 31 "../src/engine.h2"
-    auto Engine::countLiberties(Stone& stone, cpp2::i16& count) & -> void{
-        CPP2_UFCS(processStone)(goban, stone);
-        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
+    auto Engine::countLiberties(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void{
+        CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, stone.col), stone.row) = true;
+        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone, processedStones)}; 
         for ( 
         auto& nextStone : cpp2::move(nextStones) ) {
-            if (!(CPP2_UFCS(stonehasBeenProcessed)(goban, nextStone))) {
+            if (!(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, nextStone.col), nextStone.row))) {
                 if (nextStone.color == Color::None) {
-                    CPP2_UFCS(processStone)(goban, nextStone);
+                    CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, nextStone.col), nextStone.row) = true;
                     ++count;
                 }else {if (nextStone.color == stone.color) {
-                    countLiberties(nextStone, count);
+                    countLiberties(nextStone, count, processedStones);
                 }}
             }
         }
@@ -112,42 +113,43 @@ class Engine {
 
 #line 47 "../src/engine.h2"
     [[nodiscard]] auto Engine::numberOfLiberties(Stone& stone) & -> cpp2::i16{
-        CPP2_UFCS(clearProcessedStone)(goban);
+        State<bool> processedStones {}; 
         cpp2::i16 count {0}; 
-        countLiberties(stone, count);
-        CPP2_UFCS(clearProcessedStone)(goban);
+        countLiberties(stone, count, processedStones);
+        processedStones = processedStones;
         return count; 
     }
 
 #line 55 "../src/engine.h2"
-    auto Engine::removeGroup(Stone& stone, cpp2::i16& count) & -> void{
-        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
+    auto Engine::removeGroup(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void{
+        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone, processedStones)}; 
         for ( 
         auto& nextStone : cpp2::move(nextStones) ) {
             std::cout << "stone.color " << cpp2::impl::as_<cpp2::i32>(stone.color) << std::endl;
             std::cout << "nextStone.color " << cpp2::impl::as_<cpp2::i32>(nextStone.color) << std::endl;
             if (nextStone.color == stone.color) {
                 CPP2_UFCS(removeStone)(goban, nextStone);
+                CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, nextStone.col), nextStone.row) = true;
                 std::cout << "nextStone removed" << std::endl;
                 ++count;
-                removeGroup(nextStone, count);
+                removeGroup(nextStone, count, processedStones);
             }
         }
     }
 
-#line 70 "../src/engine.h2"
+#line 71 "../src/engine.h2"
     [[nodiscard]] auto Engine::captureStones(Stone& stone) & -> cpp2::i16{
-        CPP2_UFCS(clearProcessedStone)(goban);
+        State<bool> processedStones {}; 
         cpp2::i16 count {0}; 
         auto color {otherColor(stone.color)}; 
-        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
+        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone, processedStones)}; 
         for ( 
         auto& nextStone : cpp2::move(nextStones) ) {
             if (nextStone.color == color) {
                 auto l {numberOfLiberties(nextStone)}; 
                 if (cpp2::move(l) == 1) {
                     std::cout << "Remove group." << std::endl;
-                    removeGroup(nextStone, count);
+                    removeGroup(nextStone, count, processedStones);
                     CPP2_UFCS(removeStone)(goban, nextStone);
                     ++count;
                     if (count == 1) {
@@ -162,7 +164,7 @@ class Engine {
         return count; 
     }
 
-#line 96 "../src/engine.h2"
+#line 97 "../src/engine.h2"
     [[nodiscard]] auto Engine::isValidMove(Move& m) & -> bool{
         if (m.pass) {
             return true; 
@@ -180,7 +182,7 @@ class Engine {
         return false; 
     }
 
-#line 113 "../src/engine.h2"
+#line 114 "../src/engine.h2"
     [[nodiscard]] auto Engine::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
             if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 
@@ -191,19 +193,21 @@ class Engine {
         return false; 
     }
 
-#line 123 "../src/engine.h2"
-    auto Engine::countTerritory(Stone& stone, cpp2::i16& count, Color& color) & -> void{
+#line 124 "../src/engine.h2"
+    auto Engine::countTerritory(Stone& stone, cpp2::i16& count, Color& color, 
+        State<bool>& processedStones1, State<bool>& processedStones2) & -> void{
         if (count == 0) {
             return ; 
         }
-        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone)}; 
+        CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones2, stone.col), stone.row) = true;
+        auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone, processedStones2)}; 
         for ( 
         auto& nextStone : cpp2::move(nextStones) ) {
             if (nextStone.color == Color::None) {
-                if (CPP2_UFCS(stonehasBeenProcessed)(goban, nextStone) == false) {
-                    CPP2_UFCS(processStone)(goban, nextStone);
+                if (!(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones2, nextStone.col), nextStone.row))) {
+                    CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones1, nextStone.col), nextStone.row) = true;
                     ++count;
-                    countTerritory(nextStone, count, color);
+                    countTerritory(nextStone, count, color, processedStones1, processedStones2);
                 }
             }
             else {if (nextStone.color == Color::Black && color != Color::White) {
@@ -215,30 +219,31 @@ class Engine {
                 count = 0;
                 return ; 
             }}}
+            CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones2, nextStone.col), nextStone.row) = true;
         }
     }
 
-#line 149 "../src/engine.h2"
+#line 153 "../src/engine.h2"
     auto Engine::countScore() & -> void{
-        CPP2_UFCS(clearProcessedStone)(goban);
+        State<bool> processedStones1 {}; 
         blackPoint = 0;
         whitePoint = 7;
 {
 cpp2::i8 col{0};
 
-#line 154 "../src/engine.h2"
+#line 158 "../src/engine.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(goban.state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 158 "../src/engine.h2"
+#line 162 "../src/engine.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(goban.state, col))); 
             ++row ) 
             {
-                if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).hasBeenProcessed == false) {
-                    CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).hasBeenProcessed = true;
+                if (!(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones1, col), row))) {
+                    CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones1, col), row) = true;
                     if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).color == Color::Black) {
                         ++blackPoint;
                     }
@@ -248,7 +253,9 @@ cpp2::i8 row{0};
                     else {
                         cpp2::i16 count {1}; 
                         auto color {Color::None}; 
-                        countTerritory(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row), count, color);
+                        State<bool> processedStones2 {}; 
+                        countTerritory(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row), count, color, processedStones1, processedStones2);
+                        processedStones2 = processedStones2;
                         if (color == Color::Black) {
                             blackPoint += count;
                         }
@@ -259,10 +266,10 @@ cpp2::i8 row{0};
                 }
             }
 }
-#line 182 "../src/engine.h2"
+#line 188 "../src/engine.h2"
         }
 }
-#line 183 "../src/engine.h2"
+#line 189 "../src/engine.h2"
     }
 #endif
 

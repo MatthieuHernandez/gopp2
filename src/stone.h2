@@ -4,14 +4,12 @@ Stone: type = {
     public color: Color;
     public col: i8;
     public row: i8;
-    public hasBeenProcessed: bool;
     public isLocked: bool;
 
     operator=:(implicit out this) = {
         color = Color::None;
         col = -1;
         row = -1;
-        hasBeenProcessed = false;
         isLocked = false;
     }
 
@@ -19,7 +17,6 @@ Stone: type = {
         color = p;
         col = c;
         row = r;
-        hasBeenProcessed = false;
         isLocked = false;
     }
 

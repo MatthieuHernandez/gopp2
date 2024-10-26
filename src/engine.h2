@@ -28,57 +28,58 @@ Engine: type = {
         nextMovePlayer = otherColor(nextMovePlayer);
     }
 
-    private countLiberties:(inout this, inout stone: Stone, inout count: i16) = {
-        goban.processStone(stone);
-        nextStones:= goban.getAdjacentStone(stone);
+    private countLiberties:(inout this, inout stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
+        processedStones[stone.col][stone.row] = true;
+        nextStones:= goban.getAdjacentStone(stone, processedStones);
         for nextStones
         do (inout nextStone) {
-            if !goban.stonehasBeenProcessed(nextStone) {
+            if !processedStones[nextStone.col][nextStone.row] {
                 if nextStone.color == Color::None {
-                    goban.processStone(nextStone);
+                    processedStones[nextStone.col][nextStone.row] = true;
                     count++;
                 } else if nextStone.color == stone.color {
-                    countLiberties(nextStone, count);
+                    countLiberties(nextStone, count, processedStones);
                 }
             }
         }
     }
 
     numberOfLiberties:(inout this, inout stone: Stone) -> i16 = {
-        goban.clearProcessedStone();
+        processedStones: State<bool> = ();
         count: i16 = 0;
-        countLiberties(stone, count);
-        goban.clearProcessedStone();
+        countLiberties(stone, count, processedStones);
+        processedStones = processedStones;
         return count;
     }
 
-    removeGroup:(inout this, inout stone: Stone, inout count: i16) = {
-        nextStones:= goban.getAdjacentStone(stone);
+    removeGroup:(inout this, inout stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
+        nextStones:= goban.getAdjacentStone(stone, processedStones);
         for nextStones
         do (inout nextStone) {
             std::cout << "stone.color " << stone.color as i32 << std::endl;
             std::cout << "nextStone.color " << nextStone.color as i32 << std::endl;
             if nextStone.color == stone.color {
                 goban.removeStone(nextStone);
+                processedStones[nextStone.col][nextStone.row] = true;
                 std::cout << "nextStone removed" << std::endl;
                 count++;
-                removeGroup(nextStone, count);
+                removeGroup(nextStone, count, processedStones);
             }
         }
     }
 
     captureStones:(inout this, inout stone: Stone) -> i16 = {
-        goban.clearProcessedStone();
+        processedStones: State<bool> = ();
         count: i16 = 0;
         color:= otherColor(stone.color);
-        nextStones:= goban.getAdjacentStone(stone);
+        nextStones:= goban.getAdjacentStone(stone, processedStones);
         for nextStones
         do (inout nextStone) {
             if nextStone.color == color {
                 l:= numberOfLiberties(nextStone);
                 if l == 1 {
                     std::cout << "Remove group." << std::endl;
-                    removeGroup(nextStone, count);
+                    removeGroup(nextStone, count, processedStones);
                     goban.removeStone(nextStone);
                     count++;
                     if count == 1 {
@@ -120,18 +121,20 @@ Engine: type = {
         return false;
     }
 
-    countTerritory:(inout this, inout stone: Stone, inout count: i16, inout color: Color) = {
+    countTerritory:(inout this, inout stone: Stone, inout count: i16, inout color: Color,
+        inout processedStones1: State<bool>, inout processedStones2: State<bool>) = {
         if count == 0 {
             return;
         }
-        nextStones:= goban.getAdjacentStone(stone);
+        processedStones2[stone.col][stone.row] = true;
+        nextStones:= goban.getAdjacentStone(stone, processedStones2);
         for nextStones
         do (inout nextStone) {
             if nextStone.color == Color::None {
-                if goban.stonehasBeenProcessed(nextStone) == false {
-                    goban.processStone(nextStone);
+                if !processedStones2[nextStone.col][nextStone.row] {
+                    processedStones1[nextStone.col][nextStone.row] = true;
                     count++;
-                    countTerritory(nextStone, count, color);
+                    countTerritory(nextStone, count, color, processedStones1, processedStones2);
                 }
             }
             else if nextStone.color == Color::Black && color != Color::White {
@@ -143,11 +146,12 @@ Engine: type = {
                 count = 0;
                 return;
             }
+            processedStones2[nextStone.col][nextStone.row] = true;
         }
     }
 
     countScore:(inout this) = {
-        goban.clearProcessedStone();
+        processedStones1: State<bool> = ();
         blackPoint = 0;
         whitePoint = 7;
         (copy col: i8 = 0)
@@ -158,8 +162,8 @@ Engine: type = {
             while row < goban.state[col].ssize()
             next row++
             {
-                if goban.state[col][row].hasBeenProcessed == false {
-                    goban.state[col][row].hasBeenProcessed = true;
+                if !processedStones1[col][row] {
+                    processedStones1[col][row] = true;
                     if goban.state[col][row].color == Color::Black {
                         blackPoint++;
                     }
@@ -169,7 +173,9 @@ Engine: type = {
                     else {
                         count: i16 = 1;
                         color:= Color::None;
-                        countTerritory(goban.state[col][row], count, color);
+                        processedStones2: State<bool> = ();
+                        countTerritory(goban.state[col][row], count, color, processedStones1, processedStones2);
+                        processedStones2 = processedStones2;
                         if color == Color::Black {
                             blackPoint+= count;
                         }
