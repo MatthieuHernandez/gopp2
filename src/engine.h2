@@ -52,7 +52,7 @@ Engine: type = {
         return count;
     }
 
-    removeGroup:(inout this, inout stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
+    private removeGroup:(inout this, inout stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
         nextStones:= goban.getAdjacentStone(stone, processedStones);
         for nextStones
         do (inout nextStone) {
@@ -121,7 +121,7 @@ Engine: type = {
         return false;
     }
 
-    countTerritory:(inout this, inout stone: Stone, inout count: i16, inout color: Color,
+    private countTerritory:(inout this, inout stone: Stone, inout count: i16, inout color: Color,
         inout processedStones1: State<bool>, inout processedStones2: State<bool>) = {
         if count == 0 {
             return;
@@ -175,7 +175,7 @@ Engine: type = {
                         color:= Color::None;
                         processedStones2: State<bool> = ();
                         countTerritory(goban.state[col][row], count, color, processedStones1, processedStones2);
-                        processedStones2 = processedStones2;
+                        processedStones2 = processedStones2; //CPP2 workaround: Fix inout recursion.
                         if color == Color::Black {
                             blackPoint+= count;
                         }

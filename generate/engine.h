@@ -43,7 +43,7 @@ class Engine {
     public: [[nodiscard]] auto numberOfLiberties(Stone& stone) & -> cpp2::i16;
 
 #line 55 "../src/engine.h2"
-    public: auto removeGroup(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void;
+    private: auto removeGroup(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void;
 
 #line 71 "../src/engine.h2"
     public: [[nodiscard]] auto captureStones(Stone& stone) & -> cpp2::i16;
@@ -55,7 +55,7 @@ class Engine {
     public: [[nodiscard]] auto isFinish() const& -> bool;
 
 #line 124 "../src/engine.h2"
-    public: auto countTerritory(Stone& stone, cpp2::i16& count, Color& color, 
+    private: auto countTerritory(Stone& stone, cpp2::i16& count, Color& color, 
         State<bool>& processedStones1, State<bool>& processedStones2) & -> void;
 
 #line 153 "../src/engine.h2"
@@ -255,7 +255,7 @@ cpp2::i8 row{0};
                         auto color {Color::None}; 
                         State<bool> processedStones2 {}; 
                         countTerritory(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row), count, color, processedStones1, processedStones2);
-                        processedStones2 = processedStones2;
+                        processedStones2 = processedStones2; //CPP2 workaround: Fix inout recursion.
                         if (color == Color::Black) {
                             blackPoint += count;
                         }
