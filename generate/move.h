@@ -29,7 +29,7 @@ class Move {
     public: explicit Move();
 
 #line 14 "../src/move.h2"
-    public: explicit Move(cpp2::impl::in<Color> color, cpp2::impl::in<cpp2::i8> col, cpp2::impl::in<cpp2::i8> row, cpp2::impl::in<std::string> nam, cpp2::impl::in<bool> pas = false);
+    public: explicit Move(cpp2::impl::in<Color> color, cpp2::impl::in<cpp2::i8> col, cpp2::impl::in<cpp2::i8> row, cpp2::impl::in<std::string> nam = "", cpp2::impl::in<bool> pas = false);
 
 #line 20 "../src/move.h2"
     public: Move(Move const& that);
@@ -43,7 +43,12 @@ class Move {
 #line 25 "../src/move.h2"
 };
 
-#line 1 "../src/move.h2"
+// Move Name.
+// Impossible Move.
+// Pass when no more Move.
+// Assert Score.
+// Split player.h2
+
 
 //=== Cpp2 function definitions =================================================
 
@@ -52,7 +57,7 @@ class Move {
 #line 8 "../src/move.h2"
     Move::Move()
         : stone{  }
-        , name{ "" }
+        , name{ "a move" }
         , pass{ false }{
 
 #line 12 "../src/move.h2"

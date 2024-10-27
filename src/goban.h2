@@ -22,42 +22,84 @@ Goban: type = {
         }
     }
 
-    getAdjacentStone:(in this, in s: Stone, in processedStones: State<bool>) -> std::vector<Stone>  = {
+    public getAdjacentStone:(in this, in s: Stone, in processedStones: State<bool>) -> std::vector<Stone>  = {
         // vérifier les bounds.
         adjacent_stones: std::vector<Stone> = ();
-        if s.col > 0 {
-            if !processedStones[s.col-1][s.row] {
-                adjacent_stones.push_back(state[s.col-1][s.row]);
-            }
+        if s.col > 0 && !processedStones[s.col-1][s.row] {
+            adjacent_stones.push_back(state[s.col-1][s.row]);
         }
-        if s.col < 18 {
-            if !processedStones[s.col+1][s.row] {
-                adjacent_stones.push_back(state[s.col+1][s.row]);
-            }
+        if s.col < 18 && !processedStones[s.col+1][s.row] {
+            adjacent_stones.push_back(state[s.col+1][s.row]);
         }
-        if s.row > 0 {
-            if !processedStones[s.col][s.row-1] {
-                adjacent_stones.push_back(state[s.col][s.row-1]);
-            }
+        if s.row > 0 && !processedStones[s.col][s.row-1] {
+            adjacent_stones.push_back(state[s.col][s.row-1]);
         }
-        if s.row < 18 {
-            if !processedStones[s.col][s.row+1] {
+        if s.row < 18 && !processedStones[s.col][s.row+1] {
                 adjacent_stones.push_back(state[s.col][s.row+1]);
-            }
         }
         return adjacent_stones;
     }
 
-    removeStone:(inout this, s: Stone) = {
+    public isTrueEye:(in this, in s: Stone) -> bool = {
+        count: i8 = 0;
+        if s.col > 0 {
+            if state[s.col-1][s.row].color == s.color {
+                count++;
+            }
+        }
+        if s.col < 18 {
+            if state[s.col+1][s.row].color == s.color {
+                count++;
+            }
+        }
+        if s.row > 0 {
+            if state[s.col][s.row-1].color == s.color {
+                count++;
+            }
+        }
+        if s.row < 18 {
+            if state[s.col][s.row+1].color == s.color {
+                count++;
+            }
+        }
+        if s.col > 0 && s.row > 0 {
+            if state[s.col-1][s.row-1].color == s.color {
+                count++;
+            }
+        }
+        if s.col > 0  && s.row < 18 {
+            if state[s.col-1][s.row+1].color == s.color {
+                count++;
+            }
+        }
+        if s.col < 18 && s.row > 0 {
+            if state[s.col+1][s.row-1].color == s.color {
+                count++;
+            }
+        }
+        if s.col < 18  && s.row < 18 {
+            if state[s.col+1][s.row+1].color == s.color {
+                count++;
+            }
+        }
+        return count >= 7;
+    }
+
+    public removeStone:(inout this, in s: Stone) = {
         state[s.col][s.row].color = Color::None;
     }
 
-    lockPosition:(inout this, s: Stone, c: Color) = {
+    public isLockedPosition:(in this, in s: Stone) -> bool = {
+        return lockedPosition.col == s.col &&
+            lockedPosition.row == s.row;
+    }
+
+    public lockPosition:(inout this, in s: Stone, c: Color) = {
         lockedPosition = s;
         lockedPosition.color = c;
     }
 
-    unlockPosition:(inout this) = {
+    public unlockPosition:(inout this) = {
         lockedPosition.color = Color::None;
         lockedPosition.row = -1;
         lockedPosition.col = -1;

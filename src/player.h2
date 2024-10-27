@@ -1,10 +1,13 @@
 #include "move.h2"
+#include "engine.h2"
 #include "io.h2"
+
+using namespace std::chrono_literals;
 
 Player: type = {
     public color: Color;
 
-    public getMove:(virtual this) -> Move;
+    public getMove:(virtual this, inout engine: Engine) -> Move;
 
     public operator=:(out this, c: Color) = {
         color = c;
@@ -27,8 +30,33 @@ Human: type = {
         Player = (that);
     }
 
-    public getMove:(override this) -> Move = {
+    public getMove:(override this, inout _: Engine) -> Move = {
         return getInputMove(color);
+    }
+}
+
+static std::random_device rd;
+static std::mt19937 rng(rd());
+
+Random: type = {
+    this: Player;
+
+    public operator=:(out this, c: Color) = {
+        Player = (c);
+    }
+
+    public operator=:(out this, that) = {
+        Player = (that);
+    }
+
+    public getMove:(override this, inout engine: Engine) -> Move = {
+        std::this_thread::sleep_for(400ms);
+        dist: std::uniform_int_distribution<u32> = (0, 18);
+        col: u32 = dist(rng);
+        row: u32 = dist(rng);
+        m: Move = (color, col, row);
+        //engine.closerValidMove(m);
+        return m;
     }
 }
 

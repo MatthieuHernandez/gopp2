@@ -34,17 +34,17 @@ auto clearInput() -> void;
 #line 23 "../src/io.h2"
 auto printMenu() -> void;
 
-#line 36 "../src/io.h2"
+#line 38 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32;
 
-#line 44 "../src/io.h2"
+#line 46 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
 
-#line 77 "../src/io.h2"
+#line 79 "../src/io.h2"
 // Make it a coroutine without row and col parameter
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 113 "../src/io.h2"
+#line 115 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void;
 
 //=== Cpp2 function definitions =================================================
@@ -83,13 +83,15 @@ auto printMenu() -> void{
     std::cout << "**************************************************" << std::endl;
     std::cout << "* Please select one of the following:            *" << std::endl;
     std::cout << "*                                                *" << std::endl;
-    std::cout << "*     1. Start a game                            *" << std::endl;
-    std::cout << "*     2. Exit                                    *" << std::endl;
+    std::cout << "*     1. Start a game Human vs Human             *" << std::endl;
+    std::cout << "*     2. Start a game Human vs Random            *" << std::endl;
+    std::cout << "*     3. Start a game Random vs Random           *" << std::endl;
+    std::cout << "*     4. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 36 "../src/io.h2"
+#line 38 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32{
     cpp2::i32 input {0}; 
     std::cout << "> ";
@@ -98,7 +100,7 @@ auto printMenu() -> void{
     return input; 
 }
 
-#line 44 "../src/io.h2"
+#line 46 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move{
     std::string input {""}; 
     std::cout << std::endl << colorName(player) << " to play:" << std::endl << "> ";
@@ -106,7 +108,7 @@ auto printMenu() -> void{
     clearInput();
     if ((input == "pass")) {
         setNextMessage("Player pass.");
-        Move m {player, 0, 0, "pass", true}; 
+        Move m {player, -1, -1, "pass", true}; 
         return m; 
     }
     CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) = std::toupper(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0));
@@ -132,7 +134,7 @@ auto printMenu() -> void{
     return m; 
 }
 
-#line 78 "../src/io.h2"
+#line 80 "../src/io.h2"
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
        (row == 9 && (col == 3 || col == 9 || col == 15)) || 
@@ -168,7 +170,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
     }
 }
 
-#line 113 "../src/io.h2"
+#line 115 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;

@@ -17,7 +17,6 @@ Engine: type = {
             goban.state[col][row] = m.stone;
             if goban.lockedPosition.color == m.stone.color {
                 goban.unlockPosition();
-                std::cout << "Stone unlockled." << std::endl;
             }
         }
     }
@@ -50,12 +49,9 @@ Engine: type = {
         nextStones:= goban.getAdjacentStone(stone, processedStones);
         for nextStones
         do (inout nextStone) {
-            std::cout << "stone.color " << stone.color as i32 << std::endl;
-            std::cout << "nextStone.color " << nextStone.color as i32 << std::endl;
             if nextStone.color == stone.color {
                 goban.removeStone(nextStone);
                 processedStones[nextStone.col][nextStone.row] = true;
-                std::cout << "nextStone removed" << std::endl;
                 count++;
                 removeGroup(nextStone, count, processedStones);
             }
@@ -72,7 +68,6 @@ Engine: type = {
             if nextStone.color == color {
                 l:= numberOfLiberties(nextStone);
                 if l == 1 {
-                    std::cout << "Remove group." << std::endl;
                     removeGroup(nextStone, count, processedStones);
                     goban.removeStone(nextStone);
                     count++;
@@ -95,7 +90,8 @@ Engine: type = {
         col:= m.stone.col;
         row:= m.stone.row;
         if goban.state[col][row].color == Color::None &&
-            (goban.lockedPosition.col != col || goban.lockedPosition.row != row) {
+            !goban.isLockedPosition(m.stone) &&
+            !goban.isTrueEye(m.stone) {
             numberOfcapturedStones:= captureStones(m.stone);
             if numberOfLiberties(m.stone) > 0 ||
                 numberOfcapturedStones > 0 {
@@ -180,5 +176,26 @@ Engine: type = {
                 }
             }
         }
+    }
+
+    private findValidMove:(inout this, inout m: Move, inout processedStones: State<bool>) = {
+        if isValidMove(m) {
+            return;
+        }
+        nextStones:= goban.getAdjacentStone(m.stone, processedStones);
+        for nextStones
+        do (inout nextStone) {
+            processedStones[nextStone.col][nextStone.row] = true;
+            nextMove: Move = (m.stone.color, nextStone.col, nextStone.row);
+            findValidMove(nextMove, processedStones);
+            nextMove = nextMove; // CPP2 workaround: Fix inout recursion.
+        }
+        m = Move(m.stone.color, -1, -1, "pass", true);
+    }
+
+    closerValidMove:(inout this, inout m: Move) = {
+        processedStones: State<bool> = ();
+        findValidMove(m, processedStones);
+        processedStones = processedStones;
     }
 }

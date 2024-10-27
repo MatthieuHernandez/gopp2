@@ -37,7 +37,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 47 "../src/game.h2"
+#line 49 "../src/game.h2"
 };
 
 
@@ -56,21 +56,23 @@ class Game {
 #line 16 "../src/game.h2"
     auto Game::play() const& -> void{
         Engine engine {}; 
+        bool isValidMove {true}; 
 {
 auto moveNumber{1};
 
-#line 19 "../src/game.h2"
+#line 20 "../src/game.h2"
         do {
             printGoban(engine.goban);
 
             Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
             if (moveNumber % 2 == 1) {
-                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player1)));
+                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player1)), isValidMove, engine);
             }else {
-                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player2)));
+                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player2)), isValidMove, engine);
             }
             clear();
-            if (CPP2_UFCS(isValidMove)(engine, m)) {
+            isValidMove = CPP2_UFCS(isValidMove)(engine, m);
+            if (isValidMove) {
                 CPP2_UFCS(playMove)(engine, m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             }else {
@@ -79,7 +81,7 @@ auto moveNumber{1};
         ++moveNumber;
         } while ( !(CPP2_UFCS(isFinish)(engine)));
 }
-#line 37 "../src/game.h2"
+#line 39 "../src/game.h2"
         CPP2_UFCS(countScore)(engine);
         if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
             setNextMessage("Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");

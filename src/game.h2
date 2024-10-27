@@ -15,18 +15,20 @@ Game : type = {
 
     play:(in this) = {
         engine: Engine = ();
+        isValidMove: bool = true;
         (copy moveNumber:= 1)
         do {
             printGoban(engine.goban);
 
             m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
             if moveNumber % 2 == 1 {
-                m = player1*.getMove();
+                m = player1*.getMove(isValidMove, engine);
             } else {
-                m = player2*.getMove();
+                m = player2*.getMove(isValidMove, engine);
             }
             clear();
-            if engine.isValidMove(m) {
+            isValidMove = engine.isValidMove(m);
+            if isValidMove {
                 engine.playMove(m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             } else {
