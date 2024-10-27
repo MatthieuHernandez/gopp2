@@ -34,19 +34,19 @@ class Goban {
 #line 25 "../src/goban.h2"
     public: [[nodiscard]] auto getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones) const& -> std::vector<Stone>;
 
-#line 52 "../src/goban.h2"
+#line 51 "../src/goban.h2"
     public: auto removeStone(cpp2::impl::in<Stone> s) & -> void;
 
-#line 56 "../src/goban.h2"
+#line 55 "../src/goban.h2"
     public: auto lockPosition(cpp2::impl::in<Stone> s, cpp2::impl::in<Color> c) & -> void;
 
-#line 61 "../src/goban.h2"
+#line 60 "../src/goban.h2"
     public: auto unlockPosition() & -> void;
     public: Goban(Goban const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Goban const&) -> void = delete;
 
 
-#line 66 "../src/goban.h2"
+#line 65 "../src/goban.h2"
 };
 
 
@@ -103,22 +103,21 @@ cpp2::i8 row{0};
                 CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row + 1));
             }
         }
-        //std::cout << adjacent_stones.ssize() << " adjacent_stones" << std::endl;
         return adjacent_stones; 
     }
 
-#line 52 "../src/goban.h2"
+#line 51 "../src/goban.h2"
     auto Goban::removeStone(cpp2::impl::in<Stone> s) & -> void{
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).color = Color::None;
     }
 
-#line 56 "../src/goban.h2"
+#line 55 "../src/goban.h2"
     auto Goban::lockPosition(cpp2::impl::in<Stone> s, cpp2::impl::in<Color> c) & -> void{
         lockedPosition = s;
         lockedPosition.color = c;
     }
 
-#line 61 "../src/goban.h2"
+#line 60 "../src/goban.h2"
     auto Goban::unlockPosition() & -> void{
         lockedPosition.color = Color::None;
         lockedPosition.row = -1;

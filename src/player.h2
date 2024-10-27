@@ -1,0 +1,34 @@
+#include "move.h2"
+#include "io.h2"
+
+Player: type = {
+    public color: Color;
+
+    public getMove:(virtual this) -> Move;
+
+    public operator=:(out this, c: Color) = {
+        color = c;
+    }
+
+    // CPP2 workaround: Default operator seems not working.
+    public operator=:(out this, that) = {
+        color = that.color;
+    }
+}
+
+Human: type = {
+    this: Player;
+
+    public operator=:(out this, c: Color) = {
+        Player = (c);
+    }
+
+    public operator=:(out this, that) = {
+        Player = (that);
+    }
+
+    public getMove:(override this) -> Move = {
+        return getInputMove(color);
+    }
+}
+

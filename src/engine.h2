@@ -5,14 +5,9 @@ Engine: type = {
 
     public goban: Goban = ();
     public moves: std::vector<Move> = ();
-    public nextMovePlayer: Color;
     
     public blackPoint: i16 = 0;
     public whitePoint: i16 = 0;
-
-   operator=:(out this) = {
-        nextMovePlayer = Color::Black;
-    }
 
     playMove:(inout this, in m: Move) = {
         moves.push_back(m);
@@ -25,7 +20,6 @@ Engine: type = {
                 std::cout << "Stone unlockled." << std::endl;
             }
         }
-        nextMovePlayer = otherColor(nextMovePlayer);
     }
 
     private countLiberties:(inout this, inout stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
@@ -175,7 +169,7 @@ Engine: type = {
                         color:= Color::None;
                         processedStones2: State<bool> = ();
                         countTerritory(goban.state[col][row], count, color, processedStones1, processedStones2);
-                        processedStones2 = processedStones2; //CPP2 workaround: Fix inout recursion.
+                        processedStones2 = processedStones2; // CPP2 workaround: Fix inout recursion.
                         if color == Color::Black {
                             blackPoint+= count;
                         }

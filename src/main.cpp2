@@ -13,7 +13,9 @@ main:() -> int = {
             is 1 = :()->bool = {
                 clear();
                 setNextMessage("Start a new game.");
-                game: Game = ();
+                player1:= Human(Color::Black);
+                player2:= Human(Color::White);
+                game:= Game(player1&, player2&);
                 game.play();
                 return false;
             }();

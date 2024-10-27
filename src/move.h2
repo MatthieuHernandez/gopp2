@@ -5,6 +5,12 @@ Move: type = {
     public name: std::string;
     public pass: bool;
 
+    operator=:(out this) = {
+        stone = ();
+        name = "";
+        pass = false;
+    }
+
     operator=:(out this, color: Color, col: i8, row: i8, nam: std::string, pas: bool = false) = {
         stone = (color, col, row);
         name = nam;

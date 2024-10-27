@@ -11,9 +11,9 @@
 
 #line 1 "../src/game.h2"
 
-#line 5 "../src/game.h2"
+#line 6 "../src/game.h2"
 class Game;
-    
+
 
 //=== Cpp2 type definitions and function declarations ===========================
 
@@ -21,16 +21,23 @@ class Game;
 #include "engine.h"
 #include "move.h"
 #include "io.h"
+#include "player.h"
 
-#line 5 "../src/game.h2"
+#line 6 "../src/game.h2"
 class Game {
-    public: static auto play() -> void;
-    public: Game() = default;
+
+    private: std::shared_ptr<Player> player1; // CPP2 workaround: Not able to make unique_prtr work.
+    private: std::shared_ptr<Player> player2; 
+
+    public: explicit Game(Player* p1, Player* p2);
+
+#line 16 "../src/game.h2"
+    public: auto play() const& -> void;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 33 "../src/game.h2"
+#line 47 "../src/game.h2"
 };
 
 
@@ -38,24 +45,41 @@ class Game {
 
 #line 1 "../src/game.h2"
 
-#line 6 "../src/game.h2"
-    auto Game::play() -> void{
+#line 11 "../src/game.h2"
+    Game::Game(Player* p1, Player* p2)
+        : player1{ p1 }
+        , player2{ p2 }{
+
+#line 14 "../src/game.h2"
+    }
+
+#line 16 "../src/game.h2"
+    auto Game::play() const& -> void{
         Engine engine {}; 
+{
+auto moveNumber{1};
+
+#line 19 "../src/game.h2"
         do {
             printGoban(engine.goban);
-            auto m {getInputMove(engine.nextMovePlayer)}; 
-            //clear();
+
+            Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
+            if (moveNumber % 2 == 1) {
+                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player1)));
+            }else {
+                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player2)));
+            }
+            clear();
             if (CPP2_UFCS(isValidMove)(engine, m)) {
                 CPP2_UFCS(playMove)(engine, m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
-            }
-            else {
+            }else {
                 setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
             }
-            std::cout << "lockedPosition " << cpp2::impl::as_<cpp2::i32>(engine.goban.lockedPosition.col) 
-            << " " << cpp2::impl::as_<cpp2::i32>(engine.goban.lockedPosition.row) 
-            << " " << cpp2::impl::as_<cpp2::i32>(engine.goban.lockedPosition.color) << std::endl;
+        ++moveNumber;
         } while ( !(CPP2_UFCS(isFinish)(engine)));
+}
+#line 37 "../src/game.h2"
         CPP2_UFCS(countScore)(engine);
         if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
             setNextMessage("Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");
@@ -65,6 +89,6 @@ class Game {
         }
         printGoban(cpp2::move(engine).goban);
         static_cast<void>(getInputMenu());
-}
+    }
 #endif
 

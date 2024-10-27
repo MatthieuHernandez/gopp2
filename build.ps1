@@ -4,6 +4,7 @@ cppfront -cwd ./generate ../src/move.h2 -import-std |
 cppfront -cwd ./generate ../src/goban.h2  -import-std |
 cppfront -cwd ./generate ../src/engine.h2 -import-std |
 cppfront -cwd ./generate ../src/io.h2 -import-std |
+cppfront -cwd ./generate ../src/player.h2 -import-std |
 cppfront -cwd ./generate ../src/game.h2 -import-std |
 cppfront -cwd ./generate ../src/main.cpp2 -import-std
 if (!$?) { Exit $LASTEXITCODE }

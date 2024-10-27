@@ -32,15 +32,15 @@
         printMenu();
         int selection {getInputMenu()}; 
         exit = [&] () -> bool { auto&& _expr = cpp2::move(selection);
-            if (cpp2::impl::is(_expr, 1)) { if constexpr( requires{[]() -> bool{clear();setNextMessage("Start a new game.");Game game {}; CPP2_UFCS(play)(cpp2::move(game));return false; }();} ) if constexpr( std::is_convertible_v<CPP2_TYPEOF(([]() -> bool{clear();setNextMessage("Start a new game.");Game game {}; CPP2_UFCS(play)(cpp2::move(game));return false; }())),bool> ) return []() -> bool{clear();setNextMessage("Start a new game.");Game game {}; CPP2_UFCS(play)(cpp2::move(game));return false; }(); else return bool{}; else return bool{}; }
+            if (cpp2::impl::is(_expr, 1)) { if constexpr( requires{[]() -> bool{clear();setNextMessage("Start a new game.");auto player1 {Human(Color::Black)}; auto player2 {Human(Color::White)}; auto game {Game(&player1, &player2)}; CPP2_UFCS(play)(cpp2::move(game));return false; }();} ) if constexpr( std::is_convertible_v<CPP2_TYPEOF(([]() -> bool{clear();setNextMessage("Start a new game.");auto player1 {Human(Color::Black)}; auto player2 {Human(Color::White)}; auto game {Game(&player1, &player2)}; CPP2_UFCS(play)(cpp2::move(game));return false; }())),bool> ) return []() -> bool{clear();setNextMessage("Start a new game.");auto player1 {Human(Color::Black)}; auto player2 {Human(Color::White)}; auto game {Game(&player1, &player2)}; CPP2_UFCS(play)(cpp2::move(game));return false; }(); else return bool{}; else return bool{}; }
 
-#line 20 "../src/main.cpp2"
+#line 22 "../src/main.cpp2"
            else if (cpp2::impl::is(_expr, 2)) { if constexpr( requires{[]() -> bool{clear("Bye.");return true; }();} ) if constexpr( std::is_convertible_v<CPP2_TYPEOF(([]() -> bool{clear("Bye.");return true; }())),bool> ) return []() -> bool{clear("Bye.");return true; }(); else return bool{}; else return bool{}; }
 
-#line 24 "../src/main.cpp2"
+#line 26 "../src/main.cpp2"
             else return []() -> bool{setNextMessage("Invalid selection.");return false; }(); }
 
-#line 28 "../src/main.cpp2"
+#line 30 "../src/main.cpp2"
         ();
     } while ( !(exit));
   return 0; 

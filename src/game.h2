@@ -1,24 +1,38 @@
 #include "engine.h2"
 #include "move.h2"
 #include "io.h2"
+#include "player.h2"
 
 Game : type = {
-    play : () = {
-        engine : Engine = ();
+
+    player1: std::shared_ptr<Player>; // CPP2 workaround: Not able to make unique_prtr work.
+    player2: std::shared_ptr<Player>;
+
+    operator=:(out this, p1: *Player, p2: *Player) = {
+        player1 = (p1);
+        player2 = (p2);
+    }
+
+    play:(in this) = {
+        engine: Engine = ();
+        (copy moveNumber:= 1)
         do {
             printGoban(engine.goban);
-            m: = getInputMove(engine.nextMovePlayer);
-            //clear();
+
+            m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
+            if moveNumber % 2 == 1 {
+                m = player1*.getMove();
+            } else {
+                m = player2*.getMove();
+            }
+            clear();
             if engine.isValidMove(m) {
                 engine.playMove(m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
-            }
-            else {
+            } else {
                 setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
             }
-            std::cout << "lockedPosition "<< engine.goban.lockedPosition.col as i32
-            << " " << engine.goban.lockedPosition.row as i32
-            << " " << engine.goban.lockedPosition.color as i32 << std::endl;
+        moveNumber++;
         } while !engine.isFinish();
         engine.countScore();
         if (engine.blackPoint > engine.whitePoint) {
@@ -29,5 +43,5 @@ Game : type = {
         }
         printGoban(engine.goban);
         _ = getInputMenu();
-}
+    }
 }
