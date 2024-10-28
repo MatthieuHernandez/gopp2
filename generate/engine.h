@@ -60,14 +60,14 @@ class Engine {
 #line 181 "../src/engine.h2"
     private: auto findValidMove(Move& m, State<bool>& processedStones) & -> void;
 
-#line 196 "../src/engine.h2"
-    public: auto getCloserValidMove(Move& m) & -> void;
+#line 195 "../src/engine.h2"
+    public: auto closerValidMove(Move& m) & -> void;
     public: Engine() = default;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 201 "../src/engine.h2"
+#line 203 "../src/engine.h2"
 };
 
 
@@ -265,25 +265,27 @@ cpp2::i8 row{0};
 
 #line 181 "../src/engine.h2"
     auto Engine::findValidMove(Move& m, State<bool>& processedStones) & -> void{
+        CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, m.stone.col), m.stone.row) = true;
         if (isValidMove(m)) {
             return ; 
         }
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, m.stone, processedStones)}; 
         for ( 
         auto& nextStone : cpp2::move(nextStones) ) {
-            CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, nextStone.col), nextStone.row) = true;
-            Move nextMove {m.stone.color, nextStone.col, nextStone.row}; 
-            findValidMove(nextMove, processedStones);
-            nextMove = nextMove; // CPP2 workaround: Fix inout recursion.
+            m.stone.col = nextStone.col;
+            m.stone.row = nextStone.row;
+            findValidMove(m, processedStones);
         }
-        m = Move(m.stone.color, -1, -1, "pass", true);
     }
 
-#line 196 "../src/engine.h2"
-    auto Engine::getCloserValidMove(Move& m) & -> void{
+#line 195 "../src/engine.h2"
+    auto Engine::closerValidMove(Move& m) & -> void{
         State<bool> processedStones {}; 
         findValidMove(m, processedStones);
-        processedStones = processedStones;
+        processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
+        if (!(isValidMove(m))) {
+            m = Move(m.stone.color, -1, -1, "pass", true);
+        }
     }
 #endif
 

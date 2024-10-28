@@ -22,9 +22,9 @@ Game : type = {
 
             m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
             if moveNumber % 2 == 1 {
-                m = player1*.getMove(isValidMove, engine);
+                m = player1*.getMove(engine);
             } else {
-                m = player2*.getMove(isValidMove, engine);
+                m = player2*.getMove(engine);
             }
             clear();
             isValidMove = engine.isValidMove(m);

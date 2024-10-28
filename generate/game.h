@@ -66,9 +66,9 @@ auto moveNumber{1};
 
             Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
             if (moveNumber % 2 == 1) {
-                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player1)), isValidMove, engine);
+                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player1)), engine);
             }else {
-                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player2)), isValidMove, engine);
+                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player2)), engine);
             }
             clear();
             isValidMove = CPP2_UFCS(isValidMove)(engine, m);

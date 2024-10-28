@@ -133,12 +133,12 @@ class Random: public Player {
 
 #line 52 "../src/player.h2"
     [[nodiscard]] auto Random::getMove(Engine& engine) const -> Move{
-        std::this_thread::sleep_for(400ms);
-        std::uniform_int_distribution<cpp2::u32> dist {0, 18}; 
-        cpp2::u32 col {dist(rng)}; 
-        cpp2::u32 row {cpp2::move(dist)(rng)}; 
-        Move m {color, cpp2::move(col), cpp2::move(row)}; 
-        //engine.closerValidMove(m);
+        std::this_thread::sleep_for(100ms);
+        std::uniform_int_distribution<cpp2::i32> dist {0, 18}; 
+        cpp2::i32 col {dist(rng)}; 
+        cpp2::i32 row {cpp2::move(dist)(rng)}; 
+        auto m {Move(color, cpp2::move(col), cpp2::move(row))}; 
+        CPP2_UFCS(closerValidMove)(engine, m);
         return m; 
     }
 #endif

@@ -183,19 +183,21 @@ Engine: type = {
             return;
         }
         nextStones:= goban.getAdjacentStone(m.stone, processedStones);
+        processedStones[m.stone.col][m.stone.row] = true;
         for nextStones
         do (inout nextStone) {
-            processedStones[nextStone.col][nextStone.row] = true;
-            nextMove: Move = (m.stone.color, nextStone.col, nextStone.row);
-            findValidMove(nextMove, processedStones);
-            nextMove = nextMove; // CPP2 workaround: Fix inout recursion.
+            m.stone.col = nextStone.col;
+            m.stone.row = nextStone.row;
+            findValidMove(m, processedStones);
         }
-        m = Move(m.stone.color, -1, -1, "pass", true);
     }
 
     closerValidMove:(inout this, inout m: Move) = {
         processedStones: State<bool> = ();
         findValidMove(m, processedStones);
-        processedStones = processedStones;
+        processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
+        if !isValidMove(m) {
+            m = Move(m.stone.color, -1, -1, "pass", true);
+        }
     }
 }

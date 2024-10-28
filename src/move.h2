@@ -25,7 +25,7 @@ Move: type = {
 }
 
 // Move Name.
-// Impossible Move: 7 backs around and 1 white connected
+// Impossible Move: 7 backs around and 1 white connected (4 blacks + 3 blacks != 7 blacks)
 // Pass when no more Move.
 // Assert Score.
 // Split player.h2

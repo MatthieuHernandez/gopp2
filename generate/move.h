@@ -44,7 +44,7 @@ class Move {
 };
 
 // Move Name.
-// Impossible Move.
+// Impossible Move: 7 backs around and 1 white connected (4 blacks + 3 blacks != 7 blacks)
 // Pass when no more Move.
 // Assert Score.
 // Split player.h2

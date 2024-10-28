@@ -50,12 +50,12 @@ Random: type = {
     }
 
     public getMove:(override this, inout engine: Engine) -> Move = {
-        std::this_thread::sleep_for(400ms);
-        dist: std::uniform_int_distribution<u32> = (0, 18);
-        col: u32 = dist(rng);
-        row: u32 = dist(rng);
-        m: Move = (color, col, row);
-        //engine.closerValidMove(m);
+        std::this_thread::sleep_for(100ms);
+        dist: std::uniform_int_distribution<i32> = (0, 18);
+        col: i32 = dist(rng);
+        row: i32 = dist(rng);
+        m:= Move(color, col, row);
+        engine.closerValidMove(m);
         return m;
     }
 }
