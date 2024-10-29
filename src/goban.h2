@@ -41,27 +41,13 @@ Goban: type = {
     }
 
     public isTrueEye:(in this, in s: Stone) -> bool = {
+        if (s.col > 0 && state[s.col-1][s.row].color != s.color) ||
+            (s.col < 18 && state[s.col+1][s.row].color != s.color) ||
+            (s.row > 0 && state[s.col][s.row-1].color != s.color) ||
+            (s.row < 18 && state[s.col][s.row+1].color != s.color) {
+                return false;
+        }
         count: i8 = 0;
-        if s.col > 0 {
-            if state[s.col-1][s.row].color == s.color {
-                count++;
-            }
-        }
-        if s.col < 18 {
-            if state[s.col+1][s.row].color == s.color {
-                count++;
-            }
-        }
-        if s.row > 0 {
-            if state[s.col][s.row-1].color == s.color {
-                count++;
-            }
-        }
-        if s.row < 18 {
-            if state[s.col][s.row+1].color == s.color {
-                count++;
-            }
-        }
         if s.col > 0 && s.row > 0 {
             if state[s.col-1][s.row-1].color == s.color {
                 count++;
@@ -82,7 +68,7 @@ Goban: type = {
                 count++;
             }
         }
-        return count >= 7;
+        return count >= 3;
     }
 
     public removeStone:(inout this, in s: Stone) = {

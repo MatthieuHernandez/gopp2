@@ -58,16 +58,16 @@ class Engine {
     public: auto countScore() & -> void;
 
 #line 181 "../src/engine.h2"
-    private: auto findValidMove(Move& m, State<bool>& processedStones) & -> void;
+    private: auto findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count) & -> void;
 
-#line 195 "../src/engine.h2"
+#line 199 "../src/engine.h2"
     public: auto closerValidMove(Move& m) & -> void;
     public: Engine() = default;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 203 "../src/engine.h2"
+#line 209 "../src/engine.h2"
 };
 
 
@@ -264,28 +264,34 @@ cpp2::i8 row{0};
     }
 
 #line 181 "../src/engine.h2"
-    auto Engine::findValidMove(Move& m, State<bool>& processedStones) & -> void{
-        CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, m.stone.col), m.stone.row) = true;
+    auto Engine::findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count) & -> void{
+        ++count;
+        if (cpp2::cpp2_default.is_active() && !(cpp2::impl::cmp_less_eq(count,361)) ) { cpp2::cpp2_default.report_violation(""); }
         if (isValidMove(m)) {
             return ; 
         }
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, m.stone, processedStones)}; 
+        CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, m.stone.col), m.stone.row) = true;
         for ( 
         auto& nextStone : cpp2::move(nextStones) ) {
             m.stone.col = nextStone.col;
             m.stone.row = nextStone.row;
-            findValidMove(m, processedStones);
+            if (!(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, m.stone.col), m.stone.row))) {
+                findValidMove(m, processedStones, count);
+            }
         }
     }
 
-#line 195 "../src/engine.h2"
+#line 199 "../src/engine.h2"
     auto Engine::closerValidMove(Move& m) & -> void{
-        State<bool> processedStones {}; 
-        findValidMove(m, processedStones);
+        State<bool> processedStones {false}; 
+        cpp2::i32 count {0}; 
+        findValidMove(m, processedStones, count);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
         if (!(isValidMove(m))) {
-            m = Move(m.stone.color, -1, -1, "pass", true);
+            m = Move(m.stone.color, -1, -1, true);
         }
+        count = count;
     }
 #endif
 

@@ -38,13 +38,16 @@ auto printMenu() -> void;
 [[nodiscard]] auto getInputMenu() -> cpp2::i32;
 
 #line 46 "../src/io.h2"
+auto waitInput() -> void;
+
+#line 52 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
 
-#line 79 "../src/io.h2"
+#line 85 "../src/io.h2"
 // Make it a coroutine without row and col parameter
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 115 "../src/io.h2"
+#line 121 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void;
 
 //=== Cpp2 function definitions =================================================
@@ -101,6 +104,13 @@ auto printMenu() -> void{
 }
 
 #line 46 "../src/io.h2"
+auto waitInput() -> void{
+    std::string input {""}; 
+    std::cout << "> ";
+    CPP2_UFCS(get)(std::cin);
+}
+
+#line 52 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move{
     std::string input {""}; 
     std::cout << std::endl << colorName(player) << " to play:" << std::endl << "> ";
@@ -108,7 +118,7 @@ auto printMenu() -> void{
     clearInput();
     if ((input == "pass")) {
         setNextMessage("Player pass.");
-        Move m {player, -1, -1, "pass", true}; 
+        Move m {player, -1, -1, true}; 
         return m; 
     }
     CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) = std::toupper(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0));
@@ -126,15 +136,15 @@ auto printMenu() -> void{
     }
     cpp2::i8 row {0}; 
     if (CPP2_UFCS(ssize)(input) == 2) {
-        row = CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) - 49;
+        row = CPP2_ASSERT_IN_BOUNDS_LITERAL(cpp2::move(input), 1) - 49;
     }else {
         row = ((CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) - 48) * 10) + (CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2) - 49);
     }
-    Move m {player, cpp2::move(col), cpp2::move(row), cpp2::move(input), false}; 
+    Move m {player, cpp2::move(col), cpp2::move(row), false}; 
     return m; 
 }
 
-#line 80 "../src/io.h2"
+#line 86 "../src/io.h2"
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
        (row == 9 && (col == 3 || col == 9 || col == 15)) || 
@@ -170,7 +180,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
     }
 }
 
-#line 115 "../src/io.h2"
+#line 121 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;

@@ -43,6 +43,12 @@ getInputMenu:() -> i32 = {
     return input;
 }
 
+waitInput:() = {
+    input: std::string = "";
+    std::cout << "> ";
+    std::cin.get();
+}
+
 getInputMove:(player: Color) -> Move = {
     input: std::string = "";
     std::cout << std::endl << colorName(player) << " to play:" << std::endl << "> ";
@@ -50,7 +56,7 @@ getInputMove:(player: Color) -> Move = {
     clearInput();
     if(input == "pass") {
         setNextMessage("Player pass.");
-        m: Move = (player, -1, -1, "pass", true);
+        m: Move = (player, -1, -1, true);
         return m;
     }
     input[0] = std::toupper(input[0]);
@@ -72,7 +78,7 @@ getInputMove:(player: Color) -> Move = {
     } else {
         row = ((input[1] - 48) * 10) + (input[2] - 49);
     }
-    m: Move = (player, col, row, input, false);
+    m: Move = (player, col, row, false);
     return m;
 }
 

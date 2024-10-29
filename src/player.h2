@@ -17,6 +17,10 @@ Player: type = {
     public operator=:(out this, that) = {
         color = that.color;
     }
+
+    // CPP2 workaround: Default operator seems not working.
+    public operator=:(virtual move this) = {
+    }
 }
 
 Human: type = {
@@ -50,7 +54,7 @@ Random: type = {
     }
 
     public getMove:(override this, inout engine: Engine) -> Move = {
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(50ms);
         dist: std::uniform_int_distribution<i32> = (0, 18);
         col: i32 = dist(rng);
         row: i32 = dist(rng);

@@ -15,11 +15,11 @@
 class Player;
     
 
-#line 22 "../src/player.h2"
+#line 26 "../src/player.h2"
 class Human;
     
 
-#line 41 "../src/player.h2"
+#line 45 "../src/player.h2"
 class Random;
     
 
@@ -44,21 +44,24 @@ class Player {
     // CPP2 workaround: Default operator seems not working.
     public: Player(Player const& that);
 
-#line 20 "../src/player.h2"
+#line 21 "../src/player.h2"
+    // CPP2 workaround: Default operator seems not working.
+    public: virtual ~Player() noexcept;
+
 };
 
 class Human: public Player {
 
-#line 25 "../src/player.h2"
+#line 29 "../src/player.h2"
     public: explicit Human(cpp2::impl::in<Color> c);
 
-#line 29 "../src/player.h2"
+#line 33 "../src/player.h2"
     public: Human(Human const& that);
 
-#line 33 "../src/player.h2"
+#line 37 "../src/player.h2"
     public: [[nodiscard]] auto getMove([[maybe_unused]] Engine& unnamed_param_2) const -> Move override;
 
-#line 36 "../src/player.h2"
+#line 40 "../src/player.h2"
 };
 
 static std::random_device rd;
@@ -66,16 +69,16 @@ static std::mt19937 rng(rd());
 
 class Random: public Player {
 
-#line 44 "../src/player.h2"
+#line 48 "../src/player.h2"
     public: explicit Random(cpp2::impl::in<Color> c);
 
-#line 48 "../src/player.h2"
+#line 52 "../src/player.h2"
     public: Random(Random const& that);
 
-#line 52 "../src/player.h2"
+#line 56 "../src/player.h2"
     public: [[nodiscard]] auto getMove(Engine& engine) const -> Move override;
 
-#line 61 "../src/player.h2"
+#line 65 "../src/player.h2"
 };
 
 #line 1 "../src/player.h2"
@@ -98,42 +101,46 @@ class Random: public Player {
 #line 19 "../src/player.h2"
     }
 
-#line 25 "../src/player.h2"
-    Human::Human(cpp2::impl::in<Color> c)
-        : Player{ c }{
-
-#line 27 "../src/player.h2"
+#line 22 "../src/player.h2"
+    Player::~Player() noexcept{
     }
 
 #line 29 "../src/player.h2"
-    Human::Human(Human const& that)
-        : Player{ that }{
+    Human::Human(cpp2::impl::in<Color> c)
+        : Player{ c }{
 
 #line 31 "../src/player.h2"
     }
 
 #line 33 "../src/player.h2"
+    Human::Human(Human const& that)
+        : Player{ that }{
+
+#line 35 "../src/player.h2"
+    }
+
+#line 37 "../src/player.h2"
     [[nodiscard]] auto Human::getMove([[maybe_unused]] Engine& unnamed_param_2) const -> Move{
         return getInputMove(color); 
     }
 
-#line 44 "../src/player.h2"
+#line 48 "../src/player.h2"
     Random::Random(cpp2::impl::in<Color> c)
         : Player{ c }{
-
-#line 46 "../src/player.h2"
-    }
-
-#line 48 "../src/player.h2"
-    Random::Random(Random const& that)
-        : Player{ that }{
 
 #line 50 "../src/player.h2"
     }
 
 #line 52 "../src/player.h2"
+    Random::Random(Random const& that)
+        : Player{ that }{
+
+#line 54 "../src/player.h2"
+    }
+
+#line 56 "../src/player.h2"
     [[nodiscard]] auto Random::getMove(Engine& engine) const -> Move{
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(50ms);
         std::uniform_int_distribution<cpp2::i32> dist {0, 18}; 
         cpp2::i32 col {dist(rng)}; 
         cpp2::i32 row {cpp2::move(dist)(rng)}; 

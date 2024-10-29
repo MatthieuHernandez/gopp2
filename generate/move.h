@@ -23,29 +23,27 @@ class Move;
 #line 3 "../src/move.h2"
 class Move {
     public: Stone stone; 
-    public: std::string name; 
     public: bool pass; 
+    public: std::string name; 
 
     public: explicit Move();
 
 #line 14 "../src/move.h2"
-    public: explicit Move(cpp2::impl::in<Color> color, cpp2::impl::in<cpp2::i8> col, cpp2::impl::in<cpp2::i8> row, cpp2::impl::in<std::string> nam = "", cpp2::impl::in<bool> pas = false);
+    public: explicit Move(cpp2::impl::in<Color> color, cpp2::impl::in<cpp2::i8> col, cpp2::impl::in<cpp2::i8> row, cpp2::impl::in<bool> pas = false);
 
-#line 20 "../src/move.h2"
+#line 28 "../src/move.h2"
     public: Move(Move const& that);
-#line 20 "../src/move.h2"
+#line 28 "../src/move.h2"
     public: auto operator=(Move const& that) -> Move& ;
-#line 20 "../src/move.h2"
+#line 28 "../src/move.h2"
     public: Move(Move&& that) noexcept;
-#line 20 "../src/move.h2"
+#line 28 "../src/move.h2"
     public: auto operator=(Move&& that) noexcept -> Move& ;
 
-#line 25 "../src/move.h2"
+#line 33 "../src/move.h2"
 };
 
-// Move Name.
 // Impossible Move: 7 backs around and 1 white connected (4 blacks + 3 blacks != 7 blacks)
-// Pass when no more Move.
 // Assert Score.
 // Split player.h2
 
@@ -57,54 +55,68 @@ class Move {
 #line 8 "../src/move.h2"
     Move::Move()
         : stone{  }
-        , name{ "a move" }
-        , pass{ false }{
+        , pass{ false }
+        , name{ "" }{
 
 #line 12 "../src/move.h2"
     }
 
 #line 14 "../src/move.h2"
-    Move::Move(cpp2::impl::in<Color> color, cpp2::impl::in<cpp2::i8> col, cpp2::impl::in<cpp2::i8> row, cpp2::impl::in<std::string> nam, cpp2::impl::in<bool> pas)
+    Move::Move(cpp2::impl::in<Color> color, cpp2::impl::in<cpp2::i8> col, cpp2::impl::in<cpp2::i8> row, cpp2::impl::in<bool> pas)
         : stone{ color, col, row }
-        , name{ nam }
-        , pass{ pas }{
+        , pass{ pas }
+        , name{ "pass" }{
 
 #line 18 "../src/move.h2"
+        if (!(pass)) {
+            char colName {col}; 
+            colName +=  65;
+            if (cpp2::impl::cmp_greater(col,7)) {// No I column
+                ++colName;
+            }
+            name = cpp2::move(colName) + cpp2::impl::as_<std::string>((row + 1));
+        }
     }
 
-#line 20 "../src/move.h2"
+#line 28 "../src/move.h2"
     Move::Move(Move const& that)
         : stone{ that.stone }
-        , name{ that.name }
-        , pass{ that.pass }{
+        , pass{ that.pass }
+        , name{ that.name }{
 
-#line 24 "../src/move.h2"
+#line 31 "../src/move.h2"
+        pass = that.pass;
     }
-#line 20 "../src/move.h2"
+#line 28 "../src/move.h2"
     auto Move::operator=(Move const& that) -> Move& {
         stone = that.stone;
+        pass = that.pass;
         name = that.name;
+
+#line 31 "../src/move.h2"
         pass = that.pass;
         return *this;
-
-#line 24 "../src/move.h2"
+#line 32 "../src/move.h2"
     }
-#line 20 "../src/move.h2"
+#line 28 "../src/move.h2"
     Move::Move(Move&& that) noexcept
         : stone{ cpp2::move(that).stone }
-        , name{ cpp2::move(that).name }
-        , pass{ cpp2::move(that).pass }{
+        , pass{ std::move(that).pass }
+        , name{ cpp2::move(that).name }{
 
-#line 24 "../src/move.h2"
+#line 31 "../src/move.h2"
+        pass = cpp2::move(that).pass;
     }
-#line 20 "../src/move.h2"
+#line 28 "../src/move.h2"
     auto Move::operator=(Move&& that) noexcept -> Move& {
         stone = cpp2::move(that).stone;
+        pass = std::move(that).pass;
         name = cpp2::move(that).name;
+
+#line 31 "../src/move.h2"
         pass = cpp2::move(that).pass;
         return *this;
-
-#line 24 "../src/move.h2"
+#line 32 "../src/move.h2"
     }
 #endif
 

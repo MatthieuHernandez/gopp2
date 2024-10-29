@@ -29,7 +29,7 @@ class Game {
     private: std::shared_ptr<Player> player1; // CPP2 workaround: Not able to make unique_prtr work.
     private: std::shared_ptr<Player> player2; 
 
-    public: explicit Game(Player* p1, Player* p2);
+    public: explicit Game(cpp2::impl::in<std::shared_ptr<Player>> p1, cpp2::impl::in<std::shared_ptr<Player>> p2);
 
 #line 16 "../src/game.h2"
     public: auto play() const& -> void;
@@ -46,7 +46,7 @@ class Game {
 #line 1 "../src/game.h2"
 
 #line 11 "../src/game.h2"
-    Game::Game(Player* p1, Player* p2)
+    Game::Game(cpp2::impl::in<std::shared_ptr<Player>> p1, cpp2::impl::in<std::shared_ptr<Player>> p2)
         : player1{ p1 }
         , player2{ p2 }{
 
@@ -62,6 +62,7 @@ auto moveNumber{1};
 
 #line 20 "../src/game.h2"
         do {
+            // clear();
             printGoban(engine.goban);
 
             Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
@@ -70,7 +71,6 @@ auto moveNumber{1};
             }else {
                 m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player2)), engine);
             }
-            clear();
             isValidMove = CPP2_UFCS(isValidMove)(engine, m);
             if (isValidMove) {
                 CPP2_UFCS(playMove)(engine, m);
@@ -90,7 +90,7 @@ auto moveNumber{1};
             setNextMessage("White win " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5 to " + cpp2::impl::as_<std::string>(engine.blackPoint) + ".");
         }
         printGoban(cpp2::move(engine).goban);
-        static_cast<void>(getInputMenu());
+        waitInput();
     }
 #endif
 

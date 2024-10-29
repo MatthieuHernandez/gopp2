@@ -13,27 +13,27 @@ main:() -> int = {
             is 1 = :()->bool = {
                 clear();
                 setNextMessage("Start a new game.");
-                player1:= Human(Color::Black);
-                player2:= Human(Color::White);
-                game:= Game(player1&, player2&);
+                player1:= shared.new<Human>(Color::Black);
+                player2:= shared.new<Human>(Color::White);
+                game:= Game(player1, player2);
                 game.play();
                 return false;
             }();
             is 2 = :()->bool = {
                 clear();
                 setNextMessage("Start a new game.");
-                player1:= Human(Color::Black);
-                player2:= Random(Color::White);
-                game:= Game(player1&, player2&);
+                player1:= shared.new<Human>(Color::Black);
+                player2:= shared.new<Random>(Color::White);
+                game:= Game(player1, player2);
                 game.play();
                 return false;
             }();
             is 3 = :()->bool = {
                 clear();
                 setNextMessage("Start a new game.");
-                player1:= Random(Color::Black);
-                player2:= Random(Color::White);
-                game:= Game(player1&, player2&);
+                player1:= shared.new<Random>(Color::Black);
+                player2:= shared.new<Random>(Color::White);
+                game:= Game(player1, player2);
                 game.play();
                 return false;
             }();

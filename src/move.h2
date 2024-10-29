@@ -2,19 +2,27 @@
 
 Move: type = {
     public stone: Stone;
-    public name: std::string;
     public pass: bool;
+    public name: std::string;
 
     operator=:(out this) = {
         stone = ();
-        name = "a move";
         pass = false;
+        name = "";
     }
 
-    operator=:(out this, color: Color, col: i8, row: i8, nam: std::string = "", pas: bool = false) = {
+    operator=:(out this, color: Color, col: i8, row: i8, pas: bool = false) = {
         stone = (color, col, row);
-        name = nam;
         pass = pas;
+        name = "pass";
+        if !pass {
+            colName: char = col;
+            colName +=  65;
+            if col > 7 { // No I column
+                colName++;
+            }
+            name = colName + (row + 1) as std::string;
+        }
     }
 
     operator=:(out this, that) = {
@@ -24,8 +32,6 @@ Move: type = {
     }
 }
 
-// Move Name.
 // Impossible Move: 7 backs around and 1 white connected (4 blacks + 3 blacks != 7 blacks)
-// Pass when no more Move.
 // Assert Score.
 // Split player.h2

@@ -178,7 +178,9 @@ Engine: type = {
         }
     }
 
-    private findValidMove:(inout this, inout m: Move, inout processedStones: State<bool>) = {
+    private findValidMove:(inout this, inout m: Move, inout processedStones: State<bool>, inout count: i32) = {
+        count++;
+        assert(count <= 361);
         if isValidMove(m) {
             return;
         }
@@ -188,16 +190,20 @@ Engine: type = {
         do (inout nextStone) {
             m.stone.col = nextStone.col;
             m.stone.row = nextStone.row;
-            findValidMove(m, processedStones);
+            if !processedStones[m.stone.col][m.stone.row] {
+                findValidMove(m, processedStones, count);
+            }
         }
     }
 
     closerValidMove:(inout this, inout m: Move) = {
-        processedStones: State<bool> = ();
-        findValidMove(m, processedStones);
+        processedStones: State<bool> = (false);
+        count: i32 = 0;
+        findValidMove(m, processedStones, count);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
         if !isValidMove(m) {
-            m = Move(m.stone.color, -1, -1, "pass", true);
+            m = Move(m.stone.color, -1, -1, true);
         }
+        count = count;
     }
 }

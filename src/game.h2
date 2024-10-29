@@ -8,7 +8,7 @@ Game : type = {
     player1: std::shared_ptr<Player>; // CPP2 workaround: Not able to make unique_prtr work.
     player2: std::shared_ptr<Player>;
 
-    operator=:(out this, p1: *Player, p2: *Player) = {
+    operator=:(out this, p1: std::shared_ptr<Player>, p2: std::shared_ptr<Player>) = {
         player1 = (p1);
         player2 = (p2);
     }
@@ -18,15 +18,14 @@ Game : type = {
         isValidMove: bool = true;
         (copy moveNumber:= 1)
         do {
+            // clear();
             printGoban(engine.goban);
-
             m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
             if moveNumber % 2 == 1 {
                 m = player1*.getMove(engine);
             } else {
                 m = player2*.getMove(engine);
             }
-            clear();
             isValidMove = engine.isValidMove(m);
             if isValidMove {
                 engine.playMove(m);
@@ -44,6 +43,6 @@ Game : type = {
             setNextMessage("White win " + engine.whitePoint as std::string + ".5 to " + engine.blackPoint as std::string + ".");
         }
         printGoban(engine.goban);
-        _ = getInputMenu();
+        waitInput();
     }
 }
