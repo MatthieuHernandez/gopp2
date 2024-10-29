@@ -37,7 +37,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 48 "../src/game.h2"
+#line 46 "../src/game.h2"
 };
 
 
@@ -56,11 +56,10 @@ class Game {
 #line 16 "../src/game.h2"
     auto Game::play() const& -> void{
         Engine engine {}; 
-        bool isValidMove {true}; 
 {
 auto moveNumber{1};
 
-#line 20 "../src/game.h2"
+#line 19 "../src/game.h2"
         do {
             // clear();
             printGoban(engine.goban);
@@ -70,8 +69,7 @@ auto moveNumber{1};
             }else {
                 m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player2)), engine);
             }
-            isValidMove = CPP2_UFCS(isValidMove)(engine, m);
-            if (isValidMove) {
+            if (m.isValid) {
                 CPP2_UFCS(playMove)(engine, m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             }else {
@@ -80,7 +78,7 @@ auto moveNumber{1};
         ++moveNumber;
         } while ( !(CPP2_UFCS(isFinish)(engine)));
 }
-#line 38 "../src/game.h2"
+#line 36 "../src/game.h2"
         CPP2_UFCS(countScore)(engine);
         if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
             setNextMessage("Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");

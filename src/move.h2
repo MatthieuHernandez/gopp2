@@ -4,17 +4,20 @@ Move: type = {
     public stone: Stone;
     public pass: bool;
     public name: std::string;
+    public isValid: bool;
 
     operator=:(out this) = {
         stone = ();
         pass = false;
         name = "";
+        isValid = false;
     }
 
     operator=:(out this, color: Color, col: i8, row: i8, pas: bool = false) = {
         stone = (color, col, row);
         pass = pas;
         name = "pass";
+        isValid = false;
         if !pass {
             colName: char = col;
             colName +=  65;
@@ -29,6 +32,7 @@ Move: type = {
         stone = that.stone;
         name = that.name;
         pass = that.pass;
+        isValid = that.isValid;
     }
 }
 

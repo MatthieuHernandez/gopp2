@@ -15,7 +15,6 @@ Game : type = {
 
     play:(in this) = {
         engine: Engine = ();
-        isValidMove: bool = true;
         (copy moveNumber:= 1)
         do {
             // clear();
@@ -26,8 +25,7 @@ Game : type = {
             } else {
                 m = player2*.getMove(engine);
             }
-            isValidMove = engine.isValidMove(m);
-            if isValidMove {
+            if m.isValid {
                 engine.playMove(m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             } else {
