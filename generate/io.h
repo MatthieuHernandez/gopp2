@@ -59,7 +59,7 @@ std::string nextMessage {0};
 
 #line 6 "../src/io.h2"
 auto setNextMessage(cpp2::impl::in<std::string> message) -> void{
-    nextMessage = message;
+    nextMessage = nextMessage + "\n" + message;
 }
 
 #line 10 "../src/io.h2"

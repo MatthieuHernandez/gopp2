@@ -4,7 +4,7 @@
 nextMessage: std::string = 0;
 
 setNextMessage:(message: std::string) = {
-    nextMessage = message;
+    nextMessage = nextMessage + "\n" + message;
 }
 
 getNextMessage:() -> std::string = {
