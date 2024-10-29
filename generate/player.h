@@ -140,7 +140,7 @@ class Random: public Player {
 
 #line 56 "../src/player.h2"
     [[nodiscard]] auto Random::getMove(Engine& engine) const -> Move{
-        std::this_thread::sleep_for(50ms);
+        //std::this_thread::sleep_for(500ms);
         std::uniform_int_distribution<cpp2::i32> dist {0, 18}; 
         cpp2::i32 col {dist(rng)}; 
         cpp2::i32 row {cpp2::move(dist)(rng)}; 

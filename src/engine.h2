@@ -21,11 +21,11 @@ Engine: type = {
         }
     }
 
-    private countLiberties:(inout this, inout stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
+    private countLiberties:(inout this, in stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
         processedStones[stone.col][stone.row] = true;
         nextStones:= goban.getAdjacentStone(stone, processedStones);
         for nextStones
-        do (inout nextStone) {
+        do (in nextStone) {
             if !processedStones[nextStone.col][nextStone.row] {
                 if nextStone.color == Color::None {
                     processedStones[nextStone.col][nextStone.row] = true;
@@ -83,7 +83,7 @@ Engine: type = {
         return count;
     }
 
-    isValidMove:(inout this, inout m: Move) -> bool = {
+    isValidMove:(inout this, in m: Move) -> bool = {
         if m.pass {
             return true;
         }
@@ -111,7 +111,7 @@ Engine: type = {
         return false;
     }
 
-    private countTerritory:(inout this, inout stone: Stone, inout count: i16, inout color: Color,
+    private countTerritory:(inout this, in stone: Stone, inout count: i16, inout color: Color,
         inout processedStones1: State<bool>, inout processedStones2: State<bool>) = {
         if count == 0 {
             return;
@@ -119,7 +119,7 @@ Engine: type = {
         processedStones2[stone.col][stone.row] = true;
         nextStones:= goban.getAdjacentStone(stone, processedStones2);
         for nextStones
-        do (inout nextStone) {
+        do (in nextStone) {
             if nextStone.color == Color::None {
                 if !processedStones2[nextStone.col][nextStone.row] {
                     processedStones1[nextStone.col][nextStone.row] = true;
@@ -178,20 +178,21 @@ Engine: type = {
         }
     }
 
-    private findValidMove:(inout this, inout m: Move, inout processedStones: State<bool>, inout count: i32) = {
+    private findValidMove:(inout this, inout m: Move, inout processedStones: State<bool>, inout count: i32, inout isValid: bool) = {
         count++;
-        assert(count <= 361);
-        if isValidMove(m) {
+        assert(count <= 361); // WEIRD !
+        if isValid || isValidMove(m) {
+            isValid = true;
             return;
         }
         nextStones:= goban.getAdjacentStone(m.stone, processedStones);
-        processedStones[m.stone.col][m.stone.row] = true;
+ 
         for nextStones
-        do (inout nextStone) {
+        do (in nextStone) {
             m.stone.col = nextStone.col;
             m.stone.row = nextStone.row;
             if !processedStones[m.stone.col][m.stone.row] {
-                findValidMove(m, processedStones, count);
+                findValidMove(m, processedStones, count, isValid);
             }
         }
     }
@@ -199,11 +200,13 @@ Engine: type = {
     closerValidMove:(inout this, inout m: Move) = {
         processedStones: State<bool> = (false);
         count: i32 = 0;
-        findValidMove(m, processedStones, count);
+        isValid: bool = false;
+        findValidMove(m, processedStones, count, isValid);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
-        if !isValidMove(m) {
+        count = count;
+        isValid = isValid;
+        if !isValid {
             m = Move(m.stone.color, -1, -1, true);
         }
-        count = count;
     }
 }

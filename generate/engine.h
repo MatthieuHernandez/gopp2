@@ -33,7 +33,7 @@ class Engine {
     public: auto playMove(cpp2::impl::in<Move> m) & -> void;
 
 #line 24 "../src/engine.h2"
-    private: auto countLiberties(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void;
+    private: auto countLiberties(cpp2::impl::in<Stone> stone, cpp2::i16& count, State<bool>& processedStones) & -> void;
 
 #line 40 "../src/engine.h2"
     public: [[nodiscard]] auto numberOfLiberties(Stone& stone) & -> cpp2::i16;
@@ -51,23 +51,23 @@ class Engine {
     public: [[nodiscard]] auto isFinish() const& -> bool;
 
 #line 114 "../src/engine.h2"
-    private: auto countTerritory(Stone& stone, cpp2::i16& count, Color& color, 
+    private: auto countTerritory(cpp2::impl::in<Stone> stone, cpp2::i16& count, Color& color, 
         State<bool>& processedStones1, State<bool>& processedStones2) & -> void;
 
 #line 143 "../src/engine.h2"
     public: auto countScore() & -> void;
 
 #line 181 "../src/engine.h2"
-    private: auto findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count) & -> void;
+    private: auto findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count, bool& isValid) & -> void;
 
-#line 199 "../src/engine.h2"
+#line 200 "../src/engine.h2"
     public: auto closerValidMove(Move& m) & -> void;
     public: Engine() = default;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 209 "../src/engine.h2"
+#line 212 "../src/engine.h2"
 };
 
 
@@ -89,11 +89,11 @@ class Engine {
     }
 
 #line 24 "../src/engine.h2"
-    auto Engine::countLiberties(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void{
+    auto Engine::countLiberties(cpp2::impl::in<Stone> stone, cpp2::i16& count, State<bool>& processedStones) & -> void{
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, stone.col), stone.row) = true;
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone, processedStones)}; 
         for ( 
-        auto& nextStone : cpp2::move(nextStones) ) {
+        auto const& nextStone : cpp2::move(nextStones) ) {
             if (!(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, nextStone.col), nextStone.row))) {
                 if (nextStone.color == Color::None) {
                     CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, nextStone.col), nextStone.row) = true;
@@ -185,7 +185,7 @@ class Engine {
     }
 
 #line 114 "../src/engine.h2"
-    auto Engine::countTerritory(Stone& stone, cpp2::i16& count, Color& color, 
+    auto Engine::countTerritory(cpp2::impl::in<Stone> stone, cpp2::i16& count, Color& color, 
         State<bool>& processedStones1, State<bool>& processedStones2) & -> void{
         if (count == 0) {
             return ; 
@@ -193,7 +193,7 @@ class Engine {
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones2, stone.col), stone.row) = true;
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone, processedStones2)}; 
         for ( 
-        auto& nextStone : cpp2::move(nextStones) ) {
+        auto const& nextStone : cpp2::move(nextStones) ) {
             if (nextStone.color == Color::None) {
                 if (!(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones2, nextStone.col), nextStone.row))) {
                     CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones1, nextStone.col), nextStone.row) = true;
@@ -264,34 +264,37 @@ cpp2::i8 row{0};
     }
 
 #line 181 "../src/engine.h2"
-    auto Engine::findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count) & -> void{
+    auto Engine::findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count, bool& isValid) & -> void{
         ++count;
         if (cpp2::cpp2_default.is_active() && !(cpp2::impl::cmp_less_eq(count,361)) ) { cpp2::cpp2_default.report_violation(""); }
-        if (isValidMove(m)) {
+        if (isValid || isValidMove(m)) {
+            isValid = true;
             return ; 
         }
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, m.stone, processedStones)}; 
-        CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, m.stone.col), m.stone.row) = true;
+
         for ( 
-        auto& nextStone : cpp2::move(nextStones) ) {
+        auto const& nextStone : cpp2::move(nextStones) ) {
             m.stone.col = nextStone.col;
             m.stone.row = nextStone.row;
             if (!(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, m.stone.col), m.stone.row))) {
-                findValidMove(m, processedStones, count);
+                findValidMove(m, processedStones, count, isValid);
             }
         }
     }
 
-#line 199 "../src/engine.h2"
+#line 200 "../src/engine.h2"
     auto Engine::closerValidMove(Move& m) & -> void{
         State<bool> processedStones {false}; 
         cpp2::i32 count {0}; 
-        findValidMove(m, processedStones, count);
+        bool isValid {false}; 
+        findValidMove(m, processedStones, count, isValid);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
-        if (!(isValidMove(m))) {
+        count = count;
+        isValid = isValid;
+        if (!(cpp2::move(isValid))) {
             m = Move(m.stone.color, -1, -1, true);
         }
-        count = count;
     }
 #endif
 

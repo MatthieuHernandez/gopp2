@@ -37,7 +37,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 49 "../src/game.h2"
+#line 48 "../src/game.h2"
 };
 
 
@@ -64,7 +64,6 @@ auto moveNumber{1};
         do {
             // clear();
             printGoban(engine.goban);
-
             Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
             if (moveNumber % 2 == 1) {
                 m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player1)), engine);
@@ -81,7 +80,7 @@ auto moveNumber{1};
         ++moveNumber;
         } while ( !(CPP2_UFCS(isFinish)(engine)));
 }
-#line 39 "../src/game.h2"
+#line 38 "../src/game.h2"
         CPP2_UFCS(countScore)(engine);
         if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
             setNextMessage("Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");

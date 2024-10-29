@@ -54,7 +54,7 @@ Random: type = {
     }
 
     public getMove:(override this, inout engine: Engine) -> Move = {
-        std::this_thread::sleep_for(50ms);
+        //std::this_thread::sleep_for(500ms);
         dist: std::uniform_int_distribution<i32> = (0, 18);
         col: i32 = dist(rng);
         row: i32 = dist(rng);
