@@ -45,29 +45,29 @@ class Engine {
     public: [[nodiscard]] auto captureStones(Stone& stone) & -> cpp2::i16;
 
 #line 89 "../src/engine.h2"
-    private: [[nodiscard]] auto isValidMove(Move& m) & -> bool;
+    public: [[nodiscard]] auto isValidMove(Move& m) & -> bool;
 
-#line 110 "../src/engine.h2"
+#line 113 "../src/engine.h2"
     public: [[nodiscard]] auto isFinish() const& -> bool;
 
-#line 120 "../src/engine.h2"
+#line 123 "../src/engine.h2"
     private: auto countTerritory(cpp2::impl::in<Stone> stone, cpp2::i16& count, Color& color, 
         State<bool>& processedStones1, State<bool>& processedStones2) & -> void;
 
-#line 149 "../src/engine.h2"
+#line 152 "../src/engine.h2"
     public: auto countScore() & -> void;
 
-#line 187 "../src/engine.h2"
+#line 190 "../src/engine.h2"
     private: auto findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count) & -> void;
 
-#line 206 "../src/engine.h2"
+#line 209 "../src/engine.h2"
     public: auto closerValidMove(Move& m) & -> void;
     public: Engine() = default;
     public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 216 "../src/engine.h2"
+#line 219 "../src/engine.h2"
 };
 
 
@@ -165,13 +165,16 @@ class Engine {
         }
         auto col {m.stone.col}; 
         auto row {m.stone.row}; 
+        std::cout << "WAZA 1" << std::endl;
         if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), cpp2::move(row)).color == Color::None && 
             !(CPP2_UFCS(isLockedPosition)(goban, m.stone)) && 
             !(CPP2_UFCS(isTrueEye)(goban, m.stone))) {
+            std::cout << "WAZA 2" << std::endl;
             auto numberOfcapturedStones {captureStones(m.stone)}; 
             if (cpp2::impl::cmp_greater(numberOfLiberties(m.stone),0) || 
                 cpp2::impl::cmp_greater(cpp2::move(numberOfcapturedStones),0)) {
                 m.isValid = true;
+                std::cout << "WAZA 3" << std::endl;
                 return true; 
             }
         }
@@ -179,7 +182,7 @@ class Engine {
         return false; 
     }
 
-#line 110 "../src/engine.h2"
+#line 113 "../src/engine.h2"
     [[nodiscard]] auto Engine::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
             if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 
@@ -190,7 +193,7 @@ class Engine {
         return false; 
     }
 
-#line 120 "../src/engine.h2"
+#line 123 "../src/engine.h2"
     auto Engine::countTerritory(cpp2::impl::in<Stone> stone, cpp2::i16& count, Color& color, 
         State<bool>& processedStones1, State<bool>& processedStones2) & -> void{
         if (count == 0) {
@@ -220,7 +223,7 @@ class Engine {
         }
     }
 
-#line 149 "../src/engine.h2"
+#line 152 "../src/engine.h2"
     auto Engine::countScore() & -> void{
         State<bool> processedStones1 {}; 
         blackPoint = 0;
@@ -228,14 +231,14 @@ class Engine {
 {
 cpp2::i8 col{0};
 
-#line 154 "../src/engine.h2"
+#line 157 "../src/engine.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(goban.state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 158 "../src/engine.h2"
+#line 161 "../src/engine.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(goban.state, col))); 
             ++row ) 
             {
@@ -263,18 +266,18 @@ cpp2::i8 row{0};
                 }
             }
 }
-#line 184 "../src/engine.h2"
+#line 187 "../src/engine.h2"
         }
 }
-#line 185 "../src/engine.h2"
+#line 188 "../src/engine.h2"
     }
 
-#line 187 "../src/engine.h2"
+#line 190 "../src/engine.h2"
     auto Engine::findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count) & -> void{
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, m.stone.col), m.stone.row) = true;
         ++count;
         if (cpp2::cpp2_default.is_active() && !(cpp2::impl::cmp_less_eq(count,361)) ) { cpp2::cpp2_default.report_violation(""); }// WEIRD !
-        if (m.isValid || isValidMove(m)) {
+        if ( isValidMove(m)) {
             return ; 
         }
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, m.stone, processedStones)}; 
@@ -289,7 +292,7 @@ cpp2::i8 row{0};
         }
     }
 
-#line 206 "../src/engine.h2"
+#line 209 "../src/engine.h2"
     auto Engine::closerValidMove(Move& m) & -> void{
         State<bool> processedStones {false}; 
         cpp2::i32 count {0}; 

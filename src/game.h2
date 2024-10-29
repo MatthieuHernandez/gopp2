@@ -25,7 +25,7 @@ Game : type = {
             } else {
                 m = player2*.getMove(engine);
             }
-            if m.isValid {
+            if engine.isValidMove(m) {
                 engine.playMove(m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             } else {

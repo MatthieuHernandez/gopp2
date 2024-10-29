@@ -86,20 +86,23 @@ Engine: type = {
         return count;
     }
 
-    private isValidMove:(inout this, inout m: Move) -> bool = {
+    public isValidMove:(inout this, inout m: Move) -> bool = {
         if m.isValid || m.pass {
             m.isValid = true;
             return true;
         }
         col:= m.stone.col;
         row:= m.stone.row;
+        std::cout << "WAZA 1" << std::endl;
         if goban.state[col][row].color == Color::None &&
             !goban.isLockedPosition(m.stone) &&
             !goban.isTrueEye(m.stone) {
+            std::cout << "WAZA 2" << std::endl;
             numberOfcapturedStones:= captureStones(m.stone);
             if numberOfLiberties(m.stone) > 0 ||
                 numberOfcapturedStones > 0 {
                 m.isValid = true;
+                std::cout << "WAZA 3" << std::endl;
                 return true;
             }
         }
@@ -188,7 +191,7 @@ Engine: type = {
         processedStones[m.stone.col][m.stone.row] = true;
         count++;
         assert(count <= 361); // WEIRD !
-        if m.isValid || isValidMove(m) {
+        if  isValidMove(m) {
             return;
         }
         nextStones:= goban.getAdjacentStone(m.stone, processedStones);

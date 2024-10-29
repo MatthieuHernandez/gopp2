@@ -69,7 +69,7 @@ auto moveNumber{1};
             }else {
                 m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player2)), engine);
             }
-            if (m.isValid) {
+            if (CPP2_UFCS(isValidMove)(engine, m)) {
                 CPP2_UFCS(playMove)(engine, m);
                 setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
             }else {
