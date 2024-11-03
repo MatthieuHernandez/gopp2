@@ -69,7 +69,7 @@ class Human: public Player {
 };
 
 static std::random_device rd;
-static std::mt19937 rng(2226); /*rd()*/
+static std::mt19937 rng(rd());
 
 class Random: public Player {
 
