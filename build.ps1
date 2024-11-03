@@ -1,3 +1,9 @@
+param (
+    [ValidateSet("Debug", "Release")]
+    [string]$BuildType = "Debug"
+)
+$BuildDir = "./build/$BuildType"
+
 cppfront -cwd ./generate ../src/color.h2 |
 cppfront -cwd ./generate ../src/stone.h2 -import-std |
 cppfront -cwd ./generate ../src/move.h2 -import-std |
@@ -8,8 +14,9 @@ cppfront -cwd ./generate ../src/player.h2 -import-std |
 cppfront -cwd ./generate ../src/game.h2 -import-std |
 cppfront -cwd ./generate ../src/main.cpp2 -import-std
 if (!$?) { Exit $LASTEXITCODE }
-cmake -S . -B ./build -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang
+cmake -S . -B $BuildDir -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE="$BuildType"
 if (!$?) { Exit $LASTEXITCODE }
-ninja -C ./build
+ninja -C $BuildDir
 if (!$?) { Exit $LASTEXITCODE }
-./build/gopp2.exe
+$ExecutablePath = "$BuildDir/gopp2.exe"
+& $ExecutablePath

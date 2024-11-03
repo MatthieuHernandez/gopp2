@@ -8,6 +8,8 @@ Goban: type = {
 
     public lockedPosition: Stone = ();
 
+    public iterations: i32 = 0;
+
     operator=:(out this) = {
         (copy col: i8 = 0)
         while col < state.ssize()
@@ -22,8 +24,7 @@ Goban: type = {
         }
     }
 
-    public getAdjacentStone:(in this, in s: Stone, in processedStones: State<bool>) -> std::vector<Stone>  = {
-        // vérifier les bounds.
+    public getAdjacentStone:(inout this, in s: Stone, in processedStones: State<bool>, count: bool = true) -> std::vector<Stone>  = {
         adjacent_stones: std::vector<Stone> = ();
         if s.col > 0 && !processedStones[s.col-1][s.row] {
             adjacent_stones.push_back(state[s.col-1][s.row]);
@@ -36,6 +37,9 @@ Goban: type = {
         }
         if s.row < 18 && !processedStones[s.col][s.row+1] {
                 adjacent_stones.push_back(state[s.col][s.row+1]);
+        }
+        if count {
+        iterations += adjacent_stones.size();
         }
         return adjacent_stones;
     }

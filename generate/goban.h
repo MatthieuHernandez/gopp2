@@ -29,30 +29,32 @@ class Goban {
 
     public: Stone lockedPosition {}; 
 
+    public: cpp2::i32 iterations {0}; 
+
     public: explicit Goban();
 
-#line 25 "../src/goban.h2"
-           public: [[nodiscard]] auto getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones) const& -> std::vector<Stone>;
+#line 27 "../src/goban.h2"
+           public: [[nodiscard]] auto getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones, cpp2::impl::in<bool> count = true) & -> std::vector<Stone>;
 
-#line 43 "../src/goban.h2"
+#line 47 "../src/goban.h2"
     public: [[nodiscard]] auto isTrueEye(cpp2::impl::in<Stone> s) const& -> bool;
 
-#line 74 "../src/goban.h2"
+#line 78 "../src/goban.h2"
     public: auto removeStone(cpp2::impl::in<Stone> s) & -> void;
 
-#line 78 "../src/goban.h2"
+#line 82 "../src/goban.h2"
     public: [[nodiscard]] auto isLockedPosition(cpp2::impl::in<Stone> s) const& -> bool;
 
-#line 83 "../src/goban.h2"
+#line 87 "../src/goban.h2"
     public: auto lockPosition(cpp2::impl::in<Stone> s, cpp2::impl::in<Color> c) & -> void;
 
-#line 88 "../src/goban.h2"
+#line 92 "../src/goban.h2"
     public: auto unlockPosition() & -> void;
     public: Goban(Goban const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Goban const&) -> void = delete;
 
 
-#line 93 "../src/goban.h2"
+#line 97 "../src/goban.h2"
 };
 
 
@@ -60,34 +62,33 @@ class Goban {
 
 #line 1 "../src/goban.h2"
 
-#line 11 "../src/goban.h2"
+#line 13 "../src/goban.h2"
     Goban::Goban(){
 {
 cpp2::i8 col{0};
 
-#line 13 "../src/goban.h2"
+#line 15 "../src/goban.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 17 "../src/goban.h2"
+#line 19 "../src/goban.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(state, col))); 
             ++row ) 
             {
                 CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, col), row) = Stone(Color::None, col, row);
             }
 }
-#line 22 "../src/goban.h2"
+#line 24 "../src/goban.h2"
         }
 }
-#line 23 "../src/goban.h2"
+#line 25 "../src/goban.h2"
     }
 
-#line 25 "../src/goban.h2"
-           [[nodiscard]] auto Goban::getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones) const& -> std::vector<Stone>{
-        // vérifier les bounds.
+#line 27 "../src/goban.h2"
+           [[nodiscard]] auto Goban::getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones, cpp2::impl::in<bool> count) & -> std::vector<Stone>{
         std::vector<Stone> adjacent_stones {}; 
         if (cpp2::impl::cmp_greater(s.col,0) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col - 1), s.row))) {
             CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col - 1), s.row));
@@ -101,10 +102,13 @@ cpp2::i8 row{0};
         if (cpp2::impl::cmp_less(s.row,18) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col), s.row + 1))) {
                 CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row + 1));
         }
+        if (count) {
+        iterations += CPP2_UFCS(size)(adjacent_stones);
+        }
         return adjacent_stones; 
     }
 
-#line 43 "../src/goban.h2"
+#line 47 "../src/goban.h2"
     [[nodiscard]] auto Goban::isTrueEye(cpp2::impl::in<Stone> s) const& -> bool{
         if ((cpp2::impl::cmp_greater(s.col,0) && CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col - 1), s.row).color != s.color) || 
             (cpp2::impl::cmp_less(s.col,18) && CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col + 1), s.row).color != s.color) || 
@@ -136,24 +140,24 @@ cpp2::i8 row{0};
         return cpp2::impl::cmp_greater_eq(cpp2::move(count),3); 
     }
 
-#line 74 "../src/goban.h2"
+#line 78 "../src/goban.h2"
     auto Goban::removeStone(cpp2::impl::in<Stone> s) & -> void{
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).color = Color::None;
     }
 
-#line 78 "../src/goban.h2"
+#line 82 "../src/goban.h2"
     [[nodiscard]] auto Goban::isLockedPosition(cpp2::impl::in<Stone> s) const& -> bool{
         return lockedPosition.col == s.col && 
             lockedPosition.row == s.row; 
     }
 
-#line 83 "../src/goban.h2"
+#line 87 "../src/goban.h2"
     auto Goban::lockPosition(cpp2::impl::in<Stone> s, cpp2::impl::in<Color> c) & -> void{
         lockedPosition = s;
         lockedPosition.color = c;
     }
 
-#line 88 "../src/goban.h2"
+#line 92 "../src/goban.h2"
     auto Goban::unlockPosition() & -> void{
         lockedPosition.color = Color::None;
         lockedPosition.row = -1;

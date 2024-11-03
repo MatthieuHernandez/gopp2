@@ -16,7 +16,7 @@ main:() -> int = {
                 player1:= shared.new<Human>(Color::Black);
                 player2:= shared.new<Human>(Color::White);
                 game:= Game(player1, player2);
-                game.play();
+                game.play<true>();
                 return false;
             }();
             is 2 = :()->bool = {
@@ -25,19 +25,27 @@ main:() -> int = {
                 player1:= shared.new<Human>(Color::Black);
                 player2:= shared.new<Random>(Color::White);
                 game:= Game(player1, player2);
-                game.play();
+                game.play<true>();
                 return false;
             }();
             is 3 = :()->bool = {
                 clear();
                 setNextMessage("Start a new game.");
+                player1:= shared.new<RandomSlow>(Color::Black, 500);
+                player2:= shared.new<RandomSlow>(Color::White, 500);
+                game:= Game(player1, player2);
+                game.play<true>();
+                return false;
+            }();
+            is 4 = :()->bool = {
+                clear();
                 player1:= shared.new<Random>(Color::Black);
                 player2:= shared.new<Random>(Color::White);
                 game:= Game(player1, player2);
-                game.play();
+                game.play<false>();
                 return false;
             }();
-           is 4 = :()->bool={
+           is 0 = :()->bool={
             clear("Bye.");
             return true;
         }();

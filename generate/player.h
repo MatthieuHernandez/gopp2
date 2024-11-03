@@ -23,6 +23,10 @@ class Human;
 class Random;
     
 
+#line 66 "../src/player.h2"
+class RandomSlow;
+    
+
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/player.h2"
@@ -65,7 +69,7 @@ class Human: public Player {
 };
 
 static std::random_device rd;
-static std::mt19937 rng(rd());
+static std::mt19937 rng(2226); /*rd()*/
 
 class Random: public Player {
 
@@ -78,10 +82,24 @@ class Random: public Player {
 #line 56 "../src/player.h2"
     public: [[nodiscard]] auto getMove(Engine& engine) const -> Move override;
 
-#line 65 "../src/player.h2"
+#line 64 "../src/player.h2"
 };
 
-#line 1 "../src/player.h2"
+class RandomSlow: public Random {
+
+    private: cpp2::i16 duration; 
+
+    public: explicit RandomSlow(cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> sleep_duration);
+
+#line 75 "../src/player.h2"
+    public: RandomSlow(RandomSlow const& that);
+
+#line 80 "../src/player.h2"
+    public: [[nodiscard]] auto getMove(Engine& engine) const -> Move override;
+
+#line 84 "../src/player.h2"
+};
+
 
 //=== Cpp2 function definitions =================================================
 
@@ -140,13 +158,34 @@ class Random: public Player {
 
 #line 56 "../src/player.h2"
     [[nodiscard]] auto Random::getMove(Engine& engine) const -> Move{
-        //std::this_thread::sleep_for(500ms);
         std::uniform_int_distribution<cpp2::i32> dist {0, 18}; 
         cpp2::i32 col {dist(rng)}; 
         cpp2::i32 row {cpp2::move(dist)(rng)}; 
         auto m {Move(color, cpp2::move(col), cpp2::move(row))}; 
         CPP2_UFCS(closerValidMove)(engine, m);
         return m; 
+    }
+
+#line 70 "../src/player.h2"
+    RandomSlow::RandomSlow(cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> sleep_duration)
+        : Random{ c }
+        , duration{ sleep_duration }{
+
+#line 73 "../src/player.h2"
+    }
+
+#line 75 "../src/player.h2"
+    RandomSlow::RandomSlow(RandomSlow const& that)
+        : Random{ that }
+        , duration{ that.duration }{
+
+#line 78 "../src/player.h2"
+    }
+
+#line 80 "../src/player.h2"
+    [[nodiscard]] auto RandomSlow::getMove(Engine& engine) const -> Move{
+        std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+        return Random::getMove(engine); 
     }
 #endif
 

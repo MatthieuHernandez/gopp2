@@ -9,7 +9,7 @@ Engine: type = {
     public blackPoint: i16 = 0;
     public whitePoint: i16 = 0;
 
-    playMove:(inout this, inout m: Move) = {
+    public playMove:(inout this, inout m: Move) = {
         if isValidMove(m)
         {
             moves.push_back(m);
@@ -25,6 +25,9 @@ Engine: type = {
     }
 
     private countLiberties:(inout this, in stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
+        if count > 1 {
+            return;
+        }
         processedStones[stone.col][stone.row] = true;
         nextStones:= goban.getAdjacentStone(stone, processedStones);
         for nextStones
@@ -33,14 +36,23 @@ Engine: type = {
                 if nextStone.color == Color::None {
                     processedStones[nextStone.col][nextStone.row] = true;
                     count++;
-                } else if nextStone.color == stone.color {
+                    if count > 1 {
+                        return;
+                    }
+                }
+            }
+        }
+        for nextStones
+        do (in nextStone) {
+            if !processedStones[nextStone.col][nextStone.row] {
+                if nextStone.color == stone.color {
                     countLiberties(nextStone, count, processedStones);
                 }
             }
         }
     }
 
-    numberOfLiberties:(inout this, inout stone: Stone) -> i16 = {
+    private numberOfLiberties:(inout this, inout stone: Stone) -> i16 = {
         processedStones: State<bool> = ();
         count: i16 = 0;
         countLiberties(stone, count, processedStones);
@@ -61,7 +73,7 @@ Engine: type = {
         }
     }
 
-    captureStones:(inout this, inout stone: Stone) -> i16 = {
+    private captureStones:(inout this, inout stone: Stone) -> i16 = {
         processedStones: State<bool> = ();
         count: i16 = 0;
         color:= otherColor(stone.color);
@@ -96,9 +108,7 @@ Engine: type = {
         if goban.state[col][row].color == Color::None &&
             !goban.isLockedPosition(m.stone) &&
             !goban.isTrueEye(m.stone) {
-            numberOfcapturedStones:= captureStones(m.stone);
-            if numberOfLiberties(m.stone) > 0 ||
-                numberOfcapturedStones > 0 {
+            if captureStones(m.stone) > 0 || numberOfLiberties(m.stone) > 0 {
                 m.isValid = true;
                 return true;
             }
@@ -107,7 +117,7 @@ Engine: type = {
         return false;
     }
 
-    isFinish:(this) -> bool = {
+    public isFinish:(this) -> bool = {
         if moves.ssize() > 1 {
             if moves[moves.size() - 1].pass == true
             && moves[moves.size() - 2].pass == true {
@@ -146,7 +156,7 @@ Engine: type = {
         }
     }
 
-    countScore:(inout this) = {
+    public countScore:(inout this) = {
         processedStones1: State<bool> = ();
         blackPoint = 0;
         whitePoint = 7;
@@ -187,12 +197,10 @@ Engine: type = {
     private findValidMove:(inout this, inout m: Move, inout processedStones: State<bool>, inout count: i32) = {
         processedStones[m.stone.col][m.stone.row] = true;
         count++;
-        assert(count <= 361);
         if isValidMove(m) {
             return;
         }
         nextStones:= goban.getAdjacentStone(m.stone, processedStones);
- 
         for nextStones
         do (in nextStone) {
             if !m.isValid {
@@ -205,7 +213,7 @@ Engine: type = {
         }
     }
 
-    closerValidMove:(inout this, inout m: Move) = {
+    public closerValidMove:(inout this, inout m: Move) = {
         processedStones: State<bool> = (false);
         count: i32 = 0;
         findValidMove(m, processedStones, count);

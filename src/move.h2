@@ -6,14 +6,14 @@ Move: type = {
     public name: std::string;
     public isValid: bool;
 
-    operator=:(out this) = {
+    public operator=:(out this) = {
         stone = ();
         pass = false;
         name = "";
         isValid = false;
     }
 
-    operator=:(out this, color: Color, col: i8, row: i8, pas: bool = false) = {
+    public operator=:(out this, color: Color, col: i8, row: i8, pas: bool = false) = {
         stone = (color, col, row);
         pass = pas;
         name = "pass";
@@ -28,14 +28,10 @@ Move: type = {
         }
     }
 
-    operator=:(out this, that) = {
+    public operator=:(out this, that) = {
         stone = that.stone;
         name = that.name;
         pass = that.pass;
         isValid = that.isValid;
     }
 }
-
-// Impossible Move: 7 backs around and 1 white connected (4 blacks + 3 blacks != 7 blacks)
-// Assert Score.
-// Split player.h2

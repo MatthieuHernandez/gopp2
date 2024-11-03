@@ -8,6 +8,4 @@ set(CMAKE_CXX_STANDARD  20)
 
 include_directories(../cppfront/include)
 
-add_executable(gopp2
-    ./generate/main.cpp)
-
+add_executable(gopp2 ./generate/main.cpp)

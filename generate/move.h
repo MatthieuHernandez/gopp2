@@ -44,10 +44,6 @@ class Move {
 #line 37 "../src/move.h2"
 };
 
-// Impossible Move: 7 backs around and 1 white connected (4 blacks + 3 blacks != 7 blacks)
-// Assert Score.
-// Split player.h2
-
 
 //=== Cpp2 function definitions =================================================
 

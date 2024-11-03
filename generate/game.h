@@ -32,12 +32,12 @@ class Game {
     public: explicit Game(cpp2::impl::in<std::shared_ptr<Player>> p1, cpp2::impl::in<std::shared_ptr<Player>> p2);
 
 #line 16 "../src/game.h2"
-    public: auto play() const& -> void;
+    public: template<bool verbose> auto play() const& -> void;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 51 "../src/game.h2"
+#line 62 "../src/game.h2"
 };
 
 
@@ -54,12 +54,15 @@ class Game {
     }
 
 #line 16 "../src/game.h2"
-    auto Game::play() const& -> void{
+    template<bool verbose> auto Game::play() const& -> void{
+        auto start {std::chrono::high_resolution_clock::now()}; 
         Engine engine {}; 
         cpp2::i16 moveNumber {1}; 
         do {
             clear();
-            printGoban(engine.goban);
+            if constexpr (verbose) {
+                printGoban(engine.goban);
+            }
             Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
             if (moveNumber % 2 == 1) {
                 m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(player1)), engine);
@@ -69,11 +72,15 @@ class Game {
             if (CPP2_UFCS(isValidMove)(engine, m)) {
                 CPP2_UFCS(playMove)(engine, m);
                 ++moveNumber;
-                setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
+                if constexpr (verbose) {
+                    setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
+                }
             }else {
-                setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
+                if constexpr (verbose) {
+                    setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
+                }
             }
-            if ((cpp2::impl::cmp_greater(moveNumber,100))) {
+            if ((cpp2::impl::cmp_greater_eq(moveNumber,1000))) {// Only to prevent an eventual triple ko.
                 break;
             }
         } while ( !(CPP2_UFCS(isFinish)(engine)));
@@ -85,6 +92,10 @@ class Game {
         else {
             setNextMessage("White win " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5 to " + cpp2::impl::as_<std::string>(engine.blackPoint) + ".");
         }
+        auto stop {std::chrono::high_resolution_clock::now()}; 
+        auto duration {CPP2_UFCS(count)(std::chrono::duration_cast<std::chrono::milliseconds>(cpp2::move(stop) - cpp2::move(start)))}; 
+        setNextMessage("The game lasted " + cpp2::impl::as_<std::string>(cpp2::move(duration)) + " ms.");
+        setNextMessage("After " + cpp2::impl::as_<std::string>(engine.goban.iterations) + " iterations.");
         clear();
         printGoban(cpp2::move(engine).goban);
         waitInput();
