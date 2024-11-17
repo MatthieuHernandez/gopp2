@@ -1,28 +1,30 @@
 #include "player.h2"
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
+createAi:() = {
+    layers: std::vector<snn::LayerModel> = (snn::Input(361),
+                                                snn::FullyConnected(100),
+                                                snn::FullyConnected(361));
+    optimizer:= snn::StochasticGradientDescent(0.0001f, 0.0f);
+    neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
+    neuralNetwork.saveAs("./snn_models/first_model.snn");
+}
 
 
 Ai: type = {
     this: Player;
     private neuralNetwork: snn::StraightforwardNeuralNetwork;
     private inputs: snn::vector2D<float>;
-    private moves: std::vector<Move>;
-
-    private getLayers:() -> std::vector<snn::LayerModel> = {
-        layers: std::vector<snn::LayerModel> = (snn::Input(361),
-                                                snn::FullyConnected(100),
-                                                snn::FullyConnected(361));
-        return layers;
-    }
+    private moves : std::vector<i16>;
 
     public operator=:(out this, c: Color) = {
         Player = (c);
-        neuralNetwork = (getLayers());
+        neuralNetwork = snn::StraightforwardNeuralNetwork::loadFrom("./snn_models/first_model.snn");
         inputs = ();
         moves = ();
         inputs.reserve(300);
         moves.reserve(300);
+        setNextMessage("AI loaded.");
     }
 
     public operator=:(out this, that) = {
@@ -82,18 +84,41 @@ Ai: type = {
 
     public getMove:(override inout this, inout engine: Engine) -> Move = {
         input:= getGobanState(engine.goban.state);
-        inputs.push_back(input);
         output:= neuralNetwork.computeOutput(input);
         m:= chooseBestMove(output);
         engine.closerValidMove(m);
-        moves.push_back(m);
+        moveIndex:= m.stone.getIndex();
+        if moveIndex >= 0 {
+            inputs.push_back(input);
+            moves.push_back(moveIndex);
+        }
         return m;
     }
 
     public train:(inout this) = {
-
-        /*if win 1 else -1 otherwise 0
-        for all move 
-        inputs -> expected output ==> getExpectedOutput(choosedMove)*/
+        expectedValue: float = -1.0;
+        if hasWon { // CPP2 workaround: Conditional operator not yet supported.
+            expectedValue = -1;
+        }
+        (copy i: i16 = 0)
+        while i < inputs.ssize()
+        next i++
+        {
+            expected_output:= inputs[i];
+            (copy j: i16 = 0)
+            while j < 361
+            next j++
+            {
+                if inputs[i][j] != 0.0 {
+                    expected_output[j] = -1;
+                }
+            }
+            expected_output[moves[i]] = expectedValue;
+            neuralNetwork.trainOnce(inputs[i], expected_output);
+        }
+    }
+    
+    public save:(inout this) = {
+        neuralNetwork.saveAs("./snn_models/first_model.snn");
     }
 }

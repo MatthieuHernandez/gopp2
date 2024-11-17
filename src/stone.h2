@@ -26,5 +26,9 @@ Stone: type = {
         row = that.row;
     }
 
+    getIndex:(in this) -> i16 = {
+        return (col as i16) * 19 + (row as i16);
+    }
+
     operator<=>: (this, that) -> std::strong_ordering;
 }

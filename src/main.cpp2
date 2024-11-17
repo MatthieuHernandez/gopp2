@@ -20,6 +20,7 @@ main:() -> int = {
                 player2:= shared.new<Human>(Color::White);
                 game:= Game(player1, player2);
                 game.play<true>();
+                waitInput();
                 return false;
             }();
             is 2 = :()->bool = {
@@ -29,6 +30,7 @@ main:() -> int = {
                 player2:= shared.new<Random>(Color::White);
                 game:= Game(player1, player2);
                 game.play<true>();
+                waitInput();
                 return false;
             }();
             is 3 = :()->bool = {
@@ -38,6 +40,7 @@ main:() -> int = {
                 player2:= shared.new<Ai>(Color::White);
                 game:= Game(player1, player2);
                 game.play<true>();
+                waitInput();
                 return false;
             }();
             is 4 = :()->bool = {
@@ -47,6 +50,7 @@ main:() -> int = {
                 player2:= shared.new<RandomSlow>(Color::White, 500);
                 game:= Game(player1, player2);
                 game.play<true>();
+                waitInput();
                 return false;
             }();
             is 5 = :()->bool = {
@@ -55,17 +59,31 @@ main:() -> int = {
                 player2:= shared.new<Random>(Color::White);
                 game:= Game(player1, player2);
                 game.play<false>();
+                waitInput();
                 return false;
             }();
             is 6 = :()->bool = {
                 clear();
-                setNextMessage("Start a new game.");
                 player1:= shared.new<Ai>(Color::Black);
                 player2:= shared.new<Ai>(Color::White);
                 game:= Game(player1, player2);
-                game.play<true>();
-                player1*.train();
-                player2*.train();
+                i: i32 = 0;
+                while true
+                {
+                    game.play<false>();
+                    //player1*.train();
+                    //player2*.train();
+                    /*if i % 20 == 19 {
+                        player1*.save();
+                    }*/
+                    i++;
+                }
+                return false;
+            }();
+            is 9 = :()->bool = {
+                clear();
+                createAi();
+                setNextMessage("AI created.");
                 return false;
             }();
            is 0 = :()->bool={

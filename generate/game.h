@@ -37,7 +37,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 64 "../src/game.h2"
+#line 62 "../src/game.h2"
 };
 
 
@@ -59,7 +59,6 @@ class Game {
         Engine engine {}; 
         cpp2::i16 moveNumber {1}; 
         do {
-            clear();
             if constexpr (verbose) {
                 printGoban(engine.goban);
             }
@@ -100,7 +99,6 @@ class Game {
         setNextMessage("After " + cpp2::impl::as_<std::string>(engine.goban.iterations) + " iterations.");
         clear();
         printGoban(cpp2::move(engine).goban);
-        waitInput();
     }
 #endif
 
