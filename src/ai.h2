@@ -1,0 +1,99 @@
+#include "player.h2"
+#include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
+
+
+
+Ai: type = {
+    this: Player;
+    private neuralNetwork: snn::StraightforwardNeuralNetwork;
+    private inputs: snn::vector2D<float>;
+    private moves: std::vector<Move>;
+
+    private getLayers:() -> std::vector<snn::LayerModel> = {
+        layers: std::vector<snn::LayerModel> = (snn::Input(361),
+                                                snn::FullyConnected(100),
+                                                snn::FullyConnected(361));
+        return layers;
+    }
+
+    public operator=:(out this, c: Color) = {
+        Player = (c);
+        neuralNetwork = (getLayers());
+        inputs = ();
+        moves = ();
+        inputs.reserve(300);
+        moves.reserve(300);
+    }
+
+    public operator=:(out this, that) = {
+        Player = (that);
+        neuralNetwork = that.neuralNetwork;
+    }
+
+    private getGobanState:(in this, in state: State<Stone>) -> std::vector<float> = {
+        vec: std::vector<float> = ();
+        vec.reserve(361);
+        (copy col: i8 = 0)
+        while col < state.ssize()
+        next col++
+        {
+            (copy row: i8 = 0)
+            while row < state[col].ssize()
+            next row++
+            {
+                if state[col][row].color == color {
+                    vec.push_back(1.0);
+                }
+                if state[col][row].color == Color::None {
+                    vec.push_back(0.0);
+                }
+                else {
+                    vec.push_back(-1.0);
+                }
+            }
+        }
+        return vec;
+    }
+
+    private chooseBestMove:(in this, in nn_output: std::vector<float>) -> Move = {
+        index: i16 = 0;
+        max: float = 0;
+        max_col: i8 = 0;
+        max_row: i8 = 0;
+        (copy col: i8 = 0)
+        while col < 19
+        next col++
+        {
+            (copy row: i8 = 0)
+            while row < 19
+            next row++
+            {
+                if max < nn_output[index] {
+                    max = nn_output[index];
+                    max_col = col;
+                    max_row = row;
+                }
+                index++;
+            }
+        }
+        m:= Move(color, max_col, max_row);
+        return m;
+    }
+
+    public getMove:(override inout this, inout engine: Engine) -> Move = {
+        input:= getGobanState(engine.goban.state);
+        inputs.push_back(input);
+        output:= neuralNetwork.computeOutput(input);
+        m:= chooseBestMove(output);
+        engine.closerValidMove(m);
+        moves.push_back(m);
+        return m;
+    }
+
+    public train:(inout this) = {
+
+        /*if win 1 else -1 otherwise 0
+        for all move 
+        inputs -> expected output ==> getExpectedOutput(choosedMove)*/
+    }
+}

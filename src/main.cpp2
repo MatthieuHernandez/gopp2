@@ -2,6 +2,9 @@
 
 #include "io.h2"
 #include "game.h2"
+#include "human.h2"
+#include "random.h2"
+#include "ai.h2"
 
 main:() -> int = {
     SetConsoleOutputCP(CP_UTF8);
@@ -31,18 +34,38 @@ main:() -> int = {
             is 3 = :()->bool = {
                 clear();
                 setNextMessage("Start a new game.");
-                player1:= shared.new<RandomSlow>(Color::Black, 500);
-                player2:= shared.new<RandomSlow>(Color::White, 500);
+                player1:= shared.new<Human>(Color::Black);
+                player2:= shared.new<Ai>(Color::White);
                 game:= Game(player1, player2);
                 game.play<true>();
                 return false;
             }();
             is 4 = :()->bool = {
                 clear();
+                setNextMessage("Start a new game.");
+                player1:= shared.new<RandomSlow>(Color::Black, 500);
+                player2:= shared.new<RandomSlow>(Color::White, 500);
+                game:= Game(player1, player2);
+                game.play<true>();
+                return false;
+            }();
+            is 5 = :()->bool = {
+                clear();
                 player1:= shared.new<Random>(Color::Black);
                 player2:= shared.new<Random>(Color::White);
                 game:= Game(player1, player2);
                 game.play<false>();
+                return false;
+            }();
+            is 6 = :()->bool = {
+                clear();
+                setNextMessage("Start a new game.");
+                player1:= shared.new<Ai>(Color::Black);
+                player2:= shared.new<Ai>(Color::White);
+                game:= Game(player1, player2);
+                game.play<true>();
+                player1*.train();
+                player2*.train();
                 return false;
             }();
            is 0 = :()->bool={

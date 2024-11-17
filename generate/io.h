@@ -34,20 +34,20 @@ auto clearInput() -> void;
 #line 23 "../src/io.h2"
 auto printMenu() -> void;
 
-#line 39 "../src/io.h2"
+#line 41 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32;
 
-#line 47 "../src/io.h2"
+#line 49 "../src/io.h2"
 auto waitInput() -> void;
 
-#line 53 "../src/io.h2"
+#line 55 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
 
-#line 86 "../src/io.h2"
+#line 88 "../src/io.h2"
 // Make it a coroutine without row and col parameter
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 122 "../src/io.h2"
+#line 124 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void;
 
 //=== Cpp2 function definitions =================================================
@@ -88,14 +88,16 @@ auto printMenu() -> void{
     std::cout << "*                                                *" << std::endl;
     std::cout << "*     1. Start a game Human vs Human             *" << std::endl;
     std::cout << "*     2. Start a game Human vs Random            *" << std::endl;
-    std::cout << "*     3. Start a game Random vs Random (slow)    *" << std::endl;
-    std::cout << "*     4. Start a game Random vs Random (fast)    *" << std::endl;
+    std::cout << "*     3. Start a game Human vs AI                *" << std::endl;
+    std::cout << "*     4. Start a game Random vs Random (slow)    *" << std::endl;
+    std::cout << "*     5. Start a game Random vs Random (fast)    *" << std::endl;
+    std::cout << "*     6. Start a game AI vs AI (fast)            *" << std::endl;
     std::cout << "*     0. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 39 "../src/io.h2"
+#line 41 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32{
     cpp2::i32 input {0}; 
     std::cout << "> ";
@@ -104,14 +106,14 @@ auto printMenu() -> void{
     return input; 
 }
 
-#line 47 "../src/io.h2"
+#line 49 "../src/io.h2"
 auto waitInput() -> void{
     std::string input {""}; 
     std::cout << "> ";
     CPP2_UFCS(get)(std::cin);
 }
 
-#line 53 "../src/io.h2"
+#line 55 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move{
     std::string input {""}; 
     std::cout << std::endl << colorName(player) << " to play:" << std::endl << "> ";
@@ -145,7 +147,7 @@ auto waitInput() -> void{
     return m; 
 }
 
-#line 87 "../src/io.h2"
+#line 89 "../src/io.h2"
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
        (row == 9 && (col == 3 || col == 9 || col == 15)) || 
@@ -181,7 +183,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
     }
 }
 
-#line 122 "../src/io.h2"
+#line 124 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;

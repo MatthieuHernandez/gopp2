@@ -135,7 +135,7 @@ Engine: type = {
         processedStones2[stone.col][stone.row] = true;
         nextStones:= goban.getAdjacentStone(stone, processedStones2);
         for nextStones
-        do (in nextStone) {
+        do (inout nextStone) {
             if nextStone.color == Color::None {
                 if !processedStones2[nextStone.col][nextStone.row] {
                     processedStones1[nextStone.col][nextStone.row] = true;

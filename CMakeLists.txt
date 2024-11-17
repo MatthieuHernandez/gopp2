@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 3.5)
 
 project(gopp2)
 
-set(CMAKE_CXX_COMPILER "clang")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD  20)
 
 include_directories(../cppfront/include)
+add_subdirectory(external_libraries)
 
 add_executable(gopp2 ./generate/main.cpp)
+
+target_link_libraries(gopp2 StraightforwardNeuralNetwork)

@@ -29,8 +29,10 @@ printMenu:() = {
     std::cout << "*                                                *" << std::endl;
     std::cout << "*     1. Start a game Human vs Human             *" << std::endl;
     std::cout << "*     2. Start a game Human vs Random            *" << std::endl;
-    std::cout << "*     3. Start a game Random vs Random (slow)    *" << std::endl;
-    std::cout << "*     4. Start a game Random vs Random (fast)    *" << std::endl;
+    std::cout << "*     3. Start a game Human vs AI                *" << std::endl;
+    std::cout << "*     4. Start a game Random vs Random (slow)    *" << std::endl;
+    std::cout << "*     5. Start a game Random vs Random (fast)    *" << std::endl;
+    std::cout << "*     6. Start a game AI vs AI (fast)            *" << std::endl;
     std::cout << "*     0. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;

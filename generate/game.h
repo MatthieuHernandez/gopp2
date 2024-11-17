@@ -37,7 +37,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 62 "../src/game.h2"
+#line 64 "../src/game.h2"
 };
 
 
@@ -87,9 +87,11 @@ class Game {
         CPP2_UFCS(countScore)(engine);
         setNextMessage("The game ends after " + cpp2::impl::as_<std::string>(cpp2::move(moveNumber)) + " moves.");
         if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
+            (*cpp2::impl::assert_not_null(player1)).hasWon = true;
             setNextMessage("Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");
         }
         else {
+            (*cpp2::impl::assert_not_null(player2)).hasWon = true;
             setNextMessage("White win " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5 to " + cpp2::impl::as_<std::string>(engine.blackPoint) + ".");
         }
         auto stop {std::chrono::high_resolution_clock::now()}; 

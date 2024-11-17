@@ -1,0 +1,45 @@
+#include "player.h2"
+
+static std::random_device rd;
+static std::mt19937 rng(rd());
+
+Random: type = {
+    this: Player;
+
+    public operator=:(out this, c: Color) = {
+        Player = (c);
+    }
+
+    public operator=:(out this, that) = {
+        Player = (that);
+    }
+
+    public getMove:(override inout this, inout engine: Engine) -> Move = {
+        dist: std::uniform_int_distribution<i32> = (0, 18);
+        col: i32 = dist(rng);
+        row: i32 = dist(rng);
+        m:= Move(color, col, row);
+        engine.closerValidMove(m);
+        return m;
+    }
+}
+
+RandomSlow: type = {
+    this: Random;
+    duration: i16;
+
+    public operator=:(out this, c: Color, sleep_duration: i16) = {
+        Random = (c);
+        duration = sleep_duration;
+    }
+
+    public operator=:(out this, that) = {
+        Random = (that);
+        duration = that.duration;
+    }
+
+    public getMove:(override inout this, inout engine: Engine) -> Move = {
+        std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+        return Random::getMove(engine);
+    }
+}

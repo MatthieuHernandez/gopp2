@@ -46,9 +46,11 @@ Game : type = {
         engine.countScore();
         setNextMessage("The game ends after " + moveNumber as std::string + " moves.");
         if (engine.blackPoint > engine.whitePoint) {
+            player1*.hasWon = true;
             setNextMessage("Black win " + engine.blackPoint as std::string + " to " + engine.whitePoint as std::string + ".5.");
         }
         else {
+            player2*.hasWon = true;
             setNextMessage("White win " + engine.whitePoint as std::string + ".5 to " + engine.blackPoint as std::string + ".");
         }
         stop:= std::chrono::high_resolution_clock::now();

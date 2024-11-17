@@ -1,0 +1,17 @@
+#include "player.h2"
+
+Human: type = {
+    this: Player;
+
+    public operator=:(out this, c: Color) = {
+        Player = (c);
+    }
+
+    public operator=:(out this, that) = {
+        Player = (that);
+    }
+
+    public getMove:(override inout this, inout _: Engine) -> Move = {
+        return getInputMove(color);
+    }
+}

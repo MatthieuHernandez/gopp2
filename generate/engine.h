@@ -209,7 +209,7 @@ class Engine {
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones2, stone.col), stone.row) = true;
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone, processedStones2)}; 
         for ( 
-        auto const& nextStone : cpp2::move(nextStones) ) {
+        auto& nextStone : cpp2::move(nextStones) ) {
             if (nextStone.color == Color::None) {
                 if (!(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones2, nextStone.col), nextStone.row))) {
                     CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones1, nextStone.col), nextStone.row) = true;
