@@ -34,21 +34,27 @@ auto clearInput() -> void;
 #line 23 "../src/io.h2"
 auto printMenu() -> void;
 
-#line 41 "../src/io.h2"
+#line 42 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32;
 
-#line 49 "../src/io.h2"
+#line 50 "../src/io.h2"
 auto waitInput() -> void;
 
-#line 55 "../src/io.h2"
+#line 56 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
 
-#line 88 "../src/io.h2"
+#line 89 "../src/io.h2"
 // Make it a coroutine without row and col parameter
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 124 "../src/io.h2"
+#line 125 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void;
+
+#line 156 "../src/io.h2"
+[[nodiscard]] auto getSnnModels() -> std::vector<std::string>;
+
+#line 166 "../src/io.h2"
+[[nodiscard]] auto SelectSnnModel() -> std::string;
 
 //=== Cpp2 function definitions =================================================
 
@@ -92,12 +98,13 @@ auto printMenu() -> void{
     std::cout << "*     4. Start a game Random vs Random (slow)    *" << std::endl;
     std::cout << "*     5. Start a game Random vs Random (fast)    *" << std::endl;
     std::cout << "*     6. Start a game AI vs AI (fast)            *" << std::endl;
+    std::cout << "*     7. Load a model                            *" << std::endl;
     std::cout << "*     0. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 41 "../src/io.h2"
+#line 42 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32{
     cpp2::i32 input {0}; 
     std::cout << "> ";
@@ -106,14 +113,14 @@ auto printMenu() -> void{
     return input; 
 }
 
-#line 49 "../src/io.h2"
+#line 50 "../src/io.h2"
 auto waitInput() -> void{
     std::string input {""}; 
     std::cout << "> ";
     CPP2_UFCS(get)(std::cin);
 }
 
-#line 55 "../src/io.h2"
+#line 56 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move{
     std::string input {""}; 
     std::cout << std::endl << colorName(player) << " to play:" << std::endl << "> ";
@@ -147,7 +154,7 @@ auto waitInput() -> void{
     return m; 
 }
 
-#line 89 "../src/io.h2"
+#line 90 "../src/io.h2"
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
        (row == 9 && (col == 3 || col == 9 || col == 15)) || 
@@ -183,7 +190,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
     }
 }
 
-#line 124 "../src/io.h2"
+#line 125 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
@@ -213,6 +220,46 @@ auto printGoban(cpp2::impl::in<Goban> goban) -> void{
         std::cout << std::endl;
     }
     std::cout << std::endl << getNextMessage() << std::endl;
+}
+
+#line 156 "../src/io.h2"
+[[nodiscard]] auto getSnnModels() -> std::vector<std::string>{
+    std::vector<std::string> modelNames {}; 
+    auto files {std::filesystem::directory_iterator("./snn_models")}; 
+    for ( 
+    auto const& file : cpp2::move(files) ) {
+         CPP2_UFCS(push_back)(modelNames, CPP2_UFCS(string)(CPP2_UFCS(path)(file)));
+    }
+    return modelNames; 
+}
+
+#line 166 "../src/io.h2"
+[[nodiscard]] auto SelectSnnModel() -> std::string{
+    clear();
+    std::cout << "**************************************************" << std::endl;
+    std::cout << "*                   SNN Models                   *" << std::endl;
+    std::cout << "**************************************************" << std::endl;
+    std::cout << "* Please select a model:                         *" << std::endl;
+    std::cout << "*                                                *" << std::endl;
+    auto modelNames {getSnnModels()}; 
+{
+cpp2::i8 i{0};
+
+#line 175 "../src/io.h2"
+    for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(modelNames)); 
+    ++i ) 
+    {
+        std::cout << "*     " << cpp2::impl::as_<std::string>(i) << ". " << CPP2_ASSERT_IN_BOUNDS(modelNames, i) << std::endl;
+    }
+}
+#line 180 "../src/io.h2"
+    std::cout << "**************************************************" << std::endl;
+    std::cout << std::endl << getNextMessage() << std::endl;
+    cpp2::i32 input {0}; 
+    std::cout << "> ";
+    std::cin >> input;
+    clearInput();
+    return CPP2_ASSERT_IN_BOUNDS(cpp2::move(modelNames), cpp2::move(input)); 
 }
 #endif
 

@@ -2,12 +2,15 @@
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
 createAi:() = {
-    layers: std::vector<snn::LayerModel> = (snn::Input(361),
-                                            snn::FullyConnected(100),
+    layers: std::vector<snn::LayerModel> = (snn::Input(1, 19, 19),
+                                            snn::Convolution(32, 5, snn::activation::ReLU),
+                                            snn::MaxPooling(2),
+                                            snn::Convolution(64, 5, snn::activation::ReLU),
+                                            snn::MaxPooling(2),
                                             snn::FullyConnected(361));
-    optimizer:= snn::StochasticGradientDescent(1e-8f, 0.0f);
+    optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/first_model_2.snn");
+    neuralNetwork.saveAs("./snn_models/model_cnn_2_layers.snn");
 }
 
 Ai: type = {
@@ -114,6 +117,8 @@ Ai: type = {
             expected_output[moves[i]] = expectedValue;
             neuralNetwork.trainOnce(inputs[i], expected_output);
         }
+        inputs = ();
+        moves = ();
     }
     
     public save:(inout this) = {

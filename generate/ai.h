@@ -11,7 +11,7 @@
 
 #line 1 "../src/ai.h2"
 
-#line 13 "../src/ai.h2"
+#line 16 "../src/ai.h2"
 class Ai;
     
 
@@ -24,7 +24,7 @@ class Ai;
 #line 4 "../src/ai.h2"
 auto createAi() -> void;
 
-#line 13 "../src/ai.h2"
+#line 16 "../src/ai.h2"
 class Ai: public Player {
 
     private: snn::StraightforwardNeuralNetwork neuralNetwork; 
@@ -33,25 +33,25 @@ class Ai: public Player {
 
     public: explicit Ai(cpp2::impl::in<Color> c);
 
-#line 28 "../src/ai.h2"
+#line 31 "../src/ai.h2"
     public: Ai(Ai const& that);
 
-#line 33 "../src/ai.h2"
+#line 36 "../src/ai.h2"
     private: [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone>> state) const& -> std::vector<float>;
 
-#line 58 "../src/ai.h2"
+#line 61 "../src/ai.h2"
     private: [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) const& -> Move;
 
-#line 83 "../src/ai.h2"
+#line 86 "../src/ai.h2"
     public: [[nodiscard]] auto getMove(Engine& engine) -> Move override;
 
-#line 96 "../src/ai.h2"
+#line 99 "../src/ai.h2"
     public: auto train() & -> void;
 
-#line 119 "../src/ai.h2"
+#line 124 "../src/ai.h2"
     public: auto save() & -> void;
 
-#line 122 "../src/ai.h2"
+#line 127 "../src/ai.h2"
 };
 
 
@@ -61,51 +61,54 @@ class Ai: public Player {
 
 #line 4 "../src/ai.h2"
 auto createAi() -> void{
-    std::vector<snn::LayerModel> layers {snn::Input(361), 
-                                            snn::FullyConnected(100), 
+    std::vector<snn::LayerModel> layers {snn::Input(1, 19, 19), 
+                                            snn::Convolution(32, 5, snn::activation::ReLU), 
+                                            snn::MaxPooling(2), 
+                                            snn::Convolution(64, 5, snn::activation::ReLU), 
+                                            snn::MaxPooling(2), 
                                             snn::FullyConnected(361)}; 
-    auto optimizer {snn::StochasticGradientDescent(1e-8f, 0.0f)}; 
+    auto optimizer {snn::StochasticGradientDescent(1e-5f, 0.0f)}; 
     auto neuralNetwork {snn::StraightforwardNeuralNetwork(cpp2::move(layers), cpp2::move(optimizer))}; 
-    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/first_model.snn");
+    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/model_cnn_2_layers.snn");
 }
 
-#line 19 "../src/ai.h2"
+#line 22 "../src/ai.h2"
     Ai::Ai(cpp2::impl::in<Color> c)
         : Player{ c }
         , neuralNetwork{ snn::StraightforwardNeuralNetwork::loadFrom("./snn_models/first_model.snn") }
         , inputs{  }
         , moves{  }{
 
-#line 24 "../src/ai.h2"
+#line 27 "../src/ai.h2"
         CPP2_UFCS(reserve)(inputs, 300);
         CPP2_UFCS(reserve)(moves, 300);
     }
 
-#line 28 "../src/ai.h2"
+#line 31 "../src/ai.h2"
     Ai::Ai(Ai const& that)
         : Player{ that }
         , neuralNetwork{ that.neuralNetwork }
         , inputs{ that.inputs }
         , moves{ that.moves }{
 
-#line 31 "../src/ai.h2"
+#line 34 "../src/ai.h2"
     }
 
-#line 33 "../src/ai.h2"
+#line 36 "../src/ai.h2"
     [[nodiscard]] auto Ai::getGobanState(cpp2::impl::in<State<Stone>> state) const& -> std::vector<float>{
         std::vector<float> vec {}; 
         CPP2_UFCS(reserve)(vec, 361);
 {
 cpp2::i8 col{0};
 
-#line 37 "../src/ai.h2"
+#line 40 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 41 "../src/ai.h2"
+#line 44 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(state, col))); 
             ++row ) 
             {
@@ -120,14 +123,14 @@ cpp2::i8 row{0};
                 }}
             }
 }
-#line 54 "../src/ai.h2"
+#line 57 "../src/ai.h2"
         }
 }
-#line 55 "../src/ai.h2"
+#line 58 "../src/ai.h2"
         return vec; 
     }
 
-#line 58 "../src/ai.h2"
+#line 61 "../src/ai.h2"
     [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) const& -> Move{
         cpp2::i16 index {0}; 
         float max {0}; 
@@ -136,14 +139,14 @@ cpp2::i8 row{0};
 {
 cpp2::i8 col{0};
 
-#line 64 "../src/ai.h2"
+#line 67 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(col,19); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 68 "../src/ai.h2"
+#line 71 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(row,19); 
             ++row ) 
             {
@@ -155,15 +158,15 @@ cpp2::i8 row{0};
                 ++index;
             }
 }
-#line 78 "../src/ai.h2"
+#line 81 "../src/ai.h2"
         }
 }
-#line 79 "../src/ai.h2"
+#line 82 "../src/ai.h2"
         auto m {Move(color, cpp2::move(max_col), cpp2::move(max_row))}; 
         return m; 
     }
 
-#line 83 "../src/ai.h2"
+#line 86 "../src/ai.h2"
     [[nodiscard]] auto Ai::getMove(Engine& engine) -> Move{
         auto input {getGobanState(engine.goban.state)}; 
         auto output {CPP2_UFCS(computeOutput)(neuralNetwork, input)}; 
@@ -177,7 +180,7 @@ cpp2::i8 row{0};
         return m; 
     }
 
-#line 96 "../src/ai.h2"
+#line 99 "../src/ai.h2"
     auto Ai::train() & -> void{
         float expectedValue {-1.0}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
@@ -186,7 +189,7 @@ cpp2::i8 row{0};
 {
 cpp2::i16 i{0};
 
-#line 102 "../src/ai.h2"
+#line 105 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(inputs)); 
         ++i ) 
         {
@@ -194,7 +197,7 @@ cpp2::i16 i{0};
 {
 cpp2::i16 j{0};
 
-#line 107 "../src/ai.h2"
+#line 110 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(j,361); 
             ++j ) 
             {
@@ -203,15 +206,17 @@ cpp2::i16 j{0};
                 }
             }
 }
-#line 114 "../src/ai.h2"
+#line 117 "../src/ai.h2"
             CPP2_ASSERT_IN_BOUNDS(expected_output, CPP2_ASSERT_IN_BOUNDS(moves, i)) = expectedValue;
             CPP2_UFCS(trainOnce)(neuralNetwork, CPP2_ASSERT_IN_BOUNDS(inputs, i), cpp2::move(expected_output));
         }
 }
-#line 117 "../src/ai.h2"
+#line 120 "../src/ai.h2"
+        inputs = {  };
+        moves = {  };
     }
 
-#line 119 "../src/ai.h2"
+#line 124 "../src/ai.h2"
     auto Ai::save() & -> void{
         CPP2_UFCS(saveAs)(neuralNetwork, "./snn_models/first_model.snn");
     }

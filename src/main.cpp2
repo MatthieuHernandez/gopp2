@@ -9,92 +9,82 @@
 cpp2_main:() -> int = {
     SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
+    modelName: std::string = "";
     do {
         printMenu();
         selection: int = getInputMenu();
-        exit = inspect selection -> bool {
-            is 1 = :()->bool = {
-                clear();
-                setNextMessage("Start a new game.");
-                player1:= shared.new<Human>(Color::Black);
-                player2:= shared.new<Human>(Color::White);
-                game:= Game(player1, player2);
-                game.play<true>();
-                waitInput();
-                return false;
-            }();
-            is 2 = :()->bool = {
-                clear();
-                setNextMessage("Start a new game.");
-                player1:= shared.new<Human>(Color::Black);
-                player2:= shared.new<Random>(Color::White);
-                game:= Game(player1, player2);
-                game.play<true>();
-                waitInput();
-                return false;
-            }();
-            is 3 = :()->bool = {
-                clear();
-                setNextMessage("Start a new game.");
-                player1:= shared.new<Human>(Color::Black);
-                player2:= shared.new<Ai>(Color::White);
-                game:= Game(player1, player2);
-                game.play<true>();
-                waitInput();
-                return false;
-            }();
-            is 4 = :()->bool = {
-                clear();
-                setNextMessage("Start a new game.");
-                player1:= shared.new<RandomSlow>(Color::Black, 500);
-                player2:= shared.new<RandomSlow>(Color::White, 500);
-                game:= Game(player1, player2);
-                game.play<true>();
-                waitInput();
-                return false;
-            }();
-            is 5 = :()->bool = {
+        if selection == 0 {
+            clear("Bye.");
+            exit = true;
+        } else if selection == 1 {
+            clear();
+            setNextMessage("Start a new game.");
+            player1:= shared.new<Human>(Color::Black);
+            player2:= shared.new<Human>(Color::White);
+            game:= Game(player1, player2);
+            game.play<true>();
+            waitInput();
+        } else if selection == 2 {
+            clear();
+            setNextMessage("Start a new game.");
+            player1:= shared.new<Human>(Color::Black);
+            player2:= shared.new<Random>(Color::White);
+            game:= Game(player1, player2);
+            game.play<true>();
+            waitInput();
+        } else if selection == 3 {
+            clear();
+            setNextMessage("Start a new game.");
+            player1:= shared.new<Human>(Color::Black);
+            player2:= shared.new<Ai>(Color::White);
+            game:= Game(player1, player2);
+            game.play<true>();
+            waitInput();
+        } else if selection == 4 {
+            clear();
+            setNextMessage("Start a new game.");
+            player1:= shared.new<RandomSlow>(Color::Black, 500);
+            player2:= shared.new<RandomSlow>(Color::White, 500);
+            game:= Game(player1, player2);
+            game.play<true>();
+            waitInput();
+        } else if selection == 5 {
                 clear();
                 player1:= shared.new<Random>(Color::Black);
                 player2:= shared.new<Random>(Color::White);
                 game:= Game(player1, player2);
                 game.play<false>();
                 waitInput();
-                return false;
-            }();
-            is 6 = :()->bool = {
-                clear();
-                player1:= shared.new<Ai>(Color::Black);
-                player2:= shared.new<Ai>(Color::White);
-                game:= Game(player1, player2);
-                i: i32 = 0;
-                while true
-                {
-                    game.play<false>();
-                    player1*.train();
-                    player2*.train();
-                    if i % 20 == 19 {
-                        player1*.save();
-                    }
-                    i++;
+        } else if selection == 6 {
+            clear();
+            if modelName == "" {
+                setNextMessage("No model selected." );
+                continue;
+            }
+            player1:= shared.new<Ai>(Color::Black);
+            player2:= shared.new<Ai>(Color::White);
+            game:= Game(player1, player2);
+            i: i32 = 0;
+            while true
+            {
+                game.play<false>();
+                player1*.train();
+                player2*.train();
+                if i % 20 == 19 {
+                    player1*.save();
                 }
-                return false;
-            }();
-            is 9 = :()->bool = {
-                //clear();
+                i++;
+            }
+        } else if selection == 7 {
+            clear();
+            modelName = SelectSnnModel();
+            setNextMessage(modelName + " selected." );
+        } else if selection == 9 {
                 createAi();
                 setNextMessage("AI created.");
-                return false;
-            }();
-           is 0 = :()->bool={
-            clear("Bye.");
-            return true;
-        }();
-            is _ = :()->bool = {
-                setNextMessage("Invalid selection.");
-                return false;
-            }();
-        };
+        } else {
+            setNextMessage("Invalid selection.");
+        }
     } while !exit;
   return 0;
 }

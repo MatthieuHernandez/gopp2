@@ -33,6 +33,7 @@ printMenu:() = {
     std::cout << "*     4. Start a game Random vs Random (slow)    *" << std::endl;
     std::cout << "*     5. Start a game Random vs Random (fast)    *" << std::endl;
     std::cout << "*     6. Start a game AI vs AI (fast)            *" << std::endl;
+    std::cout << "*     7. Load a model                            *" << std::endl;
     std::cout << "*     0. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
@@ -150,4 +151,37 @@ printGoban:(goban: Goban) = {
         std::cout << std::endl;
     }
     std::cout << std::endl << getNextMessage() << std::endl;
+}
+
+getSnnModels:() -> std::vector<std::string> = {
+    modelNames: std::vector<std::string> = ();
+    files:= std::filesystem::directory_iterator("./snn_models");
+    for files
+    do (in file) {
+         modelNames.push_back(file.path().string());
+    }
+    return modelNames;
+}
+
+SelectSnnModel:() -> std::string = {
+    clear();
+    std::cout << "**************************************************" << std::endl;
+    std::cout << "*                   SNN Models                   *" << std::endl;
+    std::cout << "**************************************************" << std::endl;
+    std::cout << "* Please select a model:                         *" << std::endl;
+    std::cout << "*                                                *" << std::endl;
+    modelNames:= getSnnModels();
+    (copy i: i8 = 0)
+    while i < modelNames.ssize()
+    next i++
+    {
+        std::cout << "*     "<< i as std::string << ". " << modelNames[i] << std::endl;
+    }
+    std::cout << "**************************************************" << std::endl;
+    std::cout << std::endl << getNextMessage() << std::endl;
+    input: i32 = 0;
+    std::cout << "> ";
+    std::cin >> input;
+    clearInput();
+    return modelNames[input];
 }
