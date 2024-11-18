@@ -6,7 +6,7 @@
 #include "random.h2"
 #include "ai.h2"
 
-main:() -> int = {
+cpp2_main:() -> int = {
     SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
     do {
@@ -71,17 +71,17 @@ main:() -> int = {
                 while true
                 {
                     game.play<false>();
-                    //player1*.train();
-                    //player2*.train();
-                    /*if i % 20 == 19 {
+                    player1*.train();
+                    player2*.train();
+                    if i % 20 == 19 {
                         player1*.save();
-                    }*/
+                    }
                     i++;
                 }
                 return false;
             }();
             is 9 = :()->bool = {
-                clear();
+                //clear();
                 createAi();
                 setNextMessage("AI created.");
                 return false;
@@ -97,4 +97,14 @@ main:() -> int = {
         };
     } while !exit;
   return 0;
+}
+
+
+int main() {
+    try { // CPP2 workaround: Try catch not yet supported.
+        return cpp2_main();
+    } catch (const std::exception& e) {
+        std::cerr << "Caught exception: " << e.what() << std::endl;
+    }
+    return 0;
 }

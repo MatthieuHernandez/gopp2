@@ -3,13 +3,12 @@
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(361),
-                                                snn::FullyConnected(100),
-                                                snn::FullyConnected(361));
-    optimizer:= snn::StochasticGradientDescent(0.0001f, 0.0f);
+                                            snn::FullyConnected(100),
+                                            snn::FullyConnected(361));
+    optimizer:= snn::StochasticGradientDescent(1e-8f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/first_model.snn");
+    neuralNetwork.saveAs("./snn_models/first_model_2.snn");
 }
-
 
 Ai: type = {
     this: Player;
@@ -24,7 +23,6 @@ Ai: type = {
         moves = ();
         inputs.reserve(300);
         moves.reserve(300);
-        setNextMessage("AI loaded.");
     }
 
     public operator=:(out this, that) = {
@@ -46,7 +44,7 @@ Ai: type = {
                 if state[col][row].color == color {
                     vec.push_back(1.0);
                 }
-                if state[col][row].color == Color::None {
+                else if state[col][row].color == Color::None {
                     vec.push_back(0.0);
                 }
                 else {
