@@ -43,7 +43,7 @@ int main() {
 [[nodiscard]] auto cpp2_main() -> int{
     SetConsoleOutputCP(CP_UTF8);
     bool exit {false}; 
-    std::string modelName {""}; 
+    std::string modelPath {""}; 
     do {
         printMenu();
         int selection {getInputMenu()}; 
@@ -70,7 +70,7 @@ int main() {
             clear();
             setNextMessage("Start a new game.");
             auto player1 {CPP2_UFCS_TEMPLATE(cpp2_new<Human>)(cpp2::shared, Color::Black)}; 
-            auto player2 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::White)}; 
+            auto player2 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::White, modelPath)}; 
             auto game {Game(cpp2::move(player1), cpp2::move(player2))}; 
             CPP2_UFCS_TEMPLATE(play<true>)(cpp2::move(game));
             waitInput();
@@ -91,12 +91,12 @@ int main() {
                 waitInput();
         }else {if (selection == 6) {
             clear();
-            if (modelName == "") {
+            if (modelPath == "") {
                 setNextMessage("No model selected.");
                 continue;
             }
-            auto player1 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::Black)}; 
-            auto player2 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::White)}; 
+            auto player1 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::Black, modelPath)}; 
+            auto player2 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::White, modelPath)}; 
             auto game {Game(player1, player2)}; 
             cpp2::i32 i {0}; 
             while( true ) 
@@ -111,8 +111,8 @@ int main() {
             }
         }else {if (selection == 7) {
             clear();
-            modelName = SelectSnnModel();
-            setNextMessage(modelName + " selected.");
+            modelPath = SelectSnnModel();
+            setNextMessage(modelPath + " selected.");
         }else {if (cpp2::move(selection) == 9) {
                 createAi();
                 setNextMessage("AI created.");

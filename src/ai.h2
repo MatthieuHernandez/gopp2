@@ -3,25 +3,25 @@
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 19, 19),
-                                            snn::Convolution(32, 5, snn::activation::ReLU),
-                                            snn::MaxPooling(2),
-                                            snn::Convolution(64, 5, snn::activation::ReLU),
-                                            snn::MaxPooling(2),
+                                            snn::FullyConnected(500, snn::activation::ReLU),
                                             snn::FullyConnected(361));
     optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/model_cnn_2_layers.snn");
+    neuralNetwork.saveAs("./snn_models/model_dnn_1_hidden_layer.snn");
+    //snn::StraightforwardNeuralNetwork::loadFrom("./snn_models/model_dnn_1_hidden_layer.snn");
 }
 
 Ai: type = {
     this: Player;
+    private modelPath: std::string;
     private neuralNetwork: snn::StraightforwardNeuralNetwork;
     private inputs: snn::vector2D<float>;
-    private moves : std::vector<i16>;
+    private moves: std::vector<i16>;
 
-    public operator=:(out this, c: Color) = {
+    public operator=:(out this, c: Color, path: std::string) = {
         Player = (c);
-        neuralNetwork = snn::StraightforwardNeuralNetwork::loadFrom("./snn_models/first_model.snn");
+        modelPath = path;
+        neuralNetwork = snn::StraightforwardNeuralNetwork::loadFrom(modelPath);
         inputs = ();
         moves = ();
         inputs.reserve(300);
@@ -31,6 +31,9 @@ Ai: type = {
     public operator=:(out this, that) = {
         Player = (that);
         neuralNetwork = that.neuralNetwork;
+        inputs = that.inputs;
+        moves = that.moves;
+        modelPath = that.modelPath;
     }
 
     private getGobanState:(in this, in state: State<Stone>) -> std::vector<float> = {
@@ -63,6 +66,7 @@ Ai: type = {
         max: float = 0;
         max_col: i8 = 0;
         max_row: i8 = 0;
+        goodMoves: std::vector<std::array<i8, 2>> = ();
         (copy col: i8 = 0)
         while col < 19
         next col++
@@ -71,7 +75,10 @@ Ai: type = {
             while row < 19
             next row++
             {
-                if max < nn_output[index] {
+                if nn_output[index] > 0.95 {
+                    a: std::array<i8, 2> = (col, row);
+                    goodMoves.push_back(a);
+                } else if max < nn_output[index] {
                     max = nn_output[index];
                     max_col = col;
                     max_row = row;
@@ -79,8 +86,15 @@ Ai: type = {
                 index++;
             }
         }
-        m:= Move(color, max_col, max_row);
-        return m;
+        if !goodMoves.empty() {
+            dist: std::uniform_int_distribution<i64> = (0, goodMoves.ssize() - 1);
+            goodMove:= goodMoves[dist(rng)];
+            m:= Move(color, goodMove[0], goodMove[0]);
+            return m;
+        } else {
+            m:= Move(color, max_col, max_row);
+            return m;
+        }
     }
 
     public getMove:(override inout this, inout engine: Engine) -> Move = {
@@ -122,6 +136,6 @@ Ai: type = {
     }
     
     public save:(inout this) = {
-        neuralNetwork.saveAs("./snn_models/first_model.snn");
+        neuralNetwork.saveAs(modelPath);
     }
 }

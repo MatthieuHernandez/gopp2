@@ -9,7 +9,7 @@
 cpp2_main:() -> int = {
     SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
-    modelName: std::string = "";
+    modelPath: std::string = "";
     do {
         printMenu();
         selection: int = getInputMenu();
@@ -36,7 +36,7 @@ cpp2_main:() -> int = {
             clear();
             setNextMessage("Start a new game.");
             player1:= shared.new<Human>(Color::Black);
-            player2:= shared.new<Ai>(Color::White);
+            player2:= shared.new<Ai>(Color::White, modelPath);
             game:= Game(player1, player2);
             game.play<true>();
             waitInput();
@@ -57,12 +57,12 @@ cpp2_main:() -> int = {
                 waitInput();
         } else if selection == 6 {
             clear();
-            if modelName == "" {
+            if modelPath == "" {
                 setNextMessage("No model selected." );
                 continue;
             }
-            player1:= shared.new<Ai>(Color::Black);
-            player2:= shared.new<Ai>(Color::White);
+            player1:= shared.new<Ai>(Color::Black, modelPath);
+            player2:= shared.new<Ai>(Color::White, modelPath);
             game:= Game(player1, player2);
             i: i32 = 0;
             while true
@@ -77,8 +77,8 @@ cpp2_main:() -> int = {
             }
         } else if selection == 7 {
             clear();
-            modelName = SelectSnnModel();
-            setNextMessage(modelName + " selected." );
+            modelPath = SelectSnnModel();
+            setNextMessage(modelPath + " selected." );
         } else if selection == 9 {
                 createAi();
                 setNextMessage("AI created.");

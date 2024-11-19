@@ -1,8 +1,5 @@
 #include "player.h2"
 
-static std::random_device rd;
-static std::mt19937 rng(rd());
-
 Random: type = {
     this: Player;
 

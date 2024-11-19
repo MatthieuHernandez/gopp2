@@ -4,6 +4,9 @@
 
 using namespace std::chrono_literals;
 
+static std::random_device rd;
+static std::mt19937 rng(rd());
+
 Player: type = {
     public color: Color;
     public hasWon: bool;
