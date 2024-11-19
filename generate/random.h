@@ -31,7 +31,7 @@ static std::mt19937 rng(rd());
 class Random: public Player {
 
 #line 9 "../src/random.h2"
-    public: explicit Random(cpp2::impl::in<Color> c);
+    public: Random(cpp2::impl::in<Color> c);
 
 #line 13 "../src/random.h2"
     public: Random(Random const& that);
@@ -46,7 +46,7 @@ class RandomSlow: public Random {
 
     private: cpp2::i16 duration; 
 
-    public: explicit RandomSlow(cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> sleep_duration);
+    public: RandomSlow(cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> sleep_duration);
 
 #line 36 "../src/random.h2"
     public: RandomSlow(RandomSlow const& that);

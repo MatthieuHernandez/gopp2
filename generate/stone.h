@@ -30,7 +30,7 @@ class Stone {
     public: Stone();
 
 #line 16 "../src/stone.h2"
-    public: explicit Stone(cpp2::impl::in<Color> p, cpp2::impl::in<cpp2::i8> c, cpp2::impl::in<cpp2::i8> r);
+    public: Stone(cpp2::impl::in<Color> p, cpp2::impl::in<cpp2::i8> c, cpp2::impl::in<cpp2::i8> r);
 
 #line 23 "../src/stone.h2"
     public: Stone(Stone const& that);

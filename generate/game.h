@@ -29,7 +29,7 @@ class Game {
     private: std::shared_ptr<Player> player1; // CPP2 workaround: Not able to make unique_prtr work.
     private: std::shared_ptr<Player> player2; 
 
-    public: explicit Game(cpp2::impl::in<std::shared_ptr<Player>> p1, cpp2::impl::in<std::shared_ptr<Player>> p2);
+    public: Game(cpp2::impl::in<std::shared_ptr<Player>> p1, cpp2::impl::in<std::shared_ptr<Player>> p2);
 
 #line 16 "../src/game.h2"
     public: template<bool verbose> auto play() const& -> void;

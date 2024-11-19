@@ -24,7 +24,7 @@ class Human;
 class Human: public Player {
 
 #line 6 "../src/human.h2"
-    public: explicit Human(cpp2::impl::in<Color> c);
+    public: Human(cpp2::impl::in<Color> c);
 
 #line 10 "../src/human.h2"
     public: Human(Human const& that);

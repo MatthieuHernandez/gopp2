@@ -31,7 +31,7 @@ class Ai: public Player {
     private: snn::vector2D<float> inputs; 
     private: std::vector<cpp2::i16> moves; 
 
-    public: explicit Ai(cpp2::impl::in<Color> c);
+    public: Ai(cpp2::impl::in<Color> c);
 
 #line 31 "../src/ai.h2"
     public: Ai(Ai const& that);

@@ -31,7 +31,7 @@ class Player {
 
     public: [[nodiscard]] virtual auto getMove(Engine& engine) -> Move = 0;
 
-    public: explicit Player(cpp2::impl::in<Color> c);
+    public: Player(cpp2::impl::in<Color> c);
 
 #line 18 "../src/player.h2"
     // CPP2 workaround: Default operator seems not working.

@@ -30,7 +30,7 @@ class Move {
     public: explicit Move();
 
 #line 16 "../src/move.h2"
-    public: explicit Move(cpp2::impl::in<Color> color, cpp2::impl::in<cpp2::i8> col, cpp2::impl::in<cpp2::i8> row, cpp2::impl::in<bool> pas = false);
+    public: Move(cpp2::impl::in<Color> color, cpp2::impl::in<cpp2::i8> col, cpp2::impl::in<cpp2::i8> row, cpp2::impl::in<bool> pas = false);
 
 #line 31 "../src/move.h2"
     public: Move(Move const& that);
