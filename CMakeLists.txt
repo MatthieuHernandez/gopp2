@@ -12,7 +12,7 @@ include(FetchContent)
 FetchContent_Declare(
   StraightforwardNeuralNetwork
   GIT_REPOSITORY https://github.com/MatthieuHernandez/StraightforwardNeuralNetwork.git
-  GIT_TAG        af53b5ee1d6f7c4d2ab80484231edab8ea6c672b # master
+  GIT_TAG        5ab3e039f9fa1295964bb7967d68ae6474833b36 # master
 )
 
 FetchContent_MakeAvailable(StraightforwardNeuralNetwork)

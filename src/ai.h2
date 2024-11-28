@@ -1,4 +1,5 @@
 #include "player.h2"
+#include "io.h2"
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
 createAi:() = {
@@ -8,7 +9,12 @@ createAi:() = {
     optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
     neuralNetwork.saveAs("./snn_models/model_dnn_1_hidden_layer.snn");
-    //snn::StraightforwardNeuralNetwork::loadFrom("./snn_models/model_dnn_1_hidden_layer.snn");
+}
+
+printSnnModel:(path: std::string) = {
+    neuralNetwork:= snn::StraightforwardNeuralNetwork::loadFrom(path);
+    std::cout << neuralNetwork.summary() << std::endl;
+    waitInput();
 }
 
 Ai: type = {

@@ -22,7 +22,7 @@
 
 #line 9 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int;
-#line 91 "../src/main.cpp2"
+#line 93 "../src/main.cpp2"
 
 
 int main() {
@@ -104,7 +104,7 @@ int main() {
                 CPP2_UFCS_TEMPLATE(play<false>)(game);
                 CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)));
                 CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player2)));
-                if (i % 20 == 19) {
+                if (i % 20 == 0) {
                     CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
                 }
                 ++i;
@@ -112,6 +112,8 @@ int main() {
         }else {if (selection == 7) {
             clear();
             modelPath = SelectSnnModel();
+            clear();
+            printSnnModel(modelPath);
             setNextMessage(modelPath + " selected.");
         }else {if (cpp2::move(selection) == 9) {
                 createAi();

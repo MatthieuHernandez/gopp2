@@ -70,7 +70,7 @@ cpp2_main:() -> int = {
                 game.play<false>();
                 player1*.train();
                 player2*.train();
-                if i % 20 == 19 {
+                if i % 20 == 0 {
                     player1*.save();
                 }
                 i++;
@@ -78,6 +78,8 @@ cpp2_main:() -> int = {
         } else if selection == 7 {
             clear();
             modelPath = SelectSnnModel();
+            clear();
+            printSnnModel(modelPath);
             setNextMessage(modelPath + " selected." );
         } else if selection == 9 {
                 createAi();
