@@ -1,5 +1,9 @@
 #include "stone.h2"
 
+pass:(color: Color) -> Move = {
+    return Move(color, -1, -1, true);
+}
+
 Move: type = {
     public stone: Stone;
     public pass: bool;

@@ -47,16 +47,16 @@ class Ai: public Player {
 #line 70 "../src/ai.h2"
     private: [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) const& -> Move;
 
-#line 106 "../src/ai.h2"
+#line 97 "../src/ai.h2"
     public: [[nodiscard]] auto getMove(Engine& engine) -> Move override;
 
-#line 119 "../src/ai.h2"
+#line 113 "../src/ai.h2"
     public: auto train() & -> void;
 
-#line 144 "../src/ai.h2"
+#line 138 "../src/ai.h2"
     public: auto save() & -> void;
 
-#line 147 "../src/ai.h2"
+#line 141 "../src/ai.h2"
 };
 
 
@@ -145,55 +145,49 @@ cpp2::i8 row{0};
 #line 70 "../src/ai.h2"
     [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) const& -> Move{
         cpp2::i16 index {0}; 
-        float max {0}; 
-        cpp2::i8 max_col {0}; 
-        cpp2::i8 max_row {0}; 
         std::vector<std::array<cpp2::i8,2>> goodMoves {}; 
 {
 cpp2::i8 col{0};
 
-#line 77 "../src/ai.h2"
+#line 74 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(col,19); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 81 "../src/ai.h2"
+#line 78 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(row,19); 
             ++row ) 
             {
-                if (cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.95)) {
+                if (cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.5)) {
                     std::array<cpp2::i8,2> a {col, row}; 
                     CPP2_UFCS(push_back)(goodMoves, cpp2::move(a));
-                }else {if (cpp2::impl::cmp_less(max,CPP2_ASSERT_IN_BOUNDS(nn_output, index))) {
-                    max = CPP2_ASSERT_IN_BOUNDS(nn_output, index);
-                    max_col = col;
-                    max_row = row;
-                }}
+                }
                 ++index;
             }
 }
-#line 94 "../src/ai.h2"
+#line 87 "../src/ai.h2"
         }
 }
-#line 95 "../src/ai.h2"
+#line 88 "../src/ai.h2"
         if (!(CPP2_UFCS(empty)(goodMoves))) {
             std::uniform_int_distribution<cpp2::i64> dist {0, CPP2_UFCS(ssize)(goodMoves) - 1}; 
             auto goodMove {CPP2_ASSERT_IN_BOUNDS(cpp2::move(goodMoves), cpp2::move(dist)(rng))}; 
-            auto m {Move(color, CPP2_ASSERT_IN_BOUNDS_LITERAL(goodMove, 0), CPP2_ASSERT_IN_BOUNDS_LITERAL(cpp2::move(goodMove), 0))}; 
-            return m; 
-        }else {
-            auto m {Move(color, cpp2::move(max_col), cpp2::move(max_row))}; 
+            auto m {Move(color, CPP2_ASSERT_IN_BOUNDS_LITERAL(goodMove, 0), CPP2_ASSERT_IN_BOUNDS_LITERAL(cpp2::move(goodMove), 1))}; 
             return m; 
         }
+        return pass(color); 
     }
 
-#line 106 "../src/ai.h2"
+#line 97 "../src/ai.h2"
     [[nodiscard]] auto Ai::getMove(Engine& engine) -> Move{
         auto input {getGobanState(engine.goban.state)}; 
         auto output {CPP2_UFCS(computeOutput)(neuralNetwork, input)}; 
         auto m {chooseBestMove(cpp2::move(output))}; 
+        if (m.pass) {
+            return m; 
+        }
         CPP2_UFCS(closerValidMove)(engine, m);
         auto moveIndex {CPP2_UFCS(getIndex)(m.stone)}; 
         if (cpp2::impl::cmp_greater_eq(moveIndex,0)) {
@@ -203,7 +197,7 @@ cpp2::i8 row{0};
         return m; 
     }
 
-#line 119 "../src/ai.h2"
+#line 113 "../src/ai.h2"
     auto Ai::train() & -> void{
         float expectedValue {-1.0}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
@@ -212,7 +206,7 @@ cpp2::i8 row{0};
 {
 cpp2::i16 i{0};
 
-#line 125 "../src/ai.h2"
+#line 119 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(inputs)); 
         ++i ) 
         {
@@ -220,7 +214,7 @@ cpp2::i16 i{0};
 {
 cpp2::i16 j{0};
 
-#line 130 "../src/ai.h2"
+#line 124 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(j,361); 
             ++j ) 
             {
@@ -229,17 +223,17 @@ cpp2::i16 j{0};
                 }
             }
 }
-#line 137 "../src/ai.h2"
+#line 131 "../src/ai.h2"
             CPP2_ASSERT_IN_BOUNDS(expected_output, CPP2_ASSERT_IN_BOUNDS(moves, i)) = expectedValue;
             CPP2_UFCS(trainOnce)(neuralNetwork, CPP2_ASSERT_IN_BOUNDS(inputs, i), cpp2::move(expected_output));
         }
 }
-#line 140 "../src/ai.h2"
+#line 134 "../src/ai.h2"
         inputs = {  };
         moves = {  };
     }
 
-#line 144 "../src/ai.h2"
+#line 138 "../src/ai.h2"
     auto Ai::save() & -> void{
         CPP2_UFCS(saveAs)(neuralNetwork, modelPath);
     }

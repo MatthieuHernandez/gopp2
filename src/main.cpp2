@@ -6,7 +6,20 @@
 #include "random.h2"
 #include "ai.h2"
 
+isSaving: bool = false;
+
+void signalHandler(int signal) {
+    if (signal == SIGINT) {
+        while(isSaving) {
+            std::cout << "Cannot stop, saving in progress..." << std::endl;
+        }
+        std::exit(0);
+    }
+}
+
+
 cpp2_main:() -> int = {
+    signal(SIGINT, signalHandler);
     SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
     modelPath: std::string = "";
@@ -70,8 +83,10 @@ cpp2_main:() -> int = {
                 game.play<false>();
                 player1*.train();
                 player2*.train();
-                if i % 20 == 0 {
+                if i % 1 == 0 {
+                    isSaving = true;
                     player1*.save();
+                    isSaving = false;
                 }
                 i++;
             }

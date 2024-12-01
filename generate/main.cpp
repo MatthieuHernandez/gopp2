@@ -21,8 +21,20 @@
 #include "ai.h"
 
 #line 9 "../src/main.cpp2"
+extern bool isSaving;
+
+void signalHandler(int signal) {
+    if (signal == SIGINT) {
+        while(isSaving) {
+            std::cout << "Cannot stop, saving in progress..." << std::endl;
+        }
+        std::exit(0);
+    }
+}
+
+#line 21 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int;
-#line 93 "../src/main.cpp2"
+#line 108 "../src/main.cpp2"
 
 
 int main() {
@@ -40,7 +52,11 @@ int main() {
 #line 1 "../src/main.cpp2"
 
 #line 9 "../src/main.cpp2"
+bool isSaving {false}; 
+
+#line 21 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int{
+    signal(SIGINT, signalHandler);
     SetConsoleOutputCP(CP_UTF8);
     bool exit {false}; 
     std::string modelPath {""}; 
@@ -104,8 +120,10 @@ int main() {
                 CPP2_UFCS_TEMPLATE(play<false>)(game);
                 CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)));
                 CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player2)));
-                if (i % 20 == 0) {
+                if (i % 1 == 0) {
+                    isSaving = true;
                     CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
+                    isSaving = false;
                 }
                 ++i;
             }

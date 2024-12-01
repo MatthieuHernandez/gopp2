@@ -214,13 +214,16 @@ Engine: type = {
     }
 
     public closerValidMove:(inout this, inout m: Move) = {
+        if m.pass {
+            return;
+        }
         processedStones: State<bool> = (false);
         count: i32 = 0;
         findValidMove(m, processedStones, count);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
         count = count;
         if !m.isValid {
-            m = Move(m.stone.color, -1, -1, true);
+            m = pass(m.stone.color);
         }
     }
 }

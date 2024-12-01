@@ -67,7 +67,7 @@ class Engine {
     public: auto operator=(Engine const&) -> void = delete;
 
 
-#line 226 "../src/engine.h2"
+#line 229 "../src/engine.h2"
 };
 
 
@@ -301,13 +301,16 @@ cpp2::i8 row{0};
 
 #line 216 "../src/engine.h2"
     auto Engine::closerValidMove(Move& m) & -> void{
+        if (m.pass) {
+            return ; 
+        }
         State<bool> processedStones {false}; 
         cpp2::i32 count {0}; 
         findValidMove(m, processedStones, count);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
         count = count;
         if (!(m.isValid)) {
-            m = Move(m.stone.color, -1, -1, true);
+            m = pass(m.stone.color);
         }
     }
 #endif

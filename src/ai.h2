@@ -69,9 +69,6 @@ Ai: type = {
 
     private chooseBestMove:(in this, in nn_output: std::vector<float>) -> Move = {
         index: i16 = 0;
-        max: float = 0;
-        max_col: i8 = 0;
-        max_row: i8 = 0;
         goodMoves: std::vector<std::array<i8, 2>> = ();
         (copy col: i8 = 0)
         while col < 19
@@ -81,13 +78,9 @@ Ai: type = {
             while row < 19
             next row++
             {
-                if nn_output[index] > 0.95 {
+                if nn_output[index] > 0.5 {
                     a: std::array<i8, 2> = (col, row);
                     goodMoves.push_back(a);
-                } else if max < nn_output[index] {
-                    max = nn_output[index];
-                    max_col = col;
-                    max_row = row;
                 }
                 index++;
             }
@@ -95,18 +88,19 @@ Ai: type = {
         if !goodMoves.empty() {
             dist: std::uniform_int_distribution<i64> = (0, goodMoves.ssize() - 1);
             goodMove:= goodMoves[dist(rng)];
-            m:= Move(color, goodMove[0], goodMove[0]);
-            return m;
-        } else {
-            m:= Move(color, max_col, max_row);
+            m:= Move(color, goodMove[0], goodMove[1]);
             return m;
         }
+        return pass(color);
     }
 
     public getMove:(override inout this, inout engine: Engine) -> Move = {
         input:= getGobanState(engine.goban.state);
         output:= neuralNetwork.computeOutput(input);
         m:= chooseBestMove(output);
+        if m.pass {
+            return m;
+        }
         engine.closerValidMove(m);
         moveIndex:= m.stone.getIndex();
         if moveIndex >= 0 {

@@ -43,17 +43,17 @@ auto waitInput() -> void;
 #line 56 "../src/io.h2"
 [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> player) -> Move;
 
-#line 89 "../src/io.h2"
+#line 88 "../src/io.h2"
 // Make it a coroutine without row and col parameter
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 125 "../src/io.h2"
+#line 124 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void;
 
-#line 156 "../src/io.h2"
+#line 155 "../src/io.h2"
 [[nodiscard]] auto getSnnModels() -> std::vector<std::string>;
 
-#line 166 "../src/io.h2"
+#line 165 "../src/io.h2"
 [[nodiscard]] auto SelectSnnModel() -> std::string;
 
 //=== Cpp2 function definitions =================================================
@@ -128,8 +128,7 @@ auto waitInput() -> void{
     clearInput();
     if ((input == "pass")) {
         setNextMessage("Player pass.");
-        Move m {player, -1, -1, true}; 
-        return m; 
+        return pass(player); 
     }
     CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) = std::toupper(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0));
     if ((cpp2::impl::cmp_less(CPP2_UFCS(ssize)(input),2) || cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(input),3) || 
@@ -154,7 +153,7 @@ auto waitInput() -> void{
     return m; 
 }
 
-#line 90 "../src/io.h2"
+#line 89 "../src/io.h2"
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
        (row == 9 && (col == 3 || col == 9 || col == 15)) || 
@@ -190,7 +189,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
     }
 }
 
-#line 125 "../src/io.h2"
+#line 124 "../src/io.h2"
 auto printGoban(cpp2::impl::in<Goban> goban) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
@@ -222,7 +221,7 @@ auto printGoban(cpp2::impl::in<Goban> goban) -> void{
     std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 156 "../src/io.h2"
+#line 155 "../src/io.h2"
 [[nodiscard]] auto getSnnModels() -> std::vector<std::string>{
     std::vector<std::string> modelNames {}; 
     auto files {std::filesystem::directory_iterator("./snn_models")}; 
@@ -233,7 +232,7 @@ auto printGoban(cpp2::impl::in<Goban> goban) -> void{
     return modelNames; 
 }
 
-#line 166 "../src/io.h2"
+#line 165 "../src/io.h2"
 [[nodiscard]] auto SelectSnnModel() -> std::string{
     clear();
     std::cout << "**************************************************" << std::endl;
@@ -245,14 +244,14 @@ auto printGoban(cpp2::impl::in<Goban> goban) -> void{
 {
 cpp2::i8 i{0};
 
-#line 175 "../src/io.h2"
+#line 174 "../src/io.h2"
     for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(modelNames)); 
     ++i ) 
     {
         std::cout << "*     " << cpp2::impl::as_<std::string>(i) << ". " << CPP2_ASSERT_IN_BOUNDS(modelNames, i) << std::endl;
     }
 }
-#line 180 "../src/io.h2"
+#line 179 "../src/io.h2"
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
     cpp2::i32 input {0}; 
