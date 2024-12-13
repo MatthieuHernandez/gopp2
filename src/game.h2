@@ -5,12 +5,19 @@
 
 Game : type = {
 
-    player1: std::shared_ptr<Player>; // CPP2 workaround: Not able to make unique_prtr work.
-    player2: std::shared_ptr<Player>;
+    private playerBlack: std::shared_ptr<Player>; // CPP2 workaround: Not able to make unique_prtr work.
+    private playerWhite: std::shared_ptr<Player>;
 
     operator=:(out this, p1: std::shared_ptr<Player>, p2: std::shared_ptr<Player>) = {
-        player1 = (p1);
-        player2 = (p2);
+        playerBlack = (p1);
+        playerWhite = (p2);
+        if playerBlack*.color == Color::White && playerWhite*.color == Color::Black {
+            switchPlayerColor();
+        }
+        if playerBlack*.color != Color::Black || playerWhite*.color != Color::White {
+            std::cout << "Players should be Black and White." << std::endl;
+            exit(1);
+        }
     }
 
     play: <verbose: bool>(in this) = {
@@ -23,9 +30,9 @@ Game : type = {
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
             if moveNumber % 2 == 1 {
-                m = player1*.getMove(engine);
+                m = playerBlack*.getMove(engine);
             } else {
-                m = player2*.getMove(engine);
+                m = playerWhite*.getMove(engine);
             }
             if engine.isValidMove(m) {
                 engine.playMove(m);
@@ -45,11 +52,11 @@ Game : type = {
         engine.countScore();
         setNextMessage("The game ends after " + moveNumber as std::string + " moves.");
         if (engine.blackPoint > engine.whitePoint) {
-            player1*.hasWon = true;
+            playerBlack*.hasWon = true;
             setNextMessage("Black win " + engine.blackPoint as std::string + " to " + engine.whitePoint as std::string + ".5.");
         }
         else {
-            player2*.hasWon = true;
+            playerWhite*.hasWon = true;
             setNextMessage("White win " + engine.whitePoint as std::string + ".5 to " + engine.blackPoint as std::string + ".");
         }
         stop:= std::chrono::high_resolution_clock::now();
@@ -58,5 +65,11 @@ Game : type = {
         setNextMessage("After " + engine.goban.iterations as std::string + " iterations.");
         clear();
         printGoban(engine.goban);
+    }
+
+    switchPlayerColor:(inout this) = {
+        playerBlack*.color = Color::White;
+        playerWhite*.color = Color::Black;
+        std::swap(playerBlack, playerWhite);
     }
 }

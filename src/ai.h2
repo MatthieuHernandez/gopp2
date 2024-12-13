@@ -5,7 +5,7 @@
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 19, 19),
                                             snn::FullyConnected(500, snn::activation::ReLU),
-                                            snn::FullyConnected(361));
+                                            snn::FullyConnected(361, snn::activation::tanh));
     optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
     neuralNetwork.saveAs("./snn_models/model_dnn_1_hidden_layer.snn");
@@ -70,6 +70,8 @@ Ai: type = {
     private chooseBestMove:(in this, in nn_output: std::vector<float>) -> Move = {
         index: i16 = 0;
         goodMoves: std::vector<std::array<i8, 2>> = ();
+        averageMoves: std::vector<std::array<i8, 2>> = ();
+        badMoves: std::vector<std::array<i8, 2>> = ();
         (copy col: i8 = 0)
         while col < 19
         next col++
@@ -78,9 +80,13 @@ Ai: type = {
             while row < 19
             next row++
             {
-                if nn_output[index] > 0.5 {
-                    a: std::array<i8, 2> = (col, row);
+                a: std::array<i8, 2> = (col, row);
+                if nn_output[index] > 0.8f {
                     goodMoves.push_back(a);
+                } else if nn_output[index] > 0.0f {
+                    averageMoves.push_back(a);
+                } else {
+                    badMoves.push_back(a);
                 }
                 index++;
             }
@@ -89,6 +95,18 @@ Ai: type = {
             dist: std::uniform_int_distribution<i64> = (0, goodMoves.ssize() - 1);
             goodMove:= goodMoves[dist(rng)];
             m:= Move(color, goodMove[0], goodMove[1]);
+            return m;
+        }
+        if !averageMoves.empty() {
+            dist: std::uniform_int_distribution<i64> = (0, averageMoves.ssize() - 1);
+            averageMove:= averageMoves[dist(rng)];
+            m:= Move(color, averageMove[0], averageMove[1]);
+            return m;
+        }
+        if !badMoves.empty() {
+            dist: std::uniform_int_distribution<i64> = (0, badMoves.ssize() - 1);
+            badMove:= badMoves[dist(rng)];
+            m:= Move(color, badMove[0], badMove[1]);
             return m;
         }
         return pass(color);
