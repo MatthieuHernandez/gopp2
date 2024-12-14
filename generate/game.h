@@ -34,13 +34,13 @@ class Game {
 #line 23 "../src/game.h2"
     public: template<bool verbose> auto play() const& -> void;
 
-#line 70 "../src/game.h2"
+#line 76 "../src/game.h2"
     public: auto switchPlayerColor() & -> void;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 75 "../src/game.h2"
+#line 81 "../src/game.h2"
 };
 
 
@@ -97,21 +97,27 @@ class Game {
         setNextMessage("The game ends after " + cpp2::impl::as_<std::string>(cpp2::move(moveNumber)) + " moves.");
         if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
             (*cpp2::impl::assert_not_null(playerBlack)).hasWon = true;
+            (*cpp2::impl::assert_not_null(playerWhite)).hasWon = false;
             setNextMessage("Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");
         }
         else {
             (*cpp2::impl::assert_not_null(playerWhite)).hasWon = true;
+            (*cpp2::impl::assert_not_null(playerBlack)).hasWon = false;
             setNextMessage("White win " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5 to " + cpp2::impl::as_<std::string>(engine.blackPoint) + ".");
         }
         auto stop {std::chrono::high_resolution_clock::now()}; 
         auto duration {CPP2_UFCS(count)(std::chrono::duration_cast<std::chrono::milliseconds>(cpp2::move(stop) - cpp2::move(start)))}; 
         setNextMessage("The game lasted " + cpp2::impl::as_<std::string>(cpp2::move(duration)) + " ms.");
         setNextMessage("After " + cpp2::impl::as_<std::string>(engine.goban.iterations) + " iterations.");
+        setNextMessage("Black:");
+        CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(playerBlack)));
+        setNextMessage("White:");
+        CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(playerWhite)));
         clear();
         printGoban(cpp2::move(engine).goban);
     }
 
-#line 70 "../src/game.h2"
+#line 76 "../src/game.h2"
     auto Game::switchPlayerColor() & -> void{
         (*cpp2::impl::assert_not_null(playerBlack)).color = Color::White;
         (*cpp2::impl::assert_not_null(playerWhite)).color = Color::Black;

@@ -4,11 +4,12 @@
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 19, 19),
-                                            snn::FullyConnected(500, snn::activation::ReLU),
+                                            snn::FullyConnected(100, snn::activation::ReLU),
+                                            snn::FullyConnected(100, snn::activation::ReLU),
                                             snn::FullyConnected(361, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
+    optimizer:= snn::StochasticGradientDescent(1e-7f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/model_dnn_1_hidden_layer.snn");
+    neuralNetwork.saveAs("./snn_models/model_dnn_2_hidden_layers.snn");
 }
 
 printSnnModel:(path: std::string) = {
@@ -23,6 +24,10 @@ Ai: type = {
     private neuralNetwork: snn::StraightforwardNeuralNetwork;
     private inputs: snn::vector2D<float>;
     private moves: std::vector<i16>;
+
+    private numberOfGoodMoves: i32 = 0;
+    private numberOfAverageMoves: i32 = 0;
+    private numberOfBadMoves: i32 = 0;
 
     public operator=:(out this, c: Color, path: std::string) = {
         Player = (c);
@@ -40,6 +45,9 @@ Ai: type = {
         inputs = that.inputs;
         moves = that.moves;
         modelPath = that.modelPath;
+        numberOfGoodMoves = that.numberOfGoodMoves;
+        numberOfAverageMoves = that.numberOfAverageMoves;
+        numberOfBadMoves = that.numberOfBadMoves;
     }
 
     private getGobanState:(in this, in state: State<Stone>) -> std::vector<float> = {
@@ -67,7 +75,7 @@ Ai: type = {
         return vec;
     }
 
-    private chooseBestMove:(in this, in nn_output: std::vector<float>) -> Move = {
+    private chooseBestMove:(inout this, in nn_output: std::vector<float>) -> Move = {
         index: i16 = 0;
         goodMoves: std::vector<std::array<i8, 2>> = ();
         averageMoves: std::vector<std::array<i8, 2>> = ();
@@ -83,27 +91,30 @@ Ai: type = {
                 a: std::array<i8, 2> = (col, row);
                 if nn_output[index] > 0.8f {
                     goodMoves.push_back(a);
-                } else if nn_output[index] > 0.0f {
+                } else if goodMoves.empty() && nn_output[index] > 0.2f {
                     averageMoves.push_back(a);
-                } else {
+                } else if goodMoves.empty() && averageMoves.empty() {
                     badMoves.push_back(a);
                 }
                 index++;
             }
         }
         if !goodMoves.empty() {
+            numberOfGoodMoves++;
             dist: std::uniform_int_distribution<i64> = (0, goodMoves.ssize() - 1);
             goodMove:= goodMoves[dist(rng)];
             m:= Move(color, goodMove[0], goodMove[1]);
             return m;
         }
         if !averageMoves.empty() {
+            numberOfAverageMoves++;
             dist: std::uniform_int_distribution<i64> = (0, averageMoves.ssize() - 1);
             averageMove:= averageMoves[dist(rng)];
             m:= Move(color, averageMove[0], averageMove[1]);
             return m;
         }
         if !badMoves.empty() {
+            numberOfBadMoves++;
             dist: std::uniform_int_distribution<i64> = (0, badMoves.ssize() - 1);
             badMove:= badMoves[dist(rng)];
             m:= Move(color, badMove[0], badMove[1]);
@@ -131,7 +142,7 @@ Ai: type = {
     public train:(inout this) = {
         expectedValue: float = -1.0;
         if hasWon { // CPP2 workaround: Conditional operator not yet supported.
-            expectedValue = -1;
+            expectedValue = 1.0;
         }
         (copy i: i16 = 0)
         while i < inputs.ssize()
@@ -155,5 +166,19 @@ Ai: type = {
     
     public save:(inout this) = {
         neuralNetwork.saveAs(modelPath);
+    }
+
+    public processEndGame:(override inout this) = {
+        if color == Color::Black {
+            setNextMessage("Black:");
+        } else {
+            setNextMessage("White:");
+        }
+        setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
+        setNextMessage("  " + numberOfAverageMoves as std::string + " moves were considered average.");
+        setNextMessage("  " + numberOfBadMoves as std::string + " moves were considered bad.");
+        numberOfGoodMoves = 0;
+        numberOfAverageMoves = 0;
+        numberOfBadMoves = 0;
     }
 }

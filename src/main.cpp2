@@ -75,7 +75,7 @@ gameAiVsAi:(modelPath: std::string) = {
     {
         game.play<false>();
         player1*.train();
-        player2*.train();
+        //player2*.train();
         if i % 20 == 0 {
             isSaving = true;
             player1*.save();
@@ -95,30 +95,33 @@ loadAi:() -> std::string = {
 }
 
 evaluateAi:(modelPath: std::string) = {
-    /*numberOfGame = 100;
-    numberOfGameWon = 0;
+    clear();
+    if modelPath == "" {
+        setNextMessage("No model selected.");
+        return;
+    }
+    numberOfGame: i16 = 100;
+    numberOfGameWon: i16 = 0;
     player1:= shared.new<Ai>(Color::Black, modelPath);
-    player2:= shared.new<Random>(Color::White, modelPath);
+    player2:= shared.new<Random>(Color::White);
     game:= Game(player1, player2);
 
     (copy i: i32 = 0)
-    while i < (numberOfGame / 2)
+    while i < numberOfGame
     next i++
     {
         game.play<false>();
-        player1*.train();
-        player2*.train();
-        if i % 20 == 0 {
-            isSaving = true;
-            player1*.save();
-            isSaving = false;
-        }
-        if player1.hasWon {
+        if player1*.hasWon {
             numberOfGameWon++;
         }
-    }*/
+        if i == (numberOfGame / 2 - 1) {
+            game.switchPlayerColor();
+        }
+    }
+    setNextMessage("The AI evaluated won " + numberOfGameWon as std::string +
+                   "/" + numberOfGame as std::string + " games againt random.");
 }
-
+// The AI evaluated won 45/100 games againt random.
 
 cpp2_main:() -> int = {
     signal(SIGINT, signalHandler);

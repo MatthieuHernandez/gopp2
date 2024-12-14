@@ -11,7 +11,7 @@
 
 #line 1 "../src/ai.h2"
 
-#line 20 "../src/ai.h2"
+#line 21 "../src/ai.h2"
 class Ai;
     
 
@@ -25,10 +25,10 @@ class Ai;
 #line 5 "../src/ai.h2"
 auto createAi() -> void;
 
-#line 14 "../src/ai.h2"
+#line 15 "../src/ai.h2"
 auto printSnnModel(cpp2::impl::in<std::string> path) -> void;
 
-#line 20 "../src/ai.h2"
+#line 21 "../src/ai.h2"
 class Ai: public Player {
 
     private: std::string modelPath; 
@@ -36,27 +36,34 @@ class Ai: public Player {
     private: snn::vector2D<float> inputs; 
     private: std::vector<cpp2::i16> moves; 
 
+    private: cpp2::i32 numberOfGoodMoves {0}; 
+    private: cpp2::i32 numberOfAverageMoves {0}; 
+    private: cpp2::i32 numberOfBadMoves {0}; 
+
     public: Ai(cpp2::impl::in<Color> c, cpp2::impl::in<std::string> path);
 
-#line 37 "../src/ai.h2"
+#line 42 "../src/ai.h2"
     public: Ai(Ai const& that);
 
-#line 45 "../src/ai.h2"
+#line 53 "../src/ai.h2"
     private: [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone>> state) const& -> std::vector<float>;
 
-#line 70 "../src/ai.h2"
-    private: [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) const& -> Move;
+#line 78 "../src/ai.h2"
+    private: [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move;
 
-#line 115 "../src/ai.h2"
+#line 126 "../src/ai.h2"
     public: [[nodiscard]] auto getMove(Engine& engine) -> Move override;
 
-#line 131 "../src/ai.h2"
+#line 142 "../src/ai.h2"
     public: auto train() & -> void;
 
-#line 156 "../src/ai.h2"
+#line 167 "../src/ai.h2"
     public: auto save() & -> void;
 
-#line 159 "../src/ai.h2"
+#line 171 "../src/ai.h2"
+    public: auto processEndGame() -> void override;
+
+#line 184 "../src/ai.h2"
 };
 
 
@@ -67,21 +74,22 @@ class Ai: public Player {
 #line 5 "../src/ai.h2"
 auto createAi() -> void{
     std::vector<snn::LayerModel> layers {snn::Input(1, 19, 19), 
-                                            snn::FullyConnected(500, snn::activation::ReLU), 
+                                            snn::FullyConnected(100, snn::activation::ReLU), 
+                                            snn::FullyConnected(100, snn::activation::ReLU), 
                                             snn::FullyConnected(361, snn::activation::tanh)}; 
-    auto optimizer {snn::StochasticGradientDescent(1e-5f, 0.0f)}; 
+    auto optimizer {snn::StochasticGradientDescent(1e-7f, 0.0f)}; 
     auto neuralNetwork {snn::StraightforwardNeuralNetwork(cpp2::move(layers), cpp2::move(optimizer))}; 
-    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/model_dnn_1_hidden_layer.snn");
+    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/model_dnn_2_hidden_layers.snn");
 }
 
-#line 14 "../src/ai.h2"
+#line 15 "../src/ai.h2"
 auto printSnnModel(cpp2::impl::in<std::string> path) -> void{
     auto neuralNetwork {snn::StraightforwardNeuralNetwork::loadFrom(path)}; 
     std::cout << CPP2_UFCS(summary)(cpp2::move(neuralNetwork)) << std::endl;
     waitInput();
 }
 
-#line 27 "../src/ai.h2"
+#line 32 "../src/ai.h2"
     Ai::Ai(cpp2::impl::in<Color> c, cpp2::impl::in<std::string> path)
         : Player{ c }
         , modelPath{ path }
@@ -89,38 +97,44 @@ auto printSnnModel(cpp2::impl::in<std::string> path) -> void{
         , inputs{  }
         , moves{  }{
 
-#line 33 "../src/ai.h2"
+#line 38 "../src/ai.h2"
         CPP2_UFCS(reserve)(inputs, 300);
         CPP2_UFCS(reserve)(moves, 300);
     }
 
-#line 37 "../src/ai.h2"
+#line 42 "../src/ai.h2"
     Ai::Ai(Ai const& that)
         : Player{ that }
         , modelPath{ that.modelPath }
         , neuralNetwork{ that.neuralNetwork }
         , inputs{ that.inputs }
-        , moves{ that.moves }{
+        , moves{ that.moves }
+        , numberOfGoodMoves{ that.numberOfGoodMoves }
+        , numberOfAverageMoves{ that.numberOfAverageMoves }
+        , numberOfBadMoves{ that.numberOfBadMoves }{
 
-#line 42 "../src/ai.h2"
+#line 47 "../src/ai.h2"
         modelPath = that.modelPath;
+        numberOfGoodMoves = that.numberOfGoodMoves;
+        numberOfAverageMoves = that.numberOfAverageMoves;
+        numberOfBadMoves = that.numberOfBadMoves;
     }
 
-#line 45 "../src/ai.h2"
+#line 53 "../src/ai.h2"
     [[nodiscard]] auto Ai::getGobanState(cpp2::impl::in<State<Stone>> state) const& -> std::vector<float>{
         std::vector<float> vec {}; 
         CPP2_UFCS(reserve)(vec, 361);
 {
 cpp2::i8 col{0};
 
-#line 49 "../src/ai.h2"
+#line 57 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 53 "../src/ai.h2"
+#line 61 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(state, col))); 
             ++row ) 
             {
@@ -135,15 +149,15 @@ cpp2::i8 row{0};
                 }}
             }
 }
-#line 66 "../src/ai.h2"
+#line 74 "../src/ai.h2"
         }
 }
-#line 67 "../src/ai.h2"
+#line 75 "../src/ai.h2"
         return vec; 
     }
 
-#line 70 "../src/ai.h2"
-    [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) const& -> Move{
+#line 78 "../src/ai.h2"
+    [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move{
         cpp2::i16 index {0}; 
         std::vector<std::array<cpp2::i8,2>> goodMoves {}; 
         std::vector<std::array<cpp2::i8,2>> averageMoves {}; 
@@ -151,45 +165,48 @@ cpp2::i8 row{0};
 {
 cpp2::i8 col{0};
 
-#line 76 "../src/ai.h2"
+#line 84 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(col,19); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 80 "../src/ai.h2"
+#line 88 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(row,19); 
             ++row ) 
             {
                 std::array<cpp2::i8,2> a {col, row}; 
                 if (cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.8f)) {
                     CPP2_UFCS(push_back)(goodMoves, cpp2::move(a));
-                }else {if (cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.0f)) {
+                }else {if (CPP2_UFCS(empty)(goodMoves) && cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.2f)) {
                     CPP2_UFCS(push_back)(averageMoves, cpp2::move(a));
-                }else {
+                }else {if (CPP2_UFCS(empty)(goodMoves) && CPP2_UFCS(empty)(averageMoves)) {
                     CPP2_UFCS(push_back)(badMoves, cpp2::move(a));
-                }}
+                }}}
                 ++index;
             }
 }
-#line 93 "../src/ai.h2"
+#line 101 "../src/ai.h2"
         }
 }
-#line 94 "../src/ai.h2"
+#line 102 "../src/ai.h2"
         if (!(CPP2_UFCS(empty)(goodMoves))) {
+            ++numberOfGoodMoves;
             std::uniform_int_distribution<cpp2::i64> dist {0, CPP2_UFCS(ssize)(goodMoves) - 1}; 
             auto goodMove {CPP2_ASSERT_IN_BOUNDS(cpp2::move(goodMoves), cpp2::move(dist)(rng))}; 
             auto m {Move(color, CPP2_ASSERT_IN_BOUNDS_LITERAL(goodMove, 0), CPP2_ASSERT_IN_BOUNDS_LITERAL(cpp2::move(goodMove), 1))}; 
             return m; 
         }
         if (!(CPP2_UFCS(empty)(averageMoves))) {
+            ++numberOfAverageMoves;
             std::uniform_int_distribution<cpp2::i64> dist {0, CPP2_UFCS(ssize)(averageMoves) - 1}; 
             auto averageMove {CPP2_ASSERT_IN_BOUNDS(cpp2::move(averageMoves), cpp2::move(dist)(rng))}; 
             auto m {Move(color, CPP2_ASSERT_IN_BOUNDS_LITERAL(averageMove, 0), CPP2_ASSERT_IN_BOUNDS_LITERAL(cpp2::move(averageMove), 1))}; 
             return m; 
         }
         if (!(CPP2_UFCS(empty)(badMoves))) {
+            ++numberOfBadMoves;
             std::uniform_int_distribution<cpp2::i64> dist {0, CPP2_UFCS(ssize)(badMoves) - 1}; 
             auto badMove {CPP2_ASSERT_IN_BOUNDS(cpp2::move(badMoves), cpp2::move(dist)(rng))}; 
             auto m {Move(color, CPP2_ASSERT_IN_BOUNDS_LITERAL(badMove, 0), CPP2_ASSERT_IN_BOUNDS_LITERAL(cpp2::move(badMove), 1))}; 
@@ -198,7 +215,7 @@ cpp2::i8 row{0};
         return pass(color); 
     }
 
-#line 115 "../src/ai.h2"
+#line 126 "../src/ai.h2"
     [[nodiscard]] auto Ai::getMove(Engine& engine) -> Move{
         auto input {getGobanState(engine.goban.state)}; 
         auto output {CPP2_UFCS(computeOutput)(neuralNetwork, input)}; 
@@ -215,16 +232,16 @@ cpp2::i8 row{0};
         return m; 
     }
 
-#line 131 "../src/ai.h2"
+#line 142 "../src/ai.h2"
     auto Ai::train() & -> void{
         float expectedValue {-1.0}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
-            expectedValue = -1;
+            expectedValue = 1.0;
         }
 {
 cpp2::i16 i{0};
 
-#line 137 "../src/ai.h2"
+#line 148 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(inputs)); 
         ++i ) 
         {
@@ -232,7 +249,7 @@ cpp2::i16 i{0};
 {
 cpp2::i16 j{0};
 
-#line 142 "../src/ai.h2"
+#line 153 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(j,361); 
             ++j ) 
             {
@@ -241,19 +258,34 @@ cpp2::i16 j{0};
                 }
             }
 }
-#line 149 "../src/ai.h2"
+#line 160 "../src/ai.h2"
             CPP2_ASSERT_IN_BOUNDS(expected_output, CPP2_ASSERT_IN_BOUNDS(moves, i)) = expectedValue;
             CPP2_UFCS(trainOnce)(neuralNetwork, CPP2_ASSERT_IN_BOUNDS(inputs, i), cpp2::move(expected_output));
         }
 }
-#line 152 "../src/ai.h2"
+#line 163 "../src/ai.h2"
         inputs = {  };
         moves = {  };
     }
 
-#line 156 "../src/ai.h2"
+#line 167 "../src/ai.h2"
     auto Ai::save() & -> void{
         CPP2_UFCS(saveAs)(neuralNetwork, modelPath);
+    }
+
+#line 171 "../src/ai.h2"
+    auto Ai::processEndGame() -> void{
+        if (color == Color::Black) {
+            setNextMessage("Black:");
+        }else {
+            setNextMessage("White:");
+        }
+        setNextMessage("  " + cpp2::impl::as_<std::string>(numberOfGoodMoves) + " moves were considered good.");
+        setNextMessage("  " + cpp2::impl::as_<std::string>(numberOfAverageMoves) + " moves were considered average.");
+        setNextMessage("  " + cpp2::impl::as_<std::string>(numberOfBadMoves) + " moves were considered bad.");
+        numberOfGoodMoves = 0;
+        numberOfAverageMoves = 0;
+        numberOfBadMoves = 0;
     }
 #endif
 

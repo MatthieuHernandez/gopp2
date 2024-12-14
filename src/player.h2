@@ -27,4 +27,6 @@ Player: type = {
     // CPP2 workaround: Default operator seems not working.
     public operator=:(virtual move this) = {
     }
+
+    public processEndGame:(virtual inout this) = {}
 }

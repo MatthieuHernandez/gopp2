@@ -52,9 +52,11 @@ auto gameAiVsAi(cpp2::impl::in<std::string> modelPath) -> void;
 #line 97 "../src/main.cpp2"
 auto evaluateAi(cpp2::impl::in<std::string> modelPath) -> void;
 
-#line 123 "../src/main.cpp2"
+#line 124 "../src/main.cpp2"
+// The AI evaluated won 45/100 games againt random.
+
 [[nodiscard]] auto cpp2_main() -> int;
-#line 157 "../src/main.cpp2"
+#line 160 "../src/main.cpp2"
 
 
 int main() {
@@ -131,13 +133,13 @@ auto gameAiVsAi(cpp2::impl::in<std::string> modelPath) -> void{
     }
     auto player1 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::Black, modelPath)}; 
     auto player2 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::White, modelPath)}; 
-    auto game {Game(player1, player2)}; 
+    auto game {Game(player1, cpp2::move(player2))}; 
     cpp2::i32 i {0}; 
     while( true ) 
     {
         CPP2_UFCS_TEMPLATE(play<false>)(game);
         CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)));
-        CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player2)));
+        //player2*.train();
         if (i % 20 == 0) {
             isSaving = true;
             CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
@@ -159,31 +161,38 @@ auto gameAiVsAi(cpp2::impl::in<std::string> modelPath) -> void{
 
 #line 97 "../src/main.cpp2"
 auto evaluateAi(cpp2::impl::in<std::string> modelPath) -> void{
-    /*numberOfGame = 100;
-    numberOfGameWon = 0;
-    player1:= shared.new<Ai>(Color::Black, modelPath);
-    player2:= shared.new<Random>(Color::White, modelPath);
-    game:= Game(player1, player2);
+    clear();
+    if (modelPath == "") {
+        setNextMessage("No model selected.");
+        return ; 
+    }
+    cpp2::i16 numberOfGame {100}; 
+    cpp2::i16 numberOfGameWon {0}; 
+    auto player1 {CPP2_UFCS_TEMPLATE(cpp2_new<Ai>)(cpp2::shared, Color::Black, modelPath)}; 
+    auto player2 {CPP2_UFCS_TEMPLATE(cpp2_new<Random>)(cpp2::shared, Color::White)}; 
+    auto game {Game(player1, cpp2::move(player2))}; 
+{
+cpp2::i32 i{0};
 
-    (copy i: i32 = 0)
-    while i < (numberOfGame / 2)
-    next i++
+#line 110 "../src/main.cpp2"
+    for( ; cpp2::impl::cmp_less(i,numberOfGame); 
+    ++i ) 
     {
-        game.play<false>();
-        player1.train();
-        player2.train();
-        if i % 20 == 0 {
-            isSaving = true;
-            player1.save();
-            isSaving = false;
+        CPP2_UFCS_TEMPLATE(play<false>)(game);
+        if ((*cpp2::impl::assert_not_null(player1)).hasWon) {
+            ++numberOfGameWon;
         }
-        if player1.hasWon {
-            numberOfGameWon++;
+        if (i == (numberOfGame / CPP2_ASSERT_NOT_ZERO_LITERAL(CPP2_TYPEOF(numberOfGame),2) - 1)) {
+            CPP2_UFCS(switchPlayerColor)(game);
         }
-    }*/
+    }
+}
+#line 121 "../src/main.cpp2"
+    setNextMessage("The AI evaluated won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
+                   "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt random.");
 }
 
-#line 123 "../src/main.cpp2"
+#line 126 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int{
     signal(SIGINT, signalHandler);
     SetConsoleOutputCP(CP_UTF8);

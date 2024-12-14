@@ -53,16 +53,19 @@ Game : type = {
         setNextMessage("The game ends after " + moveNumber as std::string + " moves.");
         if (engine.blackPoint > engine.whitePoint) {
             playerBlack*.hasWon = true;
+            playerWhite*.hasWon = false;
             setNextMessage("Black win " + engine.blackPoint as std::string + " to " + engine.whitePoint as std::string + ".5.");
-        }
-        else {
+        } else {
             playerWhite*.hasWon = true;
+            playerBlack*.hasWon = false;
             setNextMessage("White win " + engine.whitePoint as std::string + ".5 to " + engine.blackPoint as std::string + ".");
         }
         stop:= std::chrono::high_resolution_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
         setNextMessage("The game lasted " + duration as std::string + " ms.");
         setNextMessage("After " + engine.goban.iterations as std::string + " iterations.");
+        playerBlack*.processEndGame();
+        playerWhite*.processEndGame();
         clear();
         printGoban(engine.goban);
     }

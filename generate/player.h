@@ -44,6 +44,8 @@ class Player {
     // CPP2 workaround: Default operator seems not working.
     public: virtual ~Player() noexcept;
 
+#line 31 "../src/player.h2"
+    public: virtual auto processEndGame() -> void;
 };
 
 
@@ -70,5 +72,8 @@ class Player {
 #line 28 "../src/player.h2"
     Player::~Player() noexcept{
     }
+
+#line 31 "../src/player.h2"
+    auto Player::processEndGame() -> void{}
 #endif
 
