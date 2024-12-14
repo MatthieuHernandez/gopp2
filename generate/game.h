@@ -26,21 +26,21 @@ class Game;
 #line 6 "../src/game.h2"
 class Game {
 
-    private: std::shared_ptr<Player> playerBlack; // CPP2 workaround: Not able to make unique_prtr work.
-    private: std::shared_ptr<Player> playerWhite; 
+    private: std::shared_ptr<Player> blackPlayer; // CPP2 workaround: Not able to make unique_prtr work.
+    private: std::shared_ptr<Player> whitePlayer; 
 
     public: Game(cpp2::impl::in<std::shared_ptr<Player>> p1, cpp2::impl::in<std::shared_ptr<Player>> p2);
 
 #line 23 "../src/game.h2"
     public: template<bool verbose> auto play() const& -> void;
 
-#line 76 "../src/game.h2"
+#line 73 "../src/game.h2"
     public: auto switchPlayerColor() & -> void;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 81 "../src/game.h2"
+#line 78 "../src/game.h2"
 };
 
 
@@ -50,14 +50,14 @@ class Game {
 
 #line 11 "../src/game.h2"
     Game::Game(cpp2::impl::in<std::shared_ptr<Player>> p1, cpp2::impl::in<std::shared_ptr<Player>> p2)
-        : playerBlack{ p1 }
-        , playerWhite{ p2 }{
+        : blackPlayer{ p1 }
+        , whitePlayer{ p2 }{
 
 #line 14 "../src/game.h2"
-        if ((*cpp2::impl::assert_not_null(playerBlack)).color == Color::White && (*cpp2::impl::assert_not_null(playerWhite)).color == Color::Black) {
+        if ((*cpp2::impl::assert_not_null(blackPlayer)).color == Color::White && (*cpp2::impl::assert_not_null(whitePlayer)).color == Color::Black) {
             switchPlayerColor();
         }
-        if ((*cpp2::impl::assert_not_null(playerBlack)).color != Color::Black || (*cpp2::impl::assert_not_null(playerWhite)).color != Color::White) {
+        if ((*cpp2::impl::assert_not_null(blackPlayer)).color != Color::Black || (*cpp2::impl::assert_not_null(whitePlayer)).color != Color::White) {
             std::cout << "Players should be Black and White." << std::endl;
             exit(1);
         }
@@ -74,9 +74,9 @@ class Game {
             }
             Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
             if (moveNumber % 2 == 1) {
-                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(playerBlack)), engine);
+                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(blackPlayer)), engine);
             }else {
-                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(playerWhite)), engine);
+                m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(whitePlayer)), engine);
             }
             if (CPP2_UFCS(isValidMove)(engine, m)) {
                 CPP2_UFCS(playMove)(engine, m);
@@ -96,32 +96,29 @@ class Game {
         CPP2_UFCS(countScore)(engine);
         setNextMessage("The game ends after " + cpp2::impl::as_<std::string>(cpp2::move(moveNumber)) + " moves.");
         if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
-            (*cpp2::impl::assert_not_null(playerBlack)).hasWon = true;
-            (*cpp2::impl::assert_not_null(playerWhite)).hasWon = false;
+            (*cpp2::impl::assert_not_null(blackPlayer)).hasWon = true;
+            (*cpp2::impl::assert_not_null(whitePlayer)).hasWon = false;
             setNextMessage("Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");
-        }
-        else {
-            (*cpp2::impl::assert_not_null(playerWhite)).hasWon = true;
-            (*cpp2::impl::assert_not_null(playerBlack)).hasWon = false;
+        }else {
+            (*cpp2::impl::assert_not_null(whitePlayer)).hasWon = true;
+            (*cpp2::impl::assert_not_null(blackPlayer)).hasWon = false;
             setNextMessage("White win " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5 to " + cpp2::impl::as_<std::string>(engine.blackPoint) + ".");
         }
         auto stop {std::chrono::high_resolution_clock::now()}; 
         auto duration {CPP2_UFCS(count)(std::chrono::duration_cast<std::chrono::milliseconds>(cpp2::move(stop) - cpp2::move(start)))}; 
         setNextMessage("The game lasted " + cpp2::impl::as_<std::string>(cpp2::move(duration)) + " ms.");
         setNextMessage("After " + cpp2::impl::as_<std::string>(engine.goban.iterations) + " iterations.");
-        setNextMessage("Black:");
-        CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(playerBlack)));
-        setNextMessage("White:");
-        CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(playerWhite)));
+        CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(blackPlayer)));
+        CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(whitePlayer)));
         clear();
         printGoban(cpp2::move(engine).goban);
     }
 
-#line 76 "../src/game.h2"
+#line 73 "../src/game.h2"
     auto Game::switchPlayerColor() & -> void{
-        (*cpp2::impl::assert_not_null(playerBlack)).color = Color::White;
-        (*cpp2::impl::assert_not_null(playerWhite)).color = Color::Black;
-        std::swap(playerBlack, playerWhite);
+        (*cpp2::impl::assert_not_null(blackPlayer)).color = Color::White;
+        (*cpp2::impl::assert_not_null(whitePlayer)).color = Color::Black;
+        std::swap(blackPlayer, whitePlayer);
     }
 #endif
 

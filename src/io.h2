@@ -1,5 +1,8 @@
 #include "goban.h2"
 #include "move.h2"
+#include "human.h2"
+#include "random.h2"
+#include "ai.h2"
 
 nextMessage: std::string = 0;
 
@@ -27,13 +30,10 @@ printMenu:() = {
     std::cout << "**************************************************" << std::endl;
     std::cout << "* Please select one of the following:            *" << std::endl;
     std::cout << "*                                                *" << std::endl;
-    std::cout << "*     1. Start a game Human vs Human             *" << std::endl;
-    std::cout << "*     2. Start a game Human vs Random            *" << std::endl;
-    std::cout << "*     3. Start a game Human vs AI                *" << std::endl;
-    std::cout << "*     4. Start a game Random vs Random (slow)    *" << std::endl;
-    std::cout << "*     5. Start a game AI vs AI (fast)            *" << std::endl;
-    std::cout << "*     6. Evaluate a AI                           *" << std::endl;
-    std::cout << "*     7. Load a AI                               *" << std::endl;
+    std::cout << "*     1. Select Players                          *" << std::endl;
+    std::cout << "*     2. Play one game (slow)                    *" << std::endl;
+    std::cout << "*     3. Play and train indefinitely (fast)      *" << std::endl;
+    std::cout << "*     4. Evaluate one 100 games                  *" << std::endl;
     std::cout << "*     0. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
@@ -53,14 +53,14 @@ waitInput:() = {
     std::cin.get();
 }
 
-getInputMove:(player: Color) -> Move = {
+getInputMove:(color: Color) -> Move = {
     input: std::string = "";
-    std::cout << std::endl << colorName(player) << " to play:" << std::endl << "> ";
+    std::cout << std::endl << colorName(color) << " to play:" << std::endl << "> ";
     std::cin >> input;
     clearInput();
     if(input == "pass") {
         setNextMessage("Player pass.");
-        return pass(player);
+        return pass(color);
     }
     input[0] = std::toupper(input[0]);
     if(input.ssize() < 2 || input.ssize() > 3 ||
@@ -68,7 +68,7 @@ getInputMove:(player: Color) -> Move = {
        (input.ssize() == 2 && (input[1] < '1' || input[1] > '9')) ||
        (input.ssize() == 3 && (input[1] != '1' || input[2] < '0' || input[2] > '9'))) {
         std::cout << "\033[A\033[A\033[A\033[A\033[K" << "Invalid Move." << std::endl;
-        return getInputMove(player);
+        return getInputMove(color);
     }
     col: i8 = 0;
     col = input[0] - 65;
@@ -162,15 +162,17 @@ getSnnModels:() -> std::vector<std::string> = {
     return modelNames;
 }
 
-SelectSnnModel:() -> std::string = {
+selectPlayer:(color: Color) -> Player = {
     clear();
     std::cout << "**************************************************" << std::endl;
-    std::cout << "*                   SNN Models                   *" << std::endl;
+    std::cout << "*                    Players                     *" << std::endl;
     std::cout << "**************************************************" << std::endl;
-    std::cout << "* Please select a model:                         *" << std::endl;
+    std::cout << "* Please select " << colorName(color) << " player:" << std::endl;
     std::cout << "*                                                *" << std::endl;
+    std::cout << "*     0. Human Player                           *" << std::endl;
+    std::cout << "*     1. Random Player                           *" << std::endl;
     modelNames:= getSnnModels();
-    (copy i: i8 = 0)
+    (copy i: i8 = 2)
     while i < modelNames.ssize()
     next i++
     {
@@ -182,5 +184,15 @@ SelectSnnModel:() -> std::string = {
     std::cout << "> ";
     std::cin >> input;
     clearInput();
-    return modelNames[input];
+    if(input == 0) {
+        return Humain(color);
+    }
+    if(input ==1) {
+        return Random(color);
+    }
+    player:= Ai(modelNames[input - 2])
+    clear();
+    std::cout << player.summary() << std::endl;
+    waitInput();
+    return player;
 }

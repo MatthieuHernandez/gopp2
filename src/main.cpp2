@@ -85,13 +85,11 @@ gameAiVsAi:(modelPath: std::string) = {
     }
 }
 
-loadAi:() -> std::string = {
-    clear();
-    modelPath:= SelectSnnModel();
-    clear();
-    printSnnModel(modelPath);
-    setNextMessage(modelPath + " selected." );
-    return modelPath;
+selectPlayers:() -> Game = {
+
+    playerBlack:= shared.new<Player>(SelectPlayer(Color::Black));
+    playerWhite:= shared.new<Player>(SelectPlayer(Color::White));
+    return Game(player1, player2);
 }
 
 evaluateAi:(modelPath: std::string) = {
@@ -121,13 +119,13 @@ evaluateAi:(modelPath: std::string) = {
     setNextMessage("The AI evaluated won " + numberOfGameWon as std::string +
                    "/" + numberOfGame as std::string + " games againt random.");
 }
-// The AI evaluated won 45/100 games againt random.
 
 cpp2_main:() -> int = {
     signal(SIGINT, signalHandler);
     SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
     modelPath: std::string = "";
+    game: std::unique_ptr<Player>;
     do {
         printMenu();
         selection: int = getInputMenu();
@@ -135,7 +133,7 @@ cpp2_main:() -> int = {
             clear("Bye.");
             exit = true;
         } else if selection == 1 {
-            gameHumanVsHuman();
+            game = unique.new<Player>(selectPlayers());
         } else if selection == 2 {
             gameHumanVsRandom();
         } else if selection == 3 {

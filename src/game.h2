@@ -5,22 +5,22 @@
 
 Game : type = {
 
-    private playerBlack: std::shared_ptr<Player>; // CPP2 workaround: Not able to make unique_prtr work.
-    private playerWhite: std::shared_ptr<Player>;
+    private blackPlayer: std::shared_ptr<Player>; // CPP2 workaround: Not able to make unique_prtr work.
+    private whitePlayer: std::shared_ptr<Player>;
 
     operator=:(out this, p1: std::shared_ptr<Player>, p2: std::shared_ptr<Player>) = {
-        playerBlack = (p1);
-        playerWhite = (p2);
-        if playerBlack*.color == Color::White && playerWhite*.color == Color::Black {
+        blackPlayer = (p1);
+        whitePlayer = (p2);
+        if blackPlayer*.color == Color::White && whitePlayer*.color == Color::Black {
             switchPlayerColor();
         }
-        if playerBlack*.color != Color::Black || playerWhite*.color != Color::White {
+        if blackPlayer*.color != Color::Black || whitePlayer*.color != Color::White {
             std::cout << "Players should be Black and White." << std::endl;
             exit(1);
         }
     }
 
-    play: <verbose: bool>(in this) = {
+    public play: <verbose: bool>(in this) = {
         start:= std::chrono::high_resolution_clock::now();
         engine: Engine = ();
         moveNumber: i16 = 1;
@@ -30,9 +30,9 @@ Game : type = {
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
             if moveNumber % 2 == 1 {
-                m = playerBlack*.getMove(engine);
+                m = blackPlayer*.getMove(engine);
             } else {
-                m = playerWhite*.getMove(engine);
+                m = whitePlayer*.getMove(engine);
             }
             if engine.isValidMove(m) {
                 engine.playMove(m);
@@ -52,27 +52,27 @@ Game : type = {
         engine.countScore();
         setNextMessage("The game ends after " + moveNumber as std::string + " moves.");
         if (engine.blackPoint > engine.whitePoint) {
-            playerBlack*.hasWon = true;
-            playerWhite*.hasWon = false;
+            blackPlayer*.hasWon = true;
+            whitePlayer*.hasWon = false;
             setNextMessage("Black win " + engine.blackPoint as std::string + " to " + engine.whitePoint as std::string + ".5.");
         } else {
-            playerWhite*.hasWon = true;
-            playerBlack*.hasWon = false;
+            whitePlayer*.hasWon = true;
+            blackPlayer*.hasWon = false;
             setNextMessage("White win " + engine.whitePoint as std::string + ".5 to " + engine.blackPoint as std::string + ".");
         }
         stop:= std::chrono::high_resolution_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
         setNextMessage("The game lasted " + duration as std::string + " ms.");
         setNextMessage("After " + engine.goban.iterations as std::string + " iterations.");
-        playerBlack*.processEndGame();
-        playerWhite*.processEndGame();
+        blackPlayer*.processEndGame();
+        whitePlayer*.processEndGame();
         clear();
         printGoban(engine.goban);
     }
 
-    switchPlayerColor:(inout this) = {
-        playerBlack*.color = Color::White;
-        playerWhite*.color = Color::Black;
-        std::swap(playerBlack, playerWhite);
+    public switchPlayerColor:(inout this) = {
+        blackPlayer*.color = Color::White;
+        whitePlayer*.color = Color::Black;
+        std::swap(blackPlayer, whitePlayer);
     }
 }

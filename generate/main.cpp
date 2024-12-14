@@ -47,16 +47,14 @@ auto gameRandomVsRandom() -> void;
 auto gameAiVsAi(cpp2::impl::in<std::string> modelPath) -> void;
 
 #line 88 "../src/main.cpp2"
-[[nodiscard]] auto loadAi() -> std::string;
+[[nodiscard]] auto selectPlayers() -> std::string;
 
-#line 97 "../src/main.cpp2"
+#line 95 "../src/main.cpp2"
 auto evaluateAi(cpp2::impl::in<std::string> modelPath) -> void;
 
-#line 124 "../src/main.cpp2"
-// The AI evaluated won 45/100 games againt random.
-
+#line 123 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int;
-#line 160 "../src/main.cpp2"
+#line 157 "../src/main.cpp2"
 
 
 int main() {
@@ -150,16 +148,14 @@ auto gameAiVsAi(cpp2::impl::in<std::string> modelPath) -> void{
 }
 
 #line 88 "../src/main.cpp2"
-[[nodiscard]] auto loadAi() -> std::string{
-    clear();
-    auto modelPath {SelectSnnModel()}; 
-    clear();
-    printSnnModel(modelPath);
-    setNextMessage(modelPath + " selected.");
+[[nodiscard]] auto selectPlayers() -> std::string{
+    auto playerBlack {SelectPlayer(Color::Black)}; 
+    auto playerBlack {SelectPlayer(Color::Black)}; 
+    //setNextMessage(modelPath + " selected." );
     return modelPath; 
 }
 
-#line 97 "../src/main.cpp2"
+#line 95 "../src/main.cpp2"
 auto evaluateAi(cpp2::impl::in<std::string> modelPath) -> void{
     clear();
     if (modelPath == "") {
@@ -174,7 +170,7 @@ auto evaluateAi(cpp2::impl::in<std::string> modelPath) -> void{
 {
 cpp2::i32 i{0};
 
-#line 110 "../src/main.cpp2"
+#line 108 "../src/main.cpp2"
     for( ; cpp2::impl::cmp_less(i,numberOfGame); 
     ++i ) 
     {
@@ -187,12 +183,12 @@ cpp2::i32 i{0};
         }
     }
 }
-#line 121 "../src/main.cpp2"
+#line 119 "../src/main.cpp2"
     setNextMessage("The AI evaluated won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                    "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt random.");
 }
 
-#line 126 "../src/main.cpp2"
+#line 123 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int{
     signal(SIGINT, signalHandler);
     SetConsoleOutputCP(CP_UTF8);

@@ -1,5 +1,4 @@
 #include "player.h2"
-#include "io.h2"
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
 createAi:() = {
@@ -10,12 +9,6 @@ createAi:() = {
     optimizer:= snn::StochasticGradientDescent(1e-7f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
     neuralNetwork.saveAs("./snn_models/model_dnn_2_hidden_layers.snn");
-}
-
-printSnnModel:(path: std::string) = {
-    neuralNetwork:= snn::StraightforwardNeuralNetwork::loadFrom(path);
-    std::cout << neuralNetwork.summary() << std::endl;
-    waitInput();
 }
 
 Ai: type = {
@@ -48,6 +41,11 @@ Ai: type = {
         numberOfGoodMoves = that.numberOfGoodMoves;
         numberOfAverageMoves = that.numberOfAverageMoves;
         numberOfBadMoves = that.numberOfBadMoves;
+    }
+
+    
+    public summary:(in this, path: std::string) -> std::string = {
+        return neuralNetwork.summary();
     }
 
     private getGobanState:(in this, in state: State<Stone>) -> std::vector<float> = {
@@ -169,14 +167,14 @@ Ai: type = {
     }
 
     public processEndGame:(override inout this) = {
-        if color == Color::Black {
+        /*if color == Color::Black {
             setNextMessage("Black:");
         } else {
             setNextMessage("White:");
-        }
-        setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
-        setNextMessage("  " + numberOfAverageMoves as std::string + " moves were considered average.");
-        setNextMessage("  " + numberOfBadMoves as std::string + " moves were considered bad.");
+        }*/
+        //setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
+        //setNextMessage("  " + numberOfAverageMoves as std::string + " moves were considered average.");
+        //setNextMessage("  " + numberOfBadMoves as std::string + " moves were considered bad.");
         numberOfGoodMoves = 0;
         numberOfAverageMoves = 0;
         numberOfBadMoves = 0;
