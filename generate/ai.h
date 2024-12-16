@@ -42,7 +42,7 @@ class Ai: public Player {
     public: Ai(Ai const& that);
 
 #line 47 "../src/ai.h2"
-    public: [[nodiscard]] auto summary(cpp2::impl::in<std::string> path) const& -> std::string;
+    public: [[nodiscard]] auto summary() const& -> std::string;
 
 #line 51 "../src/ai.h2"
     private: [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone>> state) const& -> std::vector<float>;
@@ -113,7 +113,7 @@ auto createAi() -> void{
     }
 
 #line 47 "../src/ai.h2"
-    [[nodiscard]] auto Ai::summary(cpp2::impl::in<std::string> path) const& -> std::string{
+    [[nodiscard]] auto Ai::summary() const& -> std::string{
         return CPP2_UFCS(summary)(neuralNetwork); 
     }
 

@@ -2,11 +2,6 @@
 
 #include "io.h2"
 #include "game.h2"
-#include "human.h2"
-#include "random.h2"
-#include "ai.h2"
-
-isSaving: bool = false;
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
@@ -17,135 +12,24 @@ void signalHandler(int signal) {
     }
 }
 
-gameHumanVsHuman:() = {
-    clear();
-    setNextMessage("Start a new game.");
-    player1:= shared.new<Human>(Color::Black);
-    player2:= shared.new<Human>(Color::White);
-    game:= Game(player1, player2);
-    game.play<true>();
-    waitInput();
-}
-
-gameHumanVsRandom:() = {
-    clear();
-    setNextMessage("Start a new game.");
-    player1:= shared.new<Human>(Color::Black);
-    player2:= shared.new<Random>(Color::White);
-    game:= Game(player1, player2);
-    game.play<true>();
-    waitInput();
-}
-
-gameHumanVsAi:(modelPath: std::string) = {
-    clear();
-    if modelPath == "" {
-        setNextMessage("No model selected." );
-        return;
-    }
-    setNextMessage("Start a new game.");
-    player1:= shared.new<Human>(Color::Black);
-    player2:= shared.new<Ai>(Color::White, modelPath);
-    game:= Game(player1, player2);
-    game.play<true>();
-    waitInput();
-}
-
-gameRandomVsRandom:() = {
-    clear();
-    setNextMessage("Start a new game.");
-    player1:= shared.new<RandomSlow>(Color::Black, 500);
-    player2:= shared.new<RandomSlow>(Color::White, 500);
-    game:= Game(player1, player2);
-    game.play<true>();
-    waitInput();
-}
-
-gameAiVsAi:(modelPath: std::string) = {
-    clear();
-    if modelPath == "" {
-        setNextMessage("No model selected." );
-        return;
-    }
-    player1:= shared.new<Ai>(Color::Black, modelPath);
-    player2:= shared.new<Ai>(Color::White, modelPath);
-    game:= Game(player1, player2);
-    i: i32 = 0;
-    while true
-    {
-        game.play<false>();
-        player1*.train();
-        //player2*.train();
-        if i % 20 == 0 {
-            isSaving = true;
-            player1*.save();
-            isSaving = false;
-        }
-        i++;
-    }
-}
-
-selectPlayers:() -> Game = {
-
-    playerBlack:= shared.new<Player>(SelectPlayer(Color::Black));
-    playerWhite:= shared.new<Player>(SelectPlayer(Color::White));
-    return Game(player1, player2);
-}
-
-evaluateAi:(modelPath: std::string) = {
-    clear();
-    if modelPath == "" {
-        setNextMessage("No model selected.");
-        return;
-    }
-    numberOfGame: i16 = 100;
-    numberOfGameWon: i16 = 0;
-    player1:= shared.new<Ai>(Color::Black, modelPath);
-    player2:= shared.new<Random>(Color::White);
-    game:= Game(player1, player2);
-
-    (copy i: i32 = 0)
-    while i < numberOfGame
-    next i++
-    {
-        game.play<false>();
-        if player1*.hasWon {
-            numberOfGameWon++;
-        }
-        if i == (numberOfGame / 2 - 1) {
-            game.switchPlayerColor();
-        }
-    }
-    setNextMessage("The AI evaluated won " + numberOfGameWon as std::string +
-                   "/" + numberOfGame as std::string + " games againt random.");
-}
-
 cpp2_main:() -> int = {
     signal(SIGINT, signalHandler);
     SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
-    modelPath: std::string = "";
-    game: std::unique_ptr<Player>;
+    game:= Game();
     do {
-        printMenu();
-        selection: int = getInputMenu();
+        selection:= printMenuAndSelect();
         if selection == 0 {
             clear("Bye.");
             exit = true;
         } else if selection == 1 {
-            game = unique.new<Player>(selectPlayers());
+            game.selectPlayers();
         } else if selection == 2 {
-            gameHumanVsRandom();
+            game.playOne();
         } else if selection == 3 {
-            gameHumanVsAi(modelPath);
+            game.trainBlack();
         } else if selection == 4 {
-            gameRandomVsRandom();
-        } else if selection == 5 {
-            gameAiVsAi(modelPath);
-        } else if selection == 6 {
-            evaluateAi(modelPath);
-        } else if selection == 7 {
-            modelPath = loadAi();
+            game.evaluate();
         } else if selection == 9 {
             createAi();
             setNextMessage("AI created.");
@@ -155,7 +39,6 @@ cpp2_main:() -> int = {
     } while !exit;
   return 0;
 }
-
 
 int main() {
     try { // CPP2 workaround: Try catch not yet supported.

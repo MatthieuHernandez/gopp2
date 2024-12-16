@@ -2,30 +2,57 @@
 #include "move.h2"
 #include "io.h2"
 #include "player.h2"
+#include "human.h2"
+#include "random.h2"
+#include "ai.h2"
+
+isSaving: bool = false;
 
 Game : type = {
 
-    private blackPlayer: std::shared_ptr<Player>; // CPP2 workaround: Not able to make unique_prtr work.
-    private whitePlayer: std::shared_ptr<Player>;
+    private blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_prtr work.
+    private whitePlayer: std::shared_ptr<Player> = nullptr;
 
-    operator=:(out this, p1: std::shared_ptr<Player>, p2: std::shared_ptr<Player>) = {
-        blackPlayer = (p1);
-        whitePlayer = (p2);
-        if blackPlayer*.color == Color::White && whitePlayer*.color == Color::Black {
-            switchPlayerColor();
+    private selectPlayer:(color: Color) -> std::shared_ptr<Player> = {
+        selection:= printPlayersAndSelect(color);
+        if(selection == "") {
+            return nullptr;
         }
-        if blackPlayer*.color != Color::Black || whitePlayer*.color != Color::White {
-            std::cout << "Players should be Black and White." << std::endl;
-            exit(1);
+        if(selection == "0") {
+            return shared.new<Human>(color);
         }
+        if(selection == "1") {
+            return shared.new<Random>(color);
+        }
+        ai:= shared.new<Ai>(color, selection);
+        clear();
+        std::cout << ai*.summary() << std::endl;
+        waitInput();
+        clear();
+        return ai;
     }
 
-    public play: <verbose: bool>(in this) = {
+    public selectPlayers:(inout this) = {
+        blackPlayer = selectPlayer(Color::Black);
+        whitePlayer = selectPlayer(Color::White);
+        setNextMessage("Players selected.");
+    }
+
+    private hasValidPlayer:(in this) -> bool = {
+        if blackPlayer == nullptr || whitePlayer == nullptr {
+            setNextMessage("No player selected.");
+            return false;
+        }
+        return true;
+    }
+
+    private play: <verbose: bool>(inout this) = {
         start:= std::chrono::high_resolution_clock::now();
         engine: Engine = ();
         moveNumber: i16 = 1;
         do {
             if constexpr verbose {
+                clear();
                 printGoban(engine.goban);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
@@ -70,9 +97,65 @@ Game : type = {
         printGoban(engine.goban);
     }
 
-    public switchPlayerColor:(inout this) = {
+    public playOne:(inout this) = {
+        if !hasValidPlayer() {
+            return;
+        }
+        play<true>();
+        waitInput();
+        setNextMessage("Game was played.");
+    }
+    
+    private switchPlayerColor:(inout this) = {
         blackPlayer*.color = Color::White;
         whitePlayer*.color = Color::Black;
         std::swap(blackPlayer, whitePlayer);
+    }
+
+    public trainBlack:(inout this) = {
+        if !hasValidPlayer() {
+            return;
+        }
+        blackAi:= std::dynamic_pointer_cast<Ai>(blackPlayer); // CPP2 workaround: keyword "as" not working.
+        if blackAi == nullptr {
+            setNextMessage("Black player should be an AI.");
+            return;
+        }
+        i: i32 = 0;
+        while true
+        {
+            play<false>();
+            blackAi*.train();
+            if i % 20 == 0 {
+                isSaving = true;
+                blackAi*.save();
+                isSaving = false;
+                switchPlayerColor();
+            }
+            i++;
+        }
+        setNextMessage("AI trained.");
+    }
+
+    public evaluate:(inout this) = {
+        if !hasValidPlayer() {
+            return;
+        }
+        numberOfGame: i16 = 100;
+        numberOfGameWon: i16 = 0;
+        (copy i: i32 = 0)
+        while i < numberOfGame
+        next i++
+        {
+            if i == (numberOfGame / 2) {
+                switchPlayerColor();
+            }
+            play<false>();
+            if blackPlayer*.hasWon {
+                numberOfGameWon++;
+            }
+        }
+        setNextMessage("The first player won " + numberOfGameWon as std::string +
+                    "/" + numberOfGame as std::string + " games againt the 2nd player.");
     }
 }

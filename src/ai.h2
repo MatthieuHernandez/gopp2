@@ -44,7 +44,7 @@ Ai: type = {
     }
 
     
-    public summary:(in this, path: std::string) -> std::string = {
+    public summary:(in this) -> std::string = {
         return neuralNetwork.summary();
     }
 

@@ -1,10 +1,7 @@
 #include "goban.h2"
 #include "move.h2"
-#include "human.h2"
-#include "random.h2"
-#include "ai.h2"
 
-nextMessage: std::string = 0;
+nextMessage: std::string = "\n";
 
 setNextMessage:(message: std::string) = {
     nextMessage = nextMessage + "\n" + message;
@@ -23,7 +20,7 @@ clearInput:() = {
     std::cin.ignore(INT_MAX, '\n');
 }
 
-printMenu:() = {
+printMenuAndSelect:() -> i32 = {
     clear();
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                   GOPP2 Menu                   *" << std::endl;
@@ -31,12 +28,13 @@ printMenu:() = {
     std::cout << "* Please select one of the following:            *" << std::endl;
     std::cout << "*                                                *" << std::endl;
     std::cout << "*     1. Select Players                          *" << std::endl;
-    std::cout << "*     2. Play one game (slow)                    *" << std::endl;
-    std::cout << "*     3. Play and train indefinitely (fast)      *" << std::endl;
-    std::cout << "*     4. Evaluate one 100 games                  *" << std::endl;
+    std::cout << "*     2. Play one game                           *" << std::endl;
+    std::cout << "*     3. Train Black player                      *" << std::endl;
+    std::cout << "*     4. Evaluated players against each other    *" << std::endl;
     std::cout << "*     0. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
-    std::cout << std::endl << getNextMessage() << std::endl;
+    std::cout << getNextMessage() << std::endl;
+    return getInputMenu();
 }
 
 getInputMenu:() -> i32 = {
@@ -81,7 +79,7 @@ getInputMove:(color: Color) -> Move = {
     } else {
         row = ((input[1] - 48) * 10) + (input[2] - 49);
     }
-    m: Move = (player, col, row, false);
+    m: Move = (color, col, row, false);
     return m;
 }
 
@@ -162,21 +160,21 @@ getSnnModels:() -> std::vector<std::string> = {
     return modelNames;
 }
 
-selectPlayer:(color: Color) -> Player = {
+printPlayersAndSelect:(color: Color) -> std::string = {
     clear();
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                    Players                     *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << "* Please select " << colorName(color) << " player:" << std::endl;
     std::cout << "*                                                *" << std::endl;
-    std::cout << "*     0. Human Player                           *" << std::endl;
+    std::cout << "*     0. Human Player                            *" << std::endl;
     std::cout << "*     1. Random Player                           *" << std::endl;
     modelNames:= getSnnModels();
-    (copy i: i8 = 2)
+    (copy i: i8 = 0)
     while i < modelNames.ssize()
     next i++
     {
-        std::cout << "*     "<< i as std::string << ". " << modelNames[i] << std::endl;
+        std::cout << "*     "<< (i + 2) as std::string << ". " << modelNames[i] << std::endl;
     }
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
@@ -184,15 +182,12 @@ selectPlayer:(color: Color) -> Player = {
     std::cout << "> ";
     std::cin >> input;
     clearInput();
-    if(input == 0) {
-        return Humain(color);
+    if(input == 0 || input == 1) {
+        return input as std::string;
     }
-    if(input ==1) {
-        return Random(color);
+    input -= 2;
+    if (input >= 0 && input < modelNames.ssize()) {
+        return modelNames[input];
     }
-    player:= Ai(modelNames[input - 2])
-    clear();
-    std::cout << player.summary() << std::endl;
-    waitInput();
-    return player;
+    return "";
 }
