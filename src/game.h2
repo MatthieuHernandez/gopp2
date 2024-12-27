@@ -116,8 +116,8 @@ Game : type = {
         if !hasValidPlayer() {
             return;
         }
-        blackAi:= std::dynamic_pointer_cast<Ai>(blackPlayer); // CPP2 workaround: keyword "as" not working.
-        if blackAi == nullptr {
+        player1:= std::dynamic_pointer_cast<Ai>(blackPlayer); // CPP2 workaround: keyword "as" not working.
+        if player1 == nullptr {
             setNextMessage("Black player should be an AI.");
             return;
         }
@@ -125,12 +125,12 @@ Game : type = {
         while true
         {
             play<false>();
-            blackAi*.train();
+            player1*.train();
+            switchPlayerColor();
             if i % 20 == 0 {
                 isSaving = true;
-                blackAi*.save();
+                player1*.save();
                 isSaving = false;
-                switchPlayerColor();
             }
             i++;
         }
@@ -141,8 +141,16 @@ Game : type = {
         if !hasValidPlayer() {
             return;
         }
+        blackHuman:= std::dynamic_pointer_cast<Human>(blackPlayer); // CPP2 workaround: keyword "as" not working.
+        whiteHuman:= std::dynamic_pointer_cast<Human>(blackPlayer);
+        if blackHuman != nullptr || whiteHuman != nullptr {
+            setNextMessage("Cannot evaluated with human players.");
+            return;
+        }
+        player1:= blackPlayer;
         numberOfGame: i16 = 100;
         numberOfGameWon: i16 = 0;
+        clear();
         (copy i: i32 = 0)
         while i < numberOfGame
         next i++
@@ -151,7 +159,7 @@ Game : type = {
                 switchPlayerColor();
             }
             play<false>();
-            if blackPlayer*.hasWon {
+            if player1*.hasWon {
                 numberOfGameWon++;
             }
         }

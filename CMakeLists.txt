@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 project(gopp2)
 
@@ -21,3 +21,4 @@ FetchContent_MakeAvailable(StraightforwardNeuralNetwork)
 add_executable(gopp2 ./generate/main.cpp)
 
 target_link_libraries(gopp2 StraightforwardNeuralNetwork)
+

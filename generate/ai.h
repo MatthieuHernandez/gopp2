@@ -11,7 +11,7 @@
 
 #line 1 "../src/ai.h2"
 
-#line 14 "../src/ai.h2"
+#line 15 "../src/ai.h2"
 class Ai;
     
 
@@ -19,12 +19,13 @@ class Ai;
 
 #line 1 "../src/ai.h2"
 #include "player.h"
+#include "io.h"
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
-#line 4 "../src/ai.h2"
+#line 5 "../src/ai.h2"
 auto createAi() -> void;
 
-#line 14 "../src/ai.h2"
+#line 15 "../src/ai.h2"
 class Ai: public Player {
 
     private: std::string modelPath; 
@@ -38,7 +39,7 @@ class Ai: public Player {
 
     public: Ai(cpp2::impl::in<Color> c, cpp2::impl::in<std::string> path);
 
-#line 35 "../src/ai.h2"
+#line 36 "../src/ai.h2"
     public: Ai(Ai const& that);
 
 #line 47 "../src/ai.h2"
@@ -62,7 +63,7 @@ class Ai: public Player {
 #line 169 "../src/ai.h2"
     public: auto processEndGame() -> void override;
 
-#line 182 "../src/ai.h2"
+#line 186 "../src/ai.h2"
 };
 
 
@@ -70,18 +71,18 @@ class Ai: public Player {
 
 #line 1 "../src/ai.h2"
 
-#line 4 "../src/ai.h2"
+#line 5 "../src/ai.h2"
 auto createAi() -> void{
     std::vector<snn::LayerModel> layers {snn::Input(1, 19, 19), 
-                                            snn::FullyConnected(100, snn::activation::ReLU), 
-                                            snn::FullyConnected(100, snn::activation::ReLU), 
+                                            snn::FullyConnected(200, snn::activation::ReLU), 
+                                            snn::FullyConnected(200, snn::activation::ReLU), 
                                             snn::FullyConnected(361, snn::activation::tanh)}; 
-    auto optimizer {snn::StochasticGradientDescent(1e-7f, 0.0f)}; 
+    auto optimizer {snn::StochasticGradientDescent(1e-4f, 0.9f)}; 
     auto neuralNetwork {snn::StraightforwardNeuralNetwork(cpp2::move(layers), cpp2::move(optimizer))}; 
-    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/model_dnn_2_hidden_layers.snn");
+    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/model_big_v2.snn");
 }
 
-#line 25 "../src/ai.h2"
+#line 26 "../src/ai.h2"
     Ai::Ai(cpp2::impl::in<Color> c, cpp2::impl::in<std::string> path)
         : Player{ c }
         , modelPath{ path }
@@ -89,12 +90,12 @@ auto createAi() -> void{
         , inputs{  }
         , moves{  }{
 
-#line 31 "../src/ai.h2"
+#line 32 "../src/ai.h2"
         CPP2_UFCS(reserve)(inputs, 300);
         CPP2_UFCS(reserve)(moves, 300);
     }
 
-#line 35 "../src/ai.h2"
+#line 36 "../src/ai.h2"
     Ai::Ai(Ai const& that)
         : Player{ that }
         , modelPath{ that.modelPath }
@@ -105,7 +106,7 @@ auto createAi() -> void{
         , numberOfAverageMoves{ that.numberOfAverageMoves }
         , numberOfBadMoves{ that.numberOfBadMoves }{
 
-#line 40 "../src/ai.h2"
+#line 41 "../src/ai.h2"
         modelPath = that.modelPath;
         numberOfGoodMoves = that.numberOfGoodMoves;
         numberOfAverageMoves = that.numberOfAverageMoves;
@@ -174,9 +175,9 @@ cpp2::i8 row{0};
             ++row ) 
             {
                 std::array<cpp2::i8,2> a {col, row}; 
-                if (cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.8f)) {
+                if (cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.5f)) {
                     CPP2_UFCS(push_back)(goodMoves, cpp2::move(a));
-                }else {if (CPP2_UFCS(empty)(goodMoves) && cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.2f)) {
+                }else {if (CPP2_UFCS(empty)(goodMoves) && cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS(nn_output, index),0.0f)) {
                     CPP2_UFCS(push_back)(averageMoves, cpp2::move(a));
                 }else {if (CPP2_UFCS(empty)(goodMoves) && CPP2_UFCS(empty)(averageMoves)) {
                     CPP2_UFCS(push_back)(badMoves, cpp2::move(a));
@@ -242,7 +243,7 @@ cpp2::i16 i{0};
         for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(inputs)); 
         ++i ) 
         {
-            auto expected_output {CPP2_ASSERT_IN_BOUNDS(inputs, i)}; 
+            auto expected_output {std::vector<float>(361, 0)}; 
 {
 cpp2::i16 j{0};
 
@@ -251,7 +252,7 @@ cpp2::i16 j{0};
             ++j ) 
             {
                 if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(inputs, i), j) != 0.0) {
-                    CPP2_ASSERT_IN_BOUNDS(expected_output, j) = -1;
+                    CPP2_ASSERT_IN_BOUNDS(expected_output, j) = 0;
                 }
             }
 }
@@ -272,14 +273,18 @@ cpp2::i16 j{0};
 
 #line 169 "../src/ai.h2"
     auto Ai::processEndGame() -> void{
-        /*if color == Color::Black {
-            setNextMessage("Black:");
-        } else {
-            setNextMessage("White:");
-        }*/
-        //setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
-        //setNextMessage("  " + numberOfAverageMoves as std::string + " moves were considered average.");
-        //setNextMessage("  " + numberOfBadMoves as std::string + " moves were considered bad.");
+        std::string state {"lost"}; 
+        if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
+            state = "won";
+        }
+        if (color == Color::Black) {
+            setNextMessage("Black " + cpp2::move(state) + ":");
+        }else {
+            setNextMessage("White " + cpp2::move(state) + ":");
+        }
+        setNextMessage("  " + cpp2::impl::as_<std::string>(numberOfGoodMoves) + " moves were considered good.");
+        setNextMessage("  " + cpp2::impl::as_<std::string>(numberOfAverageMoves) + " moves were considered average.");
+        setNextMessage("  " + cpp2::impl::as_<std::string>(numberOfBadMoves) + " moves were considered bad.");
         numberOfGoodMoves = 0;
         numberOfAverageMoves = 0;
         numberOfBadMoves = 0;

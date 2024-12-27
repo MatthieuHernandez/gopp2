@@ -61,7 +61,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 161 "../src/game.h2"
+#line 169 "../src/game.h2"
 };
 
 
@@ -182,8 +182,8 @@ bool isSaving {false};
         if (!(hasValidPlayer())) {
             return ; 
         }
-        auto blackAi {std::dynamic_pointer_cast<Ai>(blackPlayer)}; // CPP2 workaround: keyword "as" not working.
-        if (blackAi == nullptr) {
+        auto player1 {std::dynamic_pointer_cast<Ai>(blackPlayer)}; // CPP2 workaround: keyword "as" not working.
+        if (player1 == nullptr) {
             setNextMessage("Black player should be an AI.");
             return ; 
         }
@@ -191,12 +191,12 @@ bool isSaving {false};
         while( true ) 
         {
             play<false>();
-            CPP2_UFCS(train)((*cpp2::impl::assert_not_null(blackAi)));
+            CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)));
+            switchPlayerColor();
             if (i % 20 == 0) {
                 isSaving = true;
-                CPP2_UFCS(save)((*cpp2::impl::assert_not_null(blackAi)));
+                CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
                 isSaving = false;
-                switchPlayerColor();
             }
             ++i;
         }
@@ -208,12 +208,20 @@ bool isSaving {false};
         if (!(hasValidPlayer())) {
             return ; 
         }
+        auto blackHuman {std::dynamic_pointer_cast<Human>(blackPlayer)}; // CPP2 workaround: keyword "as" not working.
+        auto whiteHuman {std::dynamic_pointer_cast<Human>(blackPlayer)}; 
+        if (cpp2::move(blackHuman) != nullptr || cpp2::move(whiteHuman) != nullptr) {
+            setNextMessage("Cannot evaluated with human players.");
+            return ; 
+        }
+        auto player1 {blackPlayer}; 
         cpp2::i16 numberOfGame {100}; 
         cpp2::i16 numberOfGameWon {0}; 
+        clear();
 {
 cpp2::i32 i{0};
 
-#line 147 "../src/game.h2"
+#line 155 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
@@ -221,12 +229,12 @@ cpp2::i32 i{0};
                 switchPlayerColor();
             }
             play<false>();
-            if ((*cpp2::impl::assert_not_null(blackPlayer)).hasWon) {
+            if ((*cpp2::impl::assert_not_null(player1)).hasWon) {
                 ++numberOfGameWon;
             }
         }
 }
-#line 158 "../src/game.h2"
+#line 166 "../src/game.h2"
         setNextMessage("The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
     }

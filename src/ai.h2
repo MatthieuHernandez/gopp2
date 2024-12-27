@@ -1,14 +1,15 @@
 #include "player.h2"
+#include "io.h2"
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 19, 19),
-                                            snn::FullyConnected(100, snn::activation::ReLU),
-                                            snn::FullyConnected(100, snn::activation::ReLU),
+                                            snn::FullyConnected(200, snn::activation::ReLU),
+                                            snn::FullyConnected(200, snn::activation::ReLU),
                                             snn::FullyConnected(361, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(1e-7f, 0.0f);
+    optimizer:= snn::StochasticGradientDescent(1e-4f, 0.9f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/model_dnn_2_hidden_layers.snn");
+    neuralNetwork.saveAs("./snn_models/model_big_v2.snn");
 }
 
 Ai: type = {
@@ -43,7 +44,6 @@ Ai: type = {
         numberOfBadMoves = that.numberOfBadMoves;
     }
 
-    
     public summary:(in this) -> std::string = {
         return neuralNetwork.summary();
     }
@@ -87,9 +87,9 @@ Ai: type = {
             next row++
             {
                 a: std::array<i8, 2> = (col, row);
-                if nn_output[index] > 0.8f {
+                if nn_output[index] > 0.5f {
                     goodMoves.push_back(a);
-                } else if goodMoves.empty() && nn_output[index] > 0.2f {
+                } else if goodMoves.empty() && nn_output[index] > 0.0f {
                     averageMoves.push_back(a);
                 } else if goodMoves.empty() && averageMoves.empty() {
                     badMoves.push_back(a);
@@ -146,13 +146,13 @@ Ai: type = {
         while i < inputs.ssize()
         next i++
         {
-            expected_output:= inputs[i];
+            expected_output:= std::vector<float>(361, 0);
             (copy j: i16 = 0)
             while j < 361
             next j++
             {
                 if inputs[i][j] != 0.0 {
-                    expected_output[j] = -1;
+                    expected_output[j] = 0;
                 }
             }
             expected_output[moves[i]] = expectedValue;
@@ -167,14 +167,18 @@ Ai: type = {
     }
 
     public processEndGame:(override inout this) = {
-        /*if color == Color::Black {
-            setNextMessage("Black:");
+        state: std::string = "lost";
+        if hasWon { // CPP2 workaround: Conditional operator not yet supported.
+            state = "won";
+        }
+        if color == Color::Black {
+            setNextMessage("Black "+ state + ":");
         } else {
-            setNextMessage("White:");
-        }*/
-        //setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
-        //setNextMessage("  " + numberOfAverageMoves as std::string + " moves were considered average.");
-        //setNextMessage("  " + numberOfBadMoves as std::string + " moves were considered bad.");
+            setNextMessage("White "+ state + ":");
+        }
+        setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
+        setNextMessage("  " + numberOfAverageMoves as std::string + " moves were considered average.");
+        setNextMessage("  " + numberOfBadMoves as std::string + " moves were considered bad.");
         numberOfGoodMoves = 0;
         numberOfAverageMoves = 0;
         numberOfBadMoves = 0;
