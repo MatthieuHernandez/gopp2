@@ -34,7 +34,7 @@ class Random: public Player {
     public: Random(Random const& that);
 
 #line 14 "../src/random.h2"
-    public: [[nodiscard]] auto getMove(Engine& engine) -> Move override;
+    public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
 
 #line 22 "../src/random.h2"
 };
@@ -49,7 +49,7 @@ class RandomSlow: public Random {
     public: RandomSlow(RandomSlow const& that);
 
 #line 38 "../src/random.h2"
-    public: [[nodiscard]] auto getMove(Engine& engine) -> Move override;
+    public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
 
 #line 42 "../src/random.h2"
 };
@@ -74,7 +74,7 @@ class RandomSlow: public Random {
     }
 
 #line 14 "../src/random.h2"
-    [[nodiscard]] auto Random::getMove(Engine& engine) -> Move{
+    [[nodiscard]] auto Random::getMove(Engine<19>& engine) -> Move{
         std::uniform_int_distribution<cpp2::i32> dist {0, 18}; 
         cpp2::i32 col {dist(rng)}; 
         cpp2::i32 row {cpp2::move(dist)(rng)}; 
@@ -100,7 +100,7 @@ class RandomSlow: public Random {
     }
 
 #line 38 "../src/random.h2"
-    [[nodiscard]] auto RandomSlow::getMove(Engine& engine) -> Move{
+    [[nodiscard]] auto RandomSlow::getMove(Engine<19>& engine) -> Move{
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
         return Random::getMove(engine); 
     }

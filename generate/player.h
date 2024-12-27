@@ -31,7 +31,7 @@ class Player {
     public: Color color; 
     public: bool hasWon; 
 
-    public: [[nodiscard]] virtual auto getMove(Engine& engine) -> Move = 0;
+    public: [[nodiscard]] virtual auto getMove(Engine<19>& engine) -> Move = 0;
 
     public: Player(cpp2::impl::in<Color> c);
 

@@ -30,7 +30,7 @@ class Human: public Player {
     public: Human(Human const& that);
 
 #line 14 "../src/human.h2"
-    public: [[nodiscard]] auto getMove([[maybe_unused]] Engine& unnamed_param_2) -> Move override;
+    public: [[nodiscard]] auto getMove([[maybe_unused]] Engine<19>& unnamed_param_2) -> Move override;
 
 #line 17 "../src/human.h2"
 };
@@ -55,7 +55,7 @@ class Human: public Player {
     }
 
 #line 14 "../src/human.h2"
-    [[nodiscard]] auto Human::getMove([[maybe_unused]] Engine& unnamed_param_2) -> Move{
+    [[nodiscard]] auto Human::getMove([[maybe_unused]] Engine<19>& unnamed_param_2) -> Move{
         return getInputMove(color); 
     }
 #endif

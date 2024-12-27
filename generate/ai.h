@@ -52,7 +52,7 @@ class Ai: public Player {
     private: [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move;
 
 #line 124 "../src/ai.h2"
-    public: [[nodiscard]] auto getMove(Engine& engine) -> Move override;
+    public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
 
 #line 140 "../src/ai.h2"
     public: auto train() & -> void;
@@ -214,7 +214,7 @@ cpp2::i8 row{0};
     }
 
 #line 124 "../src/ai.h2"
-    [[nodiscard]] auto Ai::getMove(Engine& engine) -> Move{
+    [[nodiscard]] auto Ai::getMove(Engine<19>& engine) -> Move{
         auto input {getGobanState(engine.goban.state)}; 
         auto output {CPP2_UFCS(computeOutput)(neuralNetwork, input)}; 
         auto m {chooseBestMove(cpp2::move(output))}; 
@@ -222,7 +222,7 @@ cpp2::i8 row{0};
             return m; 
         }
         CPP2_UFCS(closerValidMove)(engine, m);
-        auto moveIndex {CPP2_UFCS(getIndex)(m.stone)}; 
+        auto moveIndex {CPP2_UFCS(getIndex)(m.stone, size)}; 
         if (cpp2::impl::cmp_greater_eq(moveIndex,0)) {
             CPP2_UFCS(push_back)(inputs, cpp2::move(input));
             CPP2_UFCS(push_back)(moves, cpp2::move(moveIndex));

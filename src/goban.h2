@@ -1,14 +1,14 @@
 #include "stone.h2"
 
-template<class T>
-using State = std::array<std::array<T, 19>, 19>;
+// CPP1 workaround: Do not know how to do this in CPP2.
+template<class T, int8_t Size>
+using State = std::array<std::array<T, Size>, Size>;
 
-Goban: type = {
+Goban: <Size: i8>type = {
     public state: State<Stone> = ();
-
     public lockedPosition: Stone = ();
-
     public iterations: i32 = 0;
+    private maxIndex: i8 = Size - 1;
 
     operator=:(out this) = {
         (copy col: i8 = 0)
@@ -29,13 +29,13 @@ Goban: type = {
         if s.col > 0 && !processedStones[s.col-1][s.row] {
             adjacent_stones.push_back(state[s.col-1][s.row]);
         }
-        if s.col < 18 && !processedStones[s.col+1][s.row] {
+        if s.col < maxIndex && !processedStones[s.col+1][s.row] {
             adjacent_stones.push_back(state[s.col+1][s.row]);
         }
         if s.row > 0 && !processedStones[s.col][s.row-1] {
             adjacent_stones.push_back(state[s.col][s.row-1]);
         }
-        if s.row < 18 && !processedStones[s.col][s.row+1] {
+        if s.row < maxIndex && !processedStones[s.col][s.row+1] {
                 adjacent_stones.push_back(state[s.col][s.row+1]);
         }
         if count {
@@ -46,9 +46,9 @@ Goban: type = {
 
     public isTrueEye:(in this, in s: Stone) -> bool = {
         if (s.col > 0 && state[s.col-1][s.row].color != s.color) ||
-            (s.col < 18 && state[s.col+1][s.row].color != s.color) ||
+            (s.col < maxIndex && state[s.col+1][s.row].color != s.color) ||
             (s.row > 0 && state[s.col][s.row-1].color != s.color) ||
-            (s.row < 18 && state[s.col][s.row+1].color != s.color) {
+            (s.row < maxIndex && state[s.col][s.row+1].color != s.color) {
                 return false;
         }
         count: i8 = 0;
@@ -57,17 +57,17 @@ Goban: type = {
                 count++;
             }
         }
-        if s.col > 0  && s.row < 18 {
+        if s.col > 0  && s.row < maxIndex {
             if state[s.col-1][s.row+1].color == s.color {
                 count++;
             }
         }
-        if s.col < 18 && s.row > 0 {
+        if s.col < maxIndex && s.row > 0 {
             if state[s.col+1][s.row-1].color == s.color {
                 count++;
             }
         }
-        if s.col < 18  && s.row < 18 {
+        if s.col < maxIndex  && s.row < maxIndex {
             if state[s.col+1][s.row+1].color == s.color {
                 count++;
             }

@@ -11,8 +11,8 @@
 
 #line 1 "../src/goban.h2"
 
-#line 6 "../src/goban.h2"
-class Goban;
+#line 7 "../src/goban.h2"
+template<cpp2::i8 Size> class Goban;
     
 
 //=== Cpp2 type definitions and function declarations ===========================
@@ -20,16 +20,16 @@ class Goban;
 #line 1 "../src/goban.h2"
 #include "stone.h"
 
-template<class T>
-using State = std::array<std::array<T, 19>, 19>;
+// CPP1 workaround: Do not know how to do this in CPP2.
+template<class T, int8_t Size>
+using State = std::array<std::array<T, Size>, Size>;
 
-#line 6 "../src/goban.h2"
-class Goban {
+#line 7 "../src/goban.h2"
+template<cpp2::i8 Size> class Goban {
     public: State<Stone> state {}; 
-
     public: Stone lockedPosition {}; 
-
     public: cpp2::i32 iterations {0}; 
+    private: cpp2::i8 maxIndex {Size - 1}; 
 
     public: explicit Goban();
 
@@ -63,7 +63,7 @@ class Goban {
 #line 1 "../src/goban.h2"
 
 #line 13 "../src/goban.h2"
-    Goban::Goban(){
+    template <cpp2::i8 Size> Goban<Size>::Goban(){
 {
 cpp2::i8 col{0};
 
@@ -88,18 +88,18 @@ cpp2::i8 row{0};
     }
 
 #line 27 "../src/goban.h2"
-           [[nodiscard]] auto Goban::getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones, cpp2::impl::in<bool> count) & -> std::vector<Stone>{
+           template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones, cpp2::impl::in<bool> count) & -> std::vector<Stone>{
         std::vector<Stone> adjacent_stones {}; 
         if (cpp2::impl::cmp_greater(s.col,0) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col - 1), s.row))) {
             CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col - 1), s.row));
         }
-        if (cpp2::impl::cmp_less(s.col,18) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col + 1), s.row))) {
+        if (cpp2::impl::cmp_less(s.col,maxIndex) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col + 1), s.row))) {
             CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col + 1), s.row));
         }
         if (cpp2::impl::cmp_greater(s.row,0) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col), s.row - 1))) {
             CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row - 1));
         }
-        if (cpp2::impl::cmp_less(s.row,18) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col), s.row + 1))) {
+        if (cpp2::impl::cmp_less(s.row,maxIndex) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col), s.row + 1))) {
                 CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row + 1));
         }
         if (count) {
@@ -109,11 +109,11 @@ cpp2::i8 row{0};
     }
 
 #line 47 "../src/goban.h2"
-    [[nodiscard]] auto Goban::isTrueEye(cpp2::impl::in<Stone> s) const& -> bool{
+    template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::isTrueEye(cpp2::impl::in<Stone> s) const& -> bool{
         if ((cpp2::impl::cmp_greater(s.col,0) && CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col - 1), s.row).color != s.color) || 
-            (cpp2::impl::cmp_less(s.col,18) && CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col + 1), s.row).color != s.color) || 
+            (cpp2::impl::cmp_less(s.col,maxIndex) && CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col + 1), s.row).color != s.color) || 
             (cpp2::impl::cmp_greater(s.row,0) && CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row - 1).color != s.color) || 
-            (cpp2::impl::cmp_less(s.row,18) && CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row + 1).color != s.color)) {
+            (cpp2::impl::cmp_less(s.row,maxIndex) && CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row + 1).color != s.color)) {
                 return false; 
         }
         cpp2::i8 count {0}; 
@@ -122,17 +122,17 @@ cpp2::i8 row{0};
                 ++count;
             }
         }
-        if (cpp2::impl::cmp_greater(s.col,0) && cpp2::impl::cmp_less(s.row,18)) {
+        if (cpp2::impl::cmp_greater(s.col,0) && cpp2::impl::cmp_less(s.row,maxIndex)) {
             if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col - 1), s.row + 1).color == s.color) {
                 ++count;
             }
         }
-        if (cpp2::impl::cmp_less(s.col,18) && cpp2::impl::cmp_greater(s.row,0)) {
+        if (cpp2::impl::cmp_less(s.col,maxIndex) && cpp2::impl::cmp_greater(s.row,0)) {
             if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col + 1), s.row - 1).color == s.color) {
                 ++count;
             }
         }
-        if (cpp2::impl::cmp_less(s.col,18) && cpp2::impl::cmp_less(s.row,18)) {
+        if (cpp2::impl::cmp_less(s.col,maxIndex) && cpp2::impl::cmp_less(s.row,maxIndex)) {
             if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col + 1), s.row + 1).color == s.color) {
                 ++count;
             }
@@ -141,24 +141,24 @@ cpp2::i8 row{0};
     }
 
 #line 78 "../src/goban.h2"
-    auto Goban::removeStone(cpp2::impl::in<Stone> s) & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::removeStone(cpp2::impl::in<Stone> s) & -> void{
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row).color = Color::None;
     }
 
 #line 82 "../src/goban.h2"
-    [[nodiscard]] auto Goban::isLockedPosition(cpp2::impl::in<Stone> s) const& -> bool{
+    template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::isLockedPosition(cpp2::impl::in<Stone> s) const& -> bool{
         return lockedPosition.col == s.col && 
             lockedPosition.row == s.row; 
     }
 
 #line 87 "../src/goban.h2"
-    auto Goban::lockPosition(cpp2::impl::in<Stone> s, cpp2::impl::in<Color> c) & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::lockPosition(cpp2::impl::in<Stone> s, cpp2::impl::in<Color> c) & -> void{
         lockedPosition = s;
         lockedPosition.color = c;
     }
 
 #line 92 "../src/goban.h2"
-    auto Goban::unlockPosition() & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::unlockPosition() & -> void{
         lockedPosition.color = Color::None;
         lockedPosition.row = -1;
         lockedPosition.col = -1;

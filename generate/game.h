@@ -111,7 +111,7 @@ bool isSaving {false};
 #line 49 "../src/game.h2"
     template<bool verbose> auto Game::play() & -> void{
         auto start {std::chrono::high_resolution_clock::now()}; 
-        Engine engine {}; 
+        Engine<19> engine {}; 
         cpp2::i16 moveNumber {1}; 
         do {
             if constexpr (verbose) {

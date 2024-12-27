@@ -48,7 +48,7 @@ auto waitInput() -> void;
 auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
 #line 122 "../src/io.h2"
-auto printGoban(cpp2::impl::in<Goban> goban) -> void;
+auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void;
 
 #line 153 "../src/io.h2"
 [[nodiscard]] auto getSnnModels() -> std::vector<std::string>;
@@ -188,7 +188,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
 }
 
 #line 122 "../src/io.h2"
-auto printGoban(cpp2::impl::in<Goban> goban) -> void{
+auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
     cpp2::i8 row {18}; 

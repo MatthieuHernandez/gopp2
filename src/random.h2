@@ -11,7 +11,7 @@ Random: type = {
         Player = (that);
     }
 
-    public getMove:(override inout this, inout engine: Engine) -> Move = {
+    public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
         dist: std::uniform_int_distribution<i32> = (0, 18);
         col: i32 = dist(rng);
         row: i32 = dist(rng);
@@ -35,7 +35,7 @@ RandomSlow: type = {
         duration = that.duration;
     }
 
-    public getMove:(override inout this, inout engine: Engine) -> Move = {
+    public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
         return Random::getMove(engine);
     }

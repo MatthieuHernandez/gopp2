@@ -1,9 +1,9 @@
 #include "goban.h2"
 #include "move.h2"
 
-Engine: type = {
+Goban: <Size: i8>type = {
 
-    public goban: Goban = ();
+    public goban: Goban<Size> = ();
     public moves: std::vector<Move> = ();
     
     public blackPoint: i16 = 0;

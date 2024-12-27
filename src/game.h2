@@ -48,7 +48,7 @@ Game : type = {
 
     private play: <verbose: bool>(inout this) = {
         start:= std::chrono::high_resolution_clock::now();
-        engine: Engine = ();
+        engine: Engine<19> = ();
         moveNumber: i16 = 1;
         do {
             if constexpr verbose {

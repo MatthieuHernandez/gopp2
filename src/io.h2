@@ -119,7 +119,7 @@ printIntersection:(row: i16, col: i16) = {
     }
 }
 
-printGoban:(goban: Goban) = {
+printGoban:(goban: Goban<19>) = {
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
     row: i8 = 18;

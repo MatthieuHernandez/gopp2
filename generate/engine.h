@@ -12,7 +12,7 @@
 #line 1 "../src/engine.h2"
 
 #line 4 "../src/engine.h2"
-class Engine;
+template<cpp2::i8 Size> class Goban;
 
 
 //=== Cpp2 type definitions and function declarations ===========================
@@ -22,9 +22,9 @@ class Engine;
 #include "move.h"
 
 #line 4 "../src/engine.h2"
-class Engine {
+template<cpp2::i8 Size> class Goban {
 
-    public: Goban goban {}; 
+    public: Goban<Size> goban {}; 
     public: std::vector<Move> moves {}; 
 
     public: cpp2::i16 blackPoint {0}; 
@@ -62,9 +62,9 @@ class Engine {
 
 #line 216 "../src/engine.h2"
     public: auto closerValidMove(Move& m) & -> void;
-    public: Engine() = default;
-    public: Engine(Engine const&) = delete; /* No 'that' constructor, suppress copy */
-    public: auto operator=(Engine const&) -> void = delete;
+    public: Goban() = default;
+    public: Goban(Goban const&) = delete; /* No 'that' constructor, suppress copy */
+    public: auto operator=(Goban const&) -> void = delete;
 
 
 #line 229 "../src/engine.h2"
@@ -76,7 +76,7 @@ class Engine {
 #line 1 "../src/engine.h2"
 
 #line 12 "../src/engine.h2"
-    auto Engine::playMove(Move& m) & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::playMove(Move& m) & -> void{
         if (isValidMove(m)) 
         {
             CPP2_UFCS(push_back)(moves, m);
@@ -92,7 +92,7 @@ class Engine {
     }
 
 #line 27 "../src/engine.h2"
-    auto Engine::countLiberties(cpp2::impl::in<Stone> stone, cpp2::i16& count, State<bool>& processedStones) & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::countLiberties(cpp2::impl::in<Stone> stone, cpp2::i16& count, State<bool>& processedStones) & -> void{
         if (cpp2::impl::cmp_greater(count,1)) {
             return ; 
         }
@@ -121,7 +121,7 @@ class Engine {
     }
 
 #line 55 "../src/engine.h2"
-    [[nodiscard]] auto Engine::numberOfLiberties(Stone& stone) & -> cpp2::i16{
+    template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::numberOfLiberties(Stone& stone) & -> cpp2::i16{
         State<bool> processedStones {}; 
         cpp2::i16 count {0}; 
         countLiberties(stone, count, processedStones);
@@ -130,7 +130,7 @@ class Engine {
     }
 
 #line 63 "../src/engine.h2"
-    auto Engine::removeGroup(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::removeGroup(Stone& stone, cpp2::i16& count, State<bool>& processedStones) & -> void{
         auto nextStones {CPP2_UFCS(getAdjacentStone)(goban, stone, processedStones)}; 
         for ( 
         auto& nextStone : cpp2::move(nextStones) ) {
@@ -144,7 +144,7 @@ class Engine {
     }
 
 #line 76 "../src/engine.h2"
-    [[nodiscard]] auto Engine::captureStones(Stone& stone) & -> cpp2::i16{
+    template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::captureStones(Stone& stone) & -> cpp2::i16{
         State<bool> processedStones {}; 
         cpp2::i16 count {0}; 
         auto color {otherColor(stone.color)}; 
@@ -170,7 +170,7 @@ class Engine {
     }
 
 #line 101 "../src/engine.h2"
-    [[nodiscard]] auto Engine::isValidMove(Move& m) & -> bool{
+    template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::isValidMove(Move& m) & -> bool{
         if (m.isValid || m.pass) {
             m.isValid = true;
             return true; 
@@ -190,7 +190,7 @@ class Engine {
     }
 
 #line 120 "../src/engine.h2"
-    [[nodiscard]] auto Engine::isFinish() const& -> bool{
+    template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
             if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 
             && CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 2).pass == true) {
@@ -201,7 +201,7 @@ class Engine {
     }
 
 #line 130 "../src/engine.h2"
-    auto Engine::countTerritory(cpp2::impl::in<Stone> stone, cpp2::i16& count, Color& color, 
+    template <cpp2::i8 Size> auto Goban<Size>::countTerritory(cpp2::impl::in<Stone> stone, cpp2::i16& count, Color& color, 
         State<bool>& processedStones1, State<bool>& processedStones2) & -> void{
         if (count == 0) {
             return ; 
@@ -231,7 +231,7 @@ class Engine {
     }
 
 #line 159 "../src/engine.h2"
-    auto Engine::countScore() & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::countScore() & -> void{
         State<bool> processedStones1 {}; 
         blackPoint = 0;
         whitePoint = 7;
@@ -280,7 +280,7 @@ cpp2::i8 row{0};
     }
 
 #line 197 "../src/engine.h2"
-    auto Engine::findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count) & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::findValidMove(Move& m, State<bool>& processedStones, cpp2::i32& count) & -> void{
         CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, m.stone.col), m.stone.row) = true;
         ++count;
         if (isValidMove(m)) {
@@ -300,7 +300,7 @@ cpp2::i8 row{0};
     }
 
 #line 216 "../src/engine.h2"
-    auto Engine::closerValidMove(Move& m) & -> void{
+    template <cpp2::i8 Size> auto Goban<Size>::closerValidMove(Move& m) & -> void{
         if (m.pass) {
             return ; 
         }

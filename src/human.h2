@@ -11,7 +11,7 @@ Human: type = {
         Player = (that);
     }
 
-    public getMove:(override inout this, inout _: Engine) -> Move = {
+    public getMove:(override inout this, inout _: Engine<19>) -> Move = {
         return getInputMove(color);
     }
 }

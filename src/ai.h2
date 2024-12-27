@@ -121,7 +121,7 @@ Ai: type = {
         return pass(color);
     }
 
-    public getMove:(override inout this, inout engine: Engine) -> Move = {
+    public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
         input:= getGobanState(engine.goban.state);
         output:= neuralNetwork.computeOutput(input);
         m:= chooseBestMove(output);
@@ -129,7 +129,7 @@ Ai: type = {
             return m;
         }
         engine.closerValidMove(m);
-        moveIndex:= m.stone.getIndex();
+        moveIndex:= m.stone.getIndex(size);
         if moveIndex >= 0 {
             inputs.push_back(input);
             moves.push_back(moveIndex);
