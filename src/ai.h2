@@ -48,7 +48,7 @@ Ai: type = {
         return neuralNetwork.summary();
     }
 
-    private getGobanState:(in this, in state: State<Stone>) -> std::vector<float> = {
+    private getGobanState:(in this, in state: State<Stone, 19>) -> std::vector<float> = {
         vec: std::vector<float> = ();
         vec.reserve(361);
         (copy col: i8 = 0)
@@ -129,7 +129,7 @@ Ai: type = {
             return m;
         }
         engine.closerValidMove(m);
-        moveIndex:= m.stone.getIndex(size);
+        moveIndex:= m.stone.getIndex<19>();
         if moveIndex >= 0 {
             inputs.push_back(input);
             moves.push_back(moveIndex);

@@ -46,14 +46,14 @@ Game : type = {
         return true;
     }
 
-    private play: <verbose: bool>(inout this) = {
+    private play:<verbose: bool>(inout this) = {
         start:= std::chrono::high_resolution_clock::now();
         engine: Engine<19> = ();
         moveNumber: i16 = 1;
         do {
             if constexpr verbose {
                 clear();
-                printGoban(engine.goban);
+                printGoban<19>(engine.goban);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
             if moveNumber % 2 == 1 {
@@ -94,7 +94,7 @@ Game : type = {
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
         clear();
-        printGoban(engine.goban);
+        printGoban<19>(engine.goban);
     }
 
     public playOne:(inout this) = {

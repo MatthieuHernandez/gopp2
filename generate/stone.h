@@ -42,7 +42,7 @@ class Stone {
     public: auto operator=(Stone&& that) noexcept -> Stone& ;
 
 #line 29 "../src/stone.h2"
-    public: [[nodiscard]] auto getIndex(cpp2::impl::in<size> cpp2::i16) const& -> cpp2::i16;
+    public: template<cpp2::i8 Size> [[nodiscard]] auto getIndex() const& -> cpp2::i16;
 
 #line 33 "../src/stone.h2"
     public: [[nodiscard]] auto operator<=>(Stone const& that) const& -> std::strong_ordering = default;
@@ -113,8 +113,8 @@ class Stone {
     }
 
 #line 29 "../src/stone.h2"
-    [[nodiscard]] auto Stone::getIndex(cpp2::impl::in<size> cpp2::i16) const& -> cpp2::i16{
-        return (cpp2::impl::as_<cpp2::i16>(col)) * size + (cpp2::impl::as_<cpp2::i16>(row)); 
+    template<cpp2::i8 Size> [[nodiscard]] auto Stone::getIndex() const& -> cpp2::i16{
+        return (cpp2::impl::as_<cpp2::i16>(col)) * (Size - 1) + (cpp2::impl::as_<cpp2::i16>(row)); 
     }
 #endif
 

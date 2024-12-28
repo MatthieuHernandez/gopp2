@@ -116,7 +116,7 @@ bool isSaving {false};
         do {
             if constexpr (verbose) {
                 clear();
-                printGoban(engine.goban);
+                printGoban<19>(engine.goban);
             }
             Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
             if (moveNumber % 2 == 1) {
@@ -157,7 +157,7 @@ bool isSaving {false};
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(blackPlayer)));
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(whitePlayer)));
         clear();
-        printGoban(cpp2::move(engine).goban);
+        printGoban<19>(cpp2::move(engine).goban);
     }
 
 #line 100 "../src/game.h2"

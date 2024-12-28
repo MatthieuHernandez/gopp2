@@ -45,15 +45,15 @@ auto waitInput() -> void;
 
 #line 86 "../src/io.h2"
 // Make it a coroutine without row and col parameter
-auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
+template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 122 "../src/io.h2"
-auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void;
+#line 123 "../src/io.h2"
+template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> void;
 
-#line 153 "../src/io.h2"
+#line 155 "../src/io.h2"
 [[nodiscard]] auto getSnnModels() -> std::vector<std::string>;
 
-#line 163 "../src/io.h2"
+#line 165 "../src/io.h2"
 [[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<Color> color) -> std::string;
 
 //=== Cpp2 function definitions =================================================
@@ -152,17 +152,18 @@ auto waitInput() -> void{
 }
 
 #line 87 "../src/io.h2"
-auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
+template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
+    cpp2::i8 maxIndex {Size - 1}; 
     if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
        (row == 9 && (col == 3 || col == 9 || col == 15)) || 
        (row ==  3 && (col == 3 || col == 9 || col == 15))) {
         std::cout << "─●";
     }else {
-        if (row == 18) {
+        if (row == maxIndex) {
             if (col == 0) {
                 std::cout << " ┌";
             }
-            else {if (col == 18) {
+            else {if (col == cpp2::move(maxIndex)) {
                 std::cout << "─┐";
             }else {
                 std::cout << "─┬";
@@ -170,7 +171,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
         }else {if (row == 0) {
             if (col == 0) {
                 std::cout << " └";
-            }else {if (col == 18) {
+            }else {if (col == cpp2::move(maxIndex)) {
                 std::cout << "─┘";
             }else {
                 std::cout << "─┴";
@@ -178,7 +179,7 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
         }else {
             if (col == 0) {
                 std::cout << " ├";
-            }else {if (col == 18) {
+            }else {if (col == cpp2::move(maxIndex)) {
                 std::cout << "─┤";
             }else {
                 std::cout << "─┼";
@@ -187,11 +188,12 @@ auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> 
     }
 }
 
-#line 122 "../src/io.h2"
-auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void{
+#line 123 "../src/io.h2"
+template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> void{
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
-    cpp2::i8 row {18}; 
+    cpp2::i8 maxIndex {Size - 1}; 
+    cpp2::i8 row {maxIndex}; 
     for( ; cpp2::impl::cmp_greater(row,-1); 
     --row ) 
     {
@@ -202,7 +204,7 @@ auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void{
              std::cout << " " << cpp2::impl::as_<std::string>((row + 1)) << " ";
         }
         cpp2::i8 col {0}; 
-        for( ; cpp2::impl::cmp_less_eq(col,18); 
+        for( ; cpp2::impl::cmp_less_eq(col,maxIndex); 
         ++col ) 
         {
             if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).color == 1) {
@@ -211,7 +213,7 @@ auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void{
                 std::cout << "⚪";
             }
             else {if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, col), row).color == 0) {
-                printIntersection(row, col);
+                printIntersection<Size>(row, col);
             }}}
         }
         std::cout << std::endl;
@@ -219,7 +221,7 @@ auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void{
     std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 153 "../src/io.h2"
+#line 155 "../src/io.h2"
 [[nodiscard]] auto getSnnModels() -> std::vector<std::string>{
     std::vector<std::string> modelNames {}; 
     auto files {std::filesystem::directory_iterator("./snn_models")}; 
@@ -230,7 +232,7 @@ auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void{
     return modelNames; 
 }
 
-#line 163 "../src/io.h2"
+#line 165 "../src/io.h2"
 [[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<Color> color) -> std::string{
     clear();
     std::cout << "**************************************************" << std::endl;
@@ -244,14 +246,14 @@ auto printGoban(cpp2::impl::in<Goban<19>> goban) -> void{
 {
 cpp2::i8 i{0};
 
-#line 174 "../src/io.h2"
+#line 176 "../src/io.h2"
     for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(modelNames)); 
     ++i ) 
     {
         std::cout << "*     " << cpp2::impl::as_<std::string>((i + 2)) << ". " << CPP2_ASSERT_IN_BOUNDS(modelNames, i) << std::endl;
     }
 }
-#line 179 "../src/io.h2"
+#line 181 "../src/io.h2"
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
     cpp2::i32 input {0}; 

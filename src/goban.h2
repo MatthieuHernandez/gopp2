@@ -4,8 +4,8 @@
 template<class T, int8_t Size>
 using State = std::array<std::array<T, Size>, Size>;
 
-Goban: <Size: i8>type = {
-    public state: State<Stone> = ();
+Goban:<Size: i8>type = {
+    public state: State<Stone, Size> = ();
     public lockedPosition: Stone = ();
     public iterations: i32 = 0;
     private maxIndex: i8 = Size - 1;
@@ -24,7 +24,7 @@ Goban: <Size: i8>type = {
         }
     }
 
-    public getAdjacentStone:(inout this, in s: Stone, in processedStones: State<bool>, count: bool = true) -> std::vector<Stone>  = {
+    public getAdjacentStone:(inout this, in s: Stone, in processedStones: State<bool, Size>, count: bool = true) -> std::vector<Stone>  = {
         adjacent_stones: std::vector<Stone> = ();
         if s.col > 0 && !processedStones[s.col-1][s.row] {
             adjacent_stones.push_back(state[s.col-1][s.row]);

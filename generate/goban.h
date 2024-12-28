@@ -26,7 +26,7 @@ using State = std::array<std::array<T, Size>, Size>;
 
 #line 7 "../src/goban.h2"
 template<cpp2::i8 Size> class Goban {
-    public: State<Stone> state {}; 
+    public: State<Stone,Size> state {}; 
     public: Stone lockedPosition {}; 
     public: cpp2::i32 iterations {0}; 
     private: cpp2::i8 maxIndex {Size - 1}; 
@@ -34,7 +34,7 @@ template<cpp2::i8 Size> class Goban {
     public: explicit Goban();
 
 #line 27 "../src/goban.h2"
-           public: [[nodiscard]] auto getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones, cpp2::impl::in<bool> count = true) & -> std::vector<Stone>;
+           public: [[nodiscard]] auto getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool,Size>> processedStones, cpp2::impl::in<bool> count = true) & -> std::vector<Stone>;
 
 #line 47 "../src/goban.h2"
     public: [[nodiscard]] auto isTrueEye(cpp2::impl::in<Stone> s) const& -> bool;
@@ -88,7 +88,7 @@ cpp2::i8 row{0};
     }
 
 #line 27 "../src/goban.h2"
-           template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool>> processedStones, cpp2::impl::in<bool> count) & -> std::vector<Stone>{
+           template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool,Size>> processedStones, cpp2::impl::in<bool> count) & -> std::vector<Stone>{
         std::vector<Stone> adjacent_stones {}; 
         if (cpp2::impl::cmp_greater(s.col,0) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col - 1), s.row))) {
             CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col - 1), s.row));

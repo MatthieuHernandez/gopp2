@@ -46,7 +46,7 @@ class Ai: public Player {
     public: [[nodiscard]] auto summary() const& -> std::string;
 
 #line 51 "../src/ai.h2"
-    private: [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone>> state) const& -> std::vector<float>;
+    private: [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone,19>> state) const& -> std::vector<float>;
 
 #line 76 "../src/ai.h2"
     private: [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move;
@@ -119,7 +119,7 @@ auto createAi() -> void{
     }
 
 #line 51 "../src/ai.h2"
-    [[nodiscard]] auto Ai::getGobanState(cpp2::impl::in<State<Stone>> state) const& -> std::vector<float>{
+    [[nodiscard]] auto Ai::getGobanState(cpp2::impl::in<State<Stone,19>> state) const& -> std::vector<float>{
         std::vector<float> vec {}; 
         CPP2_UFCS(reserve)(vec, 361);
 {
@@ -222,7 +222,7 @@ cpp2::i8 row{0};
             return m; 
         }
         CPP2_UFCS(closerValidMove)(engine, m);
-        auto moveIndex {CPP2_UFCS(getIndex)(m.stone, size)}; 
+        auto moveIndex {CPP2_UFCS_TEMPLATE(getIndex<19>)(m.stone)}; 
         if (cpp2::impl::cmp_greater_eq(moveIndex,0)) {
             CPP2_UFCS(push_back)(inputs, cpp2::move(input));
             CPP2_UFCS(push_back)(moves, cpp2::move(moveIndex));

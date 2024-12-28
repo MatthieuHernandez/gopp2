@@ -1,7 +1,7 @@
 #include "goban.h2"
 #include "move.h2"
 
-Goban: <Size: i8>type = {
+Engine:<Size: i8>type = {
 
     public goban: Goban<Size> = ();
     public moves: std::vector<Move> = ();
@@ -24,7 +24,7 @@ Goban: <Size: i8>type = {
         }
     }
 
-    private countLiberties:(inout this, in stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
+    private countLiberties:(inout this, in stone: Stone, inout count: i16, inout processedStones: State<bool, Size>) = {
         if count > 1 {
             return;
         }
@@ -53,14 +53,14 @@ Goban: <Size: i8>type = {
     }
 
     private numberOfLiberties:(inout this, inout stone: Stone) -> i16 = {
-        processedStones: State<bool> = ();
+        processedStones: State<bool, Size> = ();
         count: i16 = 0;
         countLiberties(stone, count, processedStones);
         processedStones = processedStones;
         return count;
     }
 
-    private removeGroup:(inout this, inout stone: Stone, inout count: i16, inout processedStones: State<bool>) = {
+    private removeGroup:(inout this, inout stone: Stone, inout count: i16, inout processedStones: State<bool, Size>) = {
         nextStones:= goban.getAdjacentStone(stone, processedStones);
         for nextStones
         do (inout nextStone) {
@@ -74,7 +74,7 @@ Goban: <Size: i8>type = {
     }
 
     private captureStones:(inout this, inout stone: Stone) -> i16 = {
-        processedStones: State<bool> = ();
+        processedStones: State<bool, Size> = ();
         count: i16 = 0;
         color:= otherColor(stone.color);
         nextStones:= goban.getAdjacentStone(stone, processedStones);
@@ -128,7 +128,7 @@ Goban: <Size: i8>type = {
     }
 
     private countTerritory:(inout this, in stone: Stone, inout count: i16, inout color: Color,
-        inout processedStones1: State<bool>, inout processedStones2: State<bool>) = {
+        inout processedStones1: State<bool, Size>, inout processedStones2: State<bool, Size>) = {
         if count == 0 {
             return;
         }
@@ -157,7 +157,7 @@ Goban: <Size: i8>type = {
     }
 
     public countScore:(inout this) = {
-        processedStones1: State<bool> = ();
+        processedStones1: State<bool, Size> = ();
         blackPoint = 0;
         whitePoint = 7;
         (copy col: i8 = 0)
@@ -179,7 +179,7 @@ Goban: <Size: i8>type = {
                     else {
                         count: i16 = 1;
                         color:= Color::None;
-                        processedStones2: State<bool> = ();
+                        processedStones2: State<bool, Size> = ();
                         countTerritory(goban.state[col][row], count, color, processedStones1, processedStones2);
                         processedStones2 = processedStones2; // CPP2 workaround: Fix inout recursion.
                         if color == Color::Black {
@@ -194,7 +194,7 @@ Goban: <Size: i8>type = {
         }
     }
 
-    private findValidMove:(inout this, inout m: Move, inout processedStones: State<bool>, inout count: i32) = {
+    private findValidMove:(inout this, inout m: Move, inout processedStones: State<bool, Size>, inout count: i32) = {
         processedStones[m.stone.col][m.stone.row] = true;
         count++;
         if isValidMove(m) {
@@ -217,7 +217,7 @@ Goban: <Size: i8>type = {
         if m.pass {
             return;
         }
-        processedStones: State<bool> = (false);
+        processedStones: State<bool, Size> = (false);
         count: i32 = 0;
         findValidMove(m, processedStones, count);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.

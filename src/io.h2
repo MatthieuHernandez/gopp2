@@ -84,17 +84,18 @@ getInputMove:(color: Color) -> Move = {
 }
 
 // Make it a coroutine without row and col parameter
-printIntersection:(row: i16, col: i16) = {
+printIntersection:<Size: i8>(row: i16, col: i16) = {
+    maxIndex: i8 = Size - 1;
     if (row == 15 && (col == 3 || col == 9 || col == 15)) ||
        (row == 9 && (col == 3 || col == 9 || col == 15)) ||
        (row ==  3 && (col == 3 || col == 9 || col == 15)) {
         std::cout << "─●";
     } else {
-        if row == 18 {
+        if row == maxIndex {
             if col == 0 {
                 std::cout << " ┌";
             } 
-            else if col == 18 {
+            else if col == maxIndex {
                 std::cout << "─┐";
             } else {
                 std::cout << "─┬";
@@ -102,7 +103,7 @@ printIntersection:(row: i16, col: i16) = {
         } else if row == 0 {
             if col == 0 {
                 std::cout << " └";
-            } else if col == 18 {
+            } else if col == maxIndex {
                 std::cout << "─┘";
             } else {
                 std::cout << "─┴";
@@ -110,7 +111,7 @@ printIntersection:(row: i16, col: i16) = {
         } else {
             if col == 0 {
                 std::cout << " ├";
-            } else if col == 18 {
+            } else if col == maxIndex {
                 std::cout << "─┤";
             } else {
                 std::cout << "─┼";
@@ -119,10 +120,11 @@ printIntersection:(row: i16, col: i16) = {
     }
 }
 
-printGoban:(goban: Goban<19>) = {
+printGoban:<Size: i8>(goban: Goban<Size>) = {
     // First line
     std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
-    row: i8 = 18;
+    maxIndex: i8 = Size - 1;
+    row: i8 = maxIndex;
     while row > -1
     next row--
     {
@@ -133,7 +135,7 @@ printGoban:(goban: Goban<19>) = {
              std::cout << " " << (row + 1) as std::string <<" ";
         }
         col: i8 = 0;
-        while col <= 18
+        while col <= maxIndex
         next col++
         {
             if goban.state[col][row].color == 1 {
@@ -142,7 +144,7 @@ printGoban:(goban: Goban<19>) = {
                 std::cout << "⚪";
             }
             else if goban.state[col][row].color == 0 {
-                printIntersection(row, col);
+                printIntersection<Size>(row, col);
             }
         }
         std::cout << std::endl;
