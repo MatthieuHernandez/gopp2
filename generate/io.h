@@ -32,29 +32,29 @@ auto clear(cpp2::impl::in<std::string> message = "") -> void;
 auto clearInput() -> void;
 
 #line 23 "../src/io.h2"
-[[nodiscard]] auto printMenuAndSelect() -> cpp2::i32;
+[[nodiscard]] auto printMenuAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<std::string> players) -> cpp2::i32;
 
-#line 40 "../src/io.h2"
+#line 42 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32;
 
-#line 48 "../src/io.h2"
+#line 50 "../src/io.h2"
 auto waitInput() -> void;
 
-#line 54 "../src/io.h2"
-[[nodiscard]] auto getInputMove(cpp2::impl::in<Color> color) -> Move;
+#line 56 "../src/io.h2"
+template<cpp2::i8 Size> [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> color) -> Move;
 
-#line 86 "../src/io.h2"
+#line 95 "../src/io.h2"
 // Make it a coroutine without row and col parameter
 template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 123 "../src/io.h2"
+#line 132 "../src/io.h2"
 template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> void;
 
-#line 155 "../src/io.h2"
+#line 169 "../src/io.h2"
 [[nodiscard]] auto getSnnModels() -> std::vector<std::string>;
 
-#line 165 "../src/io.h2"
-[[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<Color> color) -> std::string;
+#line 179 "../src/io.h2"
+[[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<Color> color) -> std::string;
 
 //=== Cpp2 function definitions =================================================
 
@@ -85,24 +85,26 @@ auto clearInput() -> void{
 }
 
 #line 23 "../src/io.h2"
-[[nodiscard]] auto printMenuAndSelect() -> cpp2::i32{
+[[nodiscard]] auto printMenuAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<std::string> players) -> cpp2::i32{
     clear();
+    auto goban {cpp2::impl::as_<std::string>(size) + "x" + cpp2::impl::as_<std::string>(size)}; 
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                   GOPP2 Menu                   *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << "* Please select one of the following:            *" << std::endl;
     std::cout << "*                                                *" << std::endl;
-    std::cout << "*     1. Select Players                          *" << std::endl;
-    std::cout << "*     2. Play one game                           *" << std::endl;
-    std::cout << "*     3. Train Black player                      *" << std::endl;
-    std::cout << "*     4. Evaluated players against each other    *" << std::endl;
+    std::cout << "*     1. Select Goban: " << std::left << std::setw(26) << std::setfill(' ') << cpp2::move(goban) << "*" << std::endl;
+    std::cout << "*     2. Select Players: " << std::left << std::setw(24) << std::setfill(' ') << players  << "*" << std::endl;
+    std::cout << "*     3. Play one game                           *" << std::endl;
+    std::cout << "*     4. Train Black player                      *" << std::endl;
+    std::cout << "*     5. Evaluate players against each other     *" << std::endl;
     std::cout << "*     0. Exit                                    *" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << getNextMessage() << std::endl;
     return getInputMenu(); 
 }
 
-#line 40 "../src/io.h2"
+#line 42 "../src/io.h2"
 [[nodiscard]] auto getInputMenu() -> cpp2::i32{
     cpp2::i32 input {0}; 
     std::cout << "> ";
@@ -111,15 +113,15 @@ auto clearInput() -> void{
     return input; 
 }
 
-#line 48 "../src/io.h2"
+#line 50 "../src/io.h2"
 auto waitInput() -> void{
     std::string input {""}; 
     std::cout << "> ";
     CPP2_UFCS(get)(std::cin);
 }
 
-#line 54 "../src/io.h2"
-[[nodiscard]] auto getInputMove(cpp2::impl::in<Color> color) -> Move{
+#line 56 "../src/io.h2"
+template<cpp2::i8 Size> [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> color) -> Move{
     std::string input {""}; 
     std::cout << std::endl << colorName(color) << " to play:" << std::endl << "> ";
     std::cin >> input;
@@ -129,12 +131,19 @@ auto waitInput() -> void{
         return pass(color); 
     }
     CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) = std::toupper(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0));
-    if ((cpp2::impl::cmp_less(CPP2_UFCS(ssize)(input),2) || cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(input),3) || 
+    if (((Size == 9 && 
+       (CPP2_UFCS(ssize)(input) != 2 || 
+       cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0),'A') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0),'J') || CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) == 'I' || 
+       (cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'1') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'9')))) || 
+       (Size == 19 && 
+       (cpp2::impl::cmp_less(CPP2_UFCS(ssize)(input),2) || cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(input),3) || 
        cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0),'A') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0),'T') || CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) == 'I' || 
        (CPP2_UFCS(ssize)(input) == 2 && (cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'1') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1),'9'))) || 
-       (CPP2_UFCS(ssize)(input) == 3 && (CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) != '1' || cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'0') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'9'))))) {
+       (CPP2_UFCS(ssize)(input) == 3 && (CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 1) != '1' || cpp2::impl::cmp_less(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'0') || cpp2::impl::cmp_greater(CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 2),'9'))))))) 
+
+       {
         std::cout << "\033[A\033[A\033[A\033[A\033[K" << "Invalid Move." << std::endl;
-        return getInputMove(color); 
+        return getInputMove<Size>(color); 
     }
     cpp2::i8 col {0}; 
     col = CPP2_ASSERT_IN_BOUNDS_LITERAL(input, 0) - 65;
@@ -151,7 +160,7 @@ auto waitInput() -> void{
     return m; 
 }
 
-#line 87 "../src/io.h2"
+#line 96 "../src/io.h2"
 template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     cpp2::i8 maxIndex {Size - 1}; 
     if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
@@ -188,10 +197,15 @@ template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cp
     }
 }
 
-#line 123 "../src/io.h2"
+#line 132 "../src/io.h2"
 template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> void{
     // First line
-    std::cout << "     A B C D E F G H J K L M N O P Q R S T " << std::endl;
+    if constexpr (Size == 19) {
+        std::cout << "     A B C D E F G H J K L M N O P Q R S T" << std::endl;
+    }
+    if constexpr (Size == 9) {
+        std::cout << "     A B C D E F G H J" << std::endl;
+    }
     cpp2::i8 maxIndex {Size - 1}; 
     cpp2::i8 row {maxIndex}; 
     for( ; cpp2::impl::cmp_greater(row,-1); 
@@ -221,22 +235,23 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
     std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 155 "../src/io.h2"
+#line 169 "../src/io.h2"
 [[nodiscard]] auto getSnnModels() -> std::vector<std::string>{
     std::vector<std::string> modelNames {}; 
-    auto files {std::filesystem::directory_iterator("./snn_models")}; 
+    auto files {std::filesystem::directory_iterator(".\\snn_models")}; 
     for ( 
     auto const& file : cpp2::move(files) ) {
-         CPP2_UFCS(push_back)(modelNames, CPP2_UFCS(string)(CPP2_UFCS(path)(file)));
+         CPP2_UFCS(push_back)(modelNames, CPP2_UFCS(string)(CPP2_UFCS(filename)(CPP2_UFCS(path)(file))));
     }
     return modelNames; 
 }
 
-#line 165 "../src/io.h2"
-[[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<Color> color) -> std::string{
+#line 179 "../src/io.h2"
+[[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<Color> color) -> std::string{
     clear();
+    auto title {cpp2::impl::as_<std::string>(size) + "x" + cpp2::impl::as_<std::string>(size) + " players"}; 
     std::cout << "**************************************************" << std::endl;
-    std::cout << "*                    Players                     *" << std::endl;
+    std::cout << "*                  " << std::left << std::setw(30) << std::setfill(' ') << cpp2::move(title) << "*" << std::endl;
     std::cout << "**************************************************" << std::endl;
     std::cout << "* Please select " << colorName(color) << " player:" << std::endl;
     std::cout << "*                                                *" << std::endl;
@@ -246,14 +261,14 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
 {
 cpp2::i8 i{0};
 
-#line 176 "../src/io.h2"
+#line 191 "../src/io.h2"
     for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(modelNames)); 
     ++i ) 
     {
         std::cout << "*     " << cpp2::impl::as_<std::string>((i + 2)) << ". " << CPP2_ASSERT_IN_BOUNDS(modelNames, i) << std::endl;
     }
 }
-#line 181 "../src/io.h2"
+#line 196 "../src/io.h2"
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
     cpp2::i32 input {0}; 

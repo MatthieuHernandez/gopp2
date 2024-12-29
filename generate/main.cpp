@@ -28,7 +28,7 @@ void signalHandler(int signal) {
 
 #line 15 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int;
-#line 42 "../src/main.cpp2"
+#line 46 "../src/main.cpp2"
 
 int main() {
     try { // CPP2 workaround: Try catch not yet supported.
@@ -51,24 +51,28 @@ int main() {
     bool exit {false}; 
     auto game {Game()}; 
     do {
-        auto selection {printMenuAndSelect()}; 
+        auto size {CPP2_UFCS(getGobanSize)(game)}; 
+        auto players {CPP2_UFCS(getPlayerNames)(game)}; 
+        auto selection {printMenuAndSelect(cpp2::move(size), cpp2::move(players))}; 
         if (selection == 0) {
             clear("Bye.");
             exit = true;
         }else {if (selection == 1) {
-            CPP2_UFCS(selectPlayers)(game);
+            CPP2_UFCS(changeGobanSize)(game);
         }else {if (selection == 2) {
-            CPP2_UFCS(playOne)(game);
+            CPP2_UFCS(selectPlayers)(game);
         }else {if (selection == 3) {
-            CPP2_UFCS(trainBlack)(game);
+            CPP2_UFCS(playOne)(game);
         }else {if (selection == 4) {
+            CPP2_UFCS(trainBlack)(game);
+        }else {if (selection == 5) {
             CPP2_UFCS(evaluate)(game);
         }else {if (cpp2::move(selection) == 9) {
             createAi();
             setNextMessage("AI created.");
         }else {
             setNextMessage("Invalid selection.");
-        }}}}}}
+        }}}}}}}
     } while ( !(exit));
   return 0; 
 }

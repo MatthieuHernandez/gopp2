@@ -10,6 +10,8 @@ Player: type = {
     public color: Color;
     public hasWon: bool;
 
+    public getMove:(virtual inout this, inout engine: Engine<9>) -> Move;
+
     public getMove:(virtual inout this, inout engine: Engine<19>) -> Move;
 
     public operator=:(out this, c: Color) = {

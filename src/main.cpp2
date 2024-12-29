@@ -18,17 +18,21 @@ cpp2_main:() -> int = {
     exit: bool = false;
     game:= Game();
     do {
-        selection:= printMenuAndSelect();
+        size:= game.getGobanSize();
+        players:= game.getPlayerNames();
+        selection:= printMenuAndSelect(size, players);
         if selection == 0 {
             clear("Bye.");
             exit = true;
         } else if selection == 1 {
-            game.selectPlayers();
+            game.changeGobanSize();
         } else if selection == 2 {
-            game.playOne();
+            game.selectPlayers();
         } else if selection == 3 {
-            game.trainBlack();
+            game.playOne();
         } else if selection == 4 {
+            game.trainBlack();
+        } else if selection == 5 {
             game.evaluate();
         } else if selection == 9 {
             createAi();

@@ -11,32 +11,21 @@ Random: type = {
         Player = (that);
     }
 
-    public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
-        dist: std::uniform_int_distribution<i32> = (0, 18);
+    private getMove:<Size: i8>(inout this, inout engine: Engine<Size>) -> Move = {
+        maxIndex: i8 = Size - 1;
+        dist: std::uniform_int_distribution<i32> = (0, maxIndex);
         col: i32 = dist(rng);
         row: i32 = dist(rng);
         m:= Move(color, col, row);
         engine.closerValidMove(m);
         return m;
     }
-}
 
-RandomSlow: type = {
-    this: Random;
-    duration: i16;
-
-    public operator=:(out this, c: Color, sleep_duration: i16) = {
-        Random = (c);
-        duration = sleep_duration;
-    }
-
-    public operator=:(out this, that) = {
-        Random = (that);
-        duration = that.duration;
+    public getMove:(override inout this, inout engine: Engine<9>) -> Move = {
+        return getMove<9>(engine);
     }
 
     public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
-        std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-        return Random::getMove(engine);
+        return getMove<19>(engine);
     }
 }

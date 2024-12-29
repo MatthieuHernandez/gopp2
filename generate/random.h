@@ -15,10 +15,6 @@
 class Random;
     
 
-#line 24 "../src/random.h2"
-class RandomSlow;
-    
-
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/random.h2"
@@ -34,24 +30,15 @@ class Random: public Player {
     public: Random(Random const& that);
 
 #line 14 "../src/random.h2"
+    private: template<cpp2::i8 Size> [[nodiscard]] auto getMove(Engine<Size>& engine) & -> Move;
+
+#line 24 "../src/random.h2"
+    public: [[nodiscard]] auto getMove(Engine<9>& engine) -> Move override;
+
+#line 28 "../src/random.h2"
     public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
 
-#line 22 "../src/random.h2"
-};
-
-class RandomSlow: public Random {
-
-    private: cpp2::i16 duration; 
-
-    public: RandomSlow(cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> sleep_duration);
-
-#line 33 "../src/random.h2"
-    public: RandomSlow(RandomSlow const& that);
-
-#line 38 "../src/random.h2"
-    public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
-
-#line 42 "../src/random.h2"
+#line 31 "../src/random.h2"
 };
 
 
@@ -74,8 +61,9 @@ class RandomSlow: public Random {
     }
 
 #line 14 "../src/random.h2"
-    [[nodiscard]] auto Random::getMove(Engine<19>& engine) -> Move{
-        std::uniform_int_distribution<cpp2::i32> dist {0, 18}; 
+    template<cpp2::i8 Size> [[nodiscard]] auto Random::getMove(Engine<Size>& engine) & -> Move{
+        cpp2::i8 maxIndex {Size - 1}; 
+        std::uniform_int_distribution<cpp2::i32> dist {0, cpp2::move(maxIndex)}; 
         cpp2::i32 col {dist(rng)}; 
         cpp2::i32 row {cpp2::move(dist)(rng)}; 
         auto m {Move(color, cpp2::move(col), cpp2::move(row))}; 
@@ -83,26 +71,14 @@ class RandomSlow: public Random {
         return m; 
     }
 
+#line 24 "../src/random.h2"
+    [[nodiscard]] auto Random::getMove(Engine<9>& engine) -> Move{
+        return getMove<9>(engine); 
+    }
+
 #line 28 "../src/random.h2"
-    RandomSlow::RandomSlow(cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> sleep_duration)
-        : Random{ c }
-        , duration{ sleep_duration }{
-
-#line 31 "../src/random.h2"
-    }
-
-#line 33 "../src/random.h2"
-    RandomSlow::RandomSlow(RandomSlow const& that)
-        : Random{ that }
-        , duration{ that.duration }{
-
-#line 36 "../src/random.h2"
-    }
-
-#line 38 "../src/random.h2"
-    [[nodiscard]] auto RandomSlow::getMove(Engine<19>& engine) -> Move{
-        std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-        return Random::getMove(engine); 
+    [[nodiscard]] auto Random::getMove(Engine<19>& engine) -> Move{
+        return getMove<19>(engine); 
     }
 #endif
 

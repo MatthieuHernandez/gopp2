@@ -46,24 +46,30 @@ class Ai: public Player {
     public: [[nodiscard]] auto summary() const& -> std::string;
 
 #line 51 "../src/ai.h2"
-    private: [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone,19>> state) const& -> std::vector<float>;
+    private: template<cpp2::i8 Size> [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone,Size>> state) const& -> std::vector<float>;
 
-#line 76 "../src/ai.h2"
-    private: [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move;
+#line 77 "../src/ai.h2"
+    private: template<cpp2::i8 Size> [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move;
 
-#line 124 "../src/ai.h2"
+#line 125 "../src/ai.h2"
+    private: template<cpp2::i8 Size> [[nodiscard]] auto getMove(Engine<Size>& engine) & -> Move;
+
+#line 141 "../src/ai.h2"
+    public: [[nodiscard]] auto getMove(Engine<9>& engine) -> Move override;
+
+#line 145 "../src/ai.h2"
     public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
 
-#line 140 "../src/ai.h2"
+#line 149 "../src/ai.h2"
     public: auto train() & -> void;
 
-#line 165 "../src/ai.h2"
+#line 174 "../src/ai.h2"
     public: auto save() & -> void;
 
-#line 169 "../src/ai.h2"
+#line 178 "../src/ai.h2"
     public: auto processEndGame() -> void override;
 
-#line 186 "../src/ai.h2"
+#line 195 "../src/ai.h2"
 };
 
 
@@ -119,20 +125,21 @@ auto createAi() -> void{
     }
 
 #line 51 "../src/ai.h2"
-    [[nodiscard]] auto Ai::getGobanState(cpp2::impl::in<State<Stone,19>> state) const& -> std::vector<float>{
+    template<cpp2::i8 Size> [[nodiscard]] auto Ai::getGobanState(cpp2::impl::in<State<Stone,Size>> state) const& -> std::vector<float>{
         std::vector<float> vec {}; 
-        CPP2_UFCS(reserve)(vec, 361);
+        auto size {CPP2_UFCS(ssize)(state) * CPP2_UFCS(ssize)(state)}; 
+        CPP2_UFCS(reserve)(vec, cpp2::move(size));
 {
 cpp2::i8 col{0};
 
-#line 55 "../src/ai.h2"
+#line 56 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 59 "../src/ai.h2"
+#line 60 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(state, col))); 
             ++row ) 
             {
@@ -147,15 +154,15 @@ cpp2::i8 row{0};
                 }}
             }
 }
-#line 72 "../src/ai.h2"
+#line 73 "../src/ai.h2"
         }
 }
-#line 73 "../src/ai.h2"
+#line 74 "../src/ai.h2"
         return vec; 
     }
 
-#line 76 "../src/ai.h2"
-    [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move{
+#line 77 "../src/ai.h2"
+    template<cpp2::i8 Size> [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move{
         cpp2::i16 index {0}; 
         std::vector<std::array<cpp2::i8,2>> goodMoves {}; 
         std::vector<std::array<cpp2::i8,2>> averageMoves {}; 
@@ -163,15 +170,15 @@ cpp2::i8 row{0};
 {
 cpp2::i8 col{0};
 
-#line 82 "../src/ai.h2"
-        for( ; cpp2::impl::cmp_less(col,19); 
+#line 83 "../src/ai.h2"
+        for( ; cpp2::impl::cmp_less(col,Size); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 86 "../src/ai.h2"
-            for( ; cpp2::impl::cmp_less(row,19); 
+#line 87 "../src/ai.h2"
+            for( ; cpp2::impl::cmp_less(row,Size); 
             ++row ) 
             {
                 std::array<cpp2::i8,2> a {col, row}; 
@@ -185,10 +192,10 @@ cpp2::i8 row{0};
                 ++index;
             }
 }
-#line 99 "../src/ai.h2"
+#line 100 "../src/ai.h2"
         }
 }
-#line 100 "../src/ai.h2"
+#line 101 "../src/ai.h2"
         if (!(CPP2_UFCS(empty)(goodMoves))) {
             ++numberOfGoodMoves;
             std::uniform_int_distribution<cpp2::i64> dist {0, CPP2_UFCS(ssize)(goodMoves) - 1}; 
@@ -213,16 +220,16 @@ cpp2::i8 row{0};
         return pass(color); 
     }
 
-#line 124 "../src/ai.h2"
-    [[nodiscard]] auto Ai::getMove(Engine<19>& engine) -> Move{
-        auto input {getGobanState(engine.goban.state)}; 
+#line 125 "../src/ai.h2"
+    template<cpp2::i8 Size> [[nodiscard]] auto Ai::getMove(Engine<Size>& engine) & -> Move{
+        auto input {getGobanState<Size>(engine.goban.state)}; 
         auto output {CPP2_UFCS(computeOutput)(neuralNetwork, input)}; 
-        auto m {chooseBestMove(cpp2::move(output))}; 
+        auto m {chooseBestMove<Size>(cpp2::move(output))}; 
         if (m.pass) {
             return m; 
         }
         CPP2_UFCS(closerValidMove)(engine, m);
-        auto moveIndex {CPP2_UFCS_TEMPLATE(getIndex<19>)(m.stone)}; 
+        auto moveIndex {CPP2_UFCS_TEMPLATE(getIndex<Size>)(m.stone)}; 
         if (cpp2::impl::cmp_greater_eq(moveIndex,0)) {
             CPP2_UFCS(push_back)(inputs, cpp2::move(input));
             CPP2_UFCS(push_back)(moves, cpp2::move(moveIndex));
@@ -230,7 +237,17 @@ cpp2::i8 row{0};
         return m; 
     }
 
-#line 140 "../src/ai.h2"
+#line 141 "../src/ai.h2"
+    [[nodiscard]] auto Ai::getMove(Engine<9>& engine) -> Move{
+        return getMove<9>(engine); 
+    }
+
+#line 145 "../src/ai.h2"
+    [[nodiscard]] auto Ai::getMove(Engine<19>& engine) -> Move{
+        return getMove<19>(engine); 
+    }
+
+#line 149 "../src/ai.h2"
     auto Ai::train() & -> void{
         float expectedValue {-1.0}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
@@ -239,7 +256,7 @@ cpp2::i8 row{0};
 {
 cpp2::i16 i{0};
 
-#line 146 "../src/ai.h2"
+#line 155 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(inputs)); 
         ++i ) 
         {
@@ -247,7 +264,7 @@ cpp2::i16 i{0};
 {
 cpp2::i16 j{0};
 
-#line 151 "../src/ai.h2"
+#line 160 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(j,361); 
             ++j ) 
             {
@@ -256,22 +273,22 @@ cpp2::i16 j{0};
                 }
             }
 }
-#line 158 "../src/ai.h2"
+#line 167 "../src/ai.h2"
             CPP2_ASSERT_IN_BOUNDS(expected_output, CPP2_ASSERT_IN_BOUNDS(moves, i)) = expectedValue;
             CPP2_UFCS(trainOnce)(neuralNetwork, CPP2_ASSERT_IN_BOUNDS(inputs, i), cpp2::move(expected_output));
         }
 }
-#line 161 "../src/ai.h2"
+#line 170 "../src/ai.h2"
         inputs = {  };
         moves = {  };
     }
 
-#line 165 "../src/ai.h2"
+#line 174 "../src/ai.h2"
     auto Ai::save() & -> void{
         CPP2_UFCS(saveAs)(neuralNetwork, modelPath);
     }
 
-#line 169 "../src/ai.h2"
+#line 178 "../src/ai.h2"
     auto Ai::processEndGame() -> void{
         std::string state {"lost"}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.

@@ -33,35 +33,48 @@ class Game {
 
     private: std::shared_ptr<Player> blackPlayer {nullptr}; // CPP2 workaround: Not able to make unique_prtr work.
     private: std::shared_ptr<Player> whitePlayer {nullptr}; 
+    private: cpp2::i8 gobanSize {19}; 
 
-    private: [[nodiscard]] static auto selectPlayer(cpp2::impl::in<Color> color) -> std::shared_ptr<Player>;
+    public: [[nodiscard]] auto getGobanSize() const& -> cpp2::i8;
 
-#line 35 "../src/game.h2"
+#line 21 "../src/game.h2"
+    private: [[nodiscard]] static auto getPlayerName(cpp2::impl::in<std::shared_ptr<Player>> player) -> std::string;
+
+#line 37 "../src/game.h2"
+    public: [[nodiscard]] auto getPlayerNames() const& -> std::string;
+
+#line 43 "../src/game.h2"
+    public: auto changeGobanSize() & -> void;
+
+#line 51 "../src/game.h2"
+    private: [[nodiscard]] auto selectPlayer(cpp2::impl::in<Color> color) const& -> std::shared_ptr<Player>;
+
+#line 70 "../src/game.h2"
     public: auto selectPlayers() & -> void;
 
-#line 41 "../src/game.h2"
+#line 76 "../src/game.h2"
     private: [[nodiscard]] auto hasValidPlayer() const& -> bool;
 
-#line 49 "../src/game.h2"
-    private: template<bool verbose> auto play() & -> void;
+#line 84 "../src/game.h2"
+    private: template<bool verbose, cpp2::i8 Size> auto play() & -> void;
 
-#line 100 "../src/game.h2"
+#line 135 "../src/game.h2"
     public: auto playOne() & -> void;
 
-#line 109 "../src/game.h2"
+#line 150 "../src/game.h2"
     private: auto switchPlayerColor() & -> void;
 
-#line 115 "../src/game.h2"
+#line 156 "../src/game.h2"
     public: auto trainBlack() & -> void;
 
-#line 140 "../src/game.h2"
+#line 187 "../src/game.h2"
     public: auto evaluate() & -> void;
     public: Game() = default;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 169 "../src/game.h2"
+#line 222 "../src/game.h2"
 };
 
 
@@ -72,9 +85,47 @@ class Game {
 #line 9 "../src/game.h2"
 bool isSaving {false}; 
 
-#line 16 "../src/game.h2"
-    [[nodiscard]] auto Game::selectPlayer(cpp2::impl::in<Color> color) -> std::shared_ptr<Player>{
-        auto selection {printPlayersAndSelect(color)}; 
+#line 17 "../src/game.h2"
+    [[nodiscard]] auto Game::getGobanSize() const& -> cpp2::i8{
+        return gobanSize; 
+    }
+
+#line 21 "../src/game.h2"
+    [[nodiscard]] auto Game::getPlayerName(cpp2::impl::in<std::shared_ptr<Player>> player) -> std::string{
+        auto human {std::dynamic_pointer_cast<Human>(player)}; // CPP2 workaround: keyword "as" not working.
+        auto random {std::dynamic_pointer_cast<Random>(player)}; 
+        auto ai {std::dynamic_pointer_cast<Ai>(player)}; 
+        if (cpp2::move(human) != nullptr) {
+            return "Human"; 
+        }
+        if (cpp2::move(random) != nullptr) {
+            return "Random"; 
+        }
+        if (cpp2::move(ai) != nullptr) {
+            return "AI"; 
+        }
+        return "None"; 
+    }
+
+#line 37 "../src/game.h2"
+    [[nodiscard]] auto Game::getPlayerNames() const& -> std::string{
+        auto p1 {getPlayerName(blackPlayer)}; 
+        auto p2 {getPlayerName(whitePlayer)}; 
+        return cpp2::move(p1) + " vs " + cpp2::move(p2); 
+    }
+
+#line 43 "../src/game.h2"
+    auto Game::changeGobanSize() & -> void{
+        if (gobanSize != 9) {
+            gobanSize = 9;
+        }else {
+            gobanSize = 19;
+        }
+    }
+
+#line 51 "../src/game.h2"
+    [[nodiscard]] auto Game::selectPlayer(cpp2::impl::in<Color> color) const& -> std::shared_ptr<Player>{
+        auto selection {printPlayersAndSelect(gobanSize, color)}; 
         if ((selection == "")) {
             return nullptr; 
         }
@@ -92,14 +143,14 @@ bool isSaving {false};
         return ai; 
     }
 
-#line 35 "../src/game.h2"
+#line 70 "../src/game.h2"
     auto Game::selectPlayers() & -> void{
         blackPlayer = selectPlayer(Color::Black);
         whitePlayer = selectPlayer(Color::White);
         setNextMessage("Players selected.");
     }
 
-#line 41 "../src/game.h2"
+#line 76 "../src/game.h2"
     [[nodiscard]] auto Game::hasValidPlayer() const& -> bool{
         if (blackPlayer == nullptr || whitePlayer == nullptr) {
             setNextMessage("No player selected.");
@@ -108,15 +159,15 @@ bool isSaving {false};
         return true; 
     }
 
-#line 49 "../src/game.h2"
-    template<bool verbose> auto Game::play() & -> void{
+#line 84 "../src/game.h2"
+    template<bool verbose, cpp2::i8 Size> auto Game::play() & -> void{
         auto start {std::chrono::high_resolution_clock::now()}; 
-        Engine<19> engine {}; 
+        Engine<Size> engine {}; 
         cpp2::i16 moveNumber {1}; 
         do {
             if constexpr (verbose) {
                 clear();
-                printGoban<19>(engine.goban);
+                printGoban<Size>(engine.goban);
             }
             Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
             if (moveNumber % 2 == 1) {
@@ -157,27 +208,33 @@ bool isSaving {false};
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(blackPlayer)));
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(whitePlayer)));
         clear();
-        printGoban<19>(cpp2::move(engine).goban);
+        printGoban<Size>(cpp2::move(engine).goban);
     }
 
-#line 100 "../src/game.h2"
+#line 135 "../src/game.h2"
     auto Game::playOne() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
         }
-        play<true>();
+        if (gobanSize == 19) {
+            play<true,19>();
+        }else {if (gobanSize == 9) {
+            play<true,9>();
+        }else {
+            return ; 
+        }}
         waitInput();
         setNextMessage("Game was played.");
     }
 
-#line 109 "../src/game.h2"
+#line 150 "../src/game.h2"
     auto Game::switchPlayerColor() & -> void{
         (*cpp2::impl::assert_not_null(blackPlayer)).color = Color::White;
         (*cpp2::impl::assert_not_null(whitePlayer)).color = Color::Black;
         std::swap(blackPlayer, whitePlayer);
     }
 
-#line 115 "../src/game.h2"
+#line 156 "../src/game.h2"
     auto Game::trainBlack() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -190,7 +247,13 @@ bool isSaving {false};
         cpp2::i32 i {0}; 
         while( true ) 
         {
-            play<false>();
+            if (gobanSize == 19) {
+                play<false,19>();
+            }else {if (gobanSize == 9) {
+                play<false,9>();
+            }else {
+                return ; 
+            }}
             CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)));
             switchPlayerColor();
             if (i % 20 == 0) {
@@ -203,7 +266,7 @@ bool isSaving {false};
         setNextMessage("AI trained.");
     }
 
-#line 140 "../src/game.h2"
+#line 187 "../src/game.h2"
     auto Game::evaluate() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -221,20 +284,26 @@ bool isSaving {false};
 {
 cpp2::i32 i{0};
 
-#line 155 "../src/game.h2"
+#line 202 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
             if (i == (numberOfGame / CPP2_ASSERT_NOT_ZERO_LITERAL(CPP2_TYPEOF(numberOfGame),2))) {
                 switchPlayerColor();
             }
-            play<false>();
+            if (gobanSize == 19) {
+                play<false,19>();
+            }else {if (gobanSize == 9) {
+                play<false,9>();
+            }else {
+                return ; 
+            }}
             if ((*cpp2::impl::assert_not_null(player1)).hasWon) {
                 ++numberOfGameWon;
             }
         }
 }
-#line 166 "../src/game.h2"
+#line 219 "../src/game.h2"
         setNextMessage("The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
     }

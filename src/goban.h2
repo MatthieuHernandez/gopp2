@@ -4,7 +4,7 @@
 template<class T, int8_t Size>
 using State = std::array<std::array<T, Size>, Size>;
 
-Goban:<Size: i8>type = {
+Goban:<Size: i8> type = {
     public state: State<Stone, Size> = ();
     public lockedPosition: Stone = ();
     public iterations: i32 = 0;

@@ -8,13 +8,48 @@
 
 isSaving: bool = false;
 
-Game : type = {
+Game: type = {
 
     private blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_prtr work.
     private whitePlayer: std::shared_ptr<Player> = nullptr;
+    private gobanSize: i8 = 19;
 
-    private selectPlayer:(color: Color) -> std::shared_ptr<Player> = {
-        selection:= printPlayersAndSelect(color);
+    public getGobanSize:(in this) -> i8 = {
+        return gobanSize;
+    }
+
+    private getPlayerName:(player: std::shared_ptr<Player>) -> std::string = {
+        human:= std::dynamic_pointer_cast<Human>(player); // CPP2 workaround: keyword "as" not working.
+        random:= std::dynamic_pointer_cast<Random>(player);
+        ai:= std::dynamic_pointer_cast<Ai>(player);
+        if human != nullptr {
+            return "Human";
+        }
+        if random != nullptr {
+            return "Random";
+        }
+        if ai != nullptr {
+            return "AI";
+        }
+        return "None";
+    }
+
+    public getPlayerNames:(in this) -> std::string = {
+        p1:= getPlayerName(blackPlayer);
+        p2:= getPlayerName(whitePlayer);
+        return p1 +" vs " + p2;
+    }
+
+    public changeGobanSize:(inout this) = {
+        if gobanSize != 9 {
+            gobanSize = 9;
+        } else {
+            gobanSize = 19;
+        }
+    }
+
+    private selectPlayer:(in this, color: Color) -> std::shared_ptr<Player> = {
+        selection:= printPlayersAndSelect(gobanSize, color);
         if(selection == "") {
             return nullptr;
         }
@@ -46,14 +81,14 @@ Game : type = {
         return true;
     }
 
-    private play:<verbose: bool>(inout this) = {
+    private play:<verbose: bool, Size: i8>(inout this) = {
         start:= std::chrono::high_resolution_clock::now();
-        engine: Engine<19> = ();
+        engine: Engine<Size> = ();
         moveNumber: i16 = 1;
         do {
             if constexpr verbose {
                 clear();
-                printGoban<19>(engine.goban);
+                printGoban<Size>(engine.goban);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
             if moveNumber % 2 == 1 {
@@ -94,14 +129,20 @@ Game : type = {
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
         clear();
-        printGoban<19>(engine.goban);
+        printGoban<Size>(engine.goban);
     }
 
     public playOne:(inout this) = {
         if !hasValidPlayer() {
             return;
         }
-        play<true>();
+        if gobanSize == 19 {
+            play<true, 19>();
+        } else if gobanSize == 9 {
+            play<true, 9>();
+        }else{
+            return;
+        }
         waitInput();
         setNextMessage("Game was played.");
     }
@@ -124,7 +165,13 @@ Game : type = {
         i: i32 = 0;
         while true
         {
-            play<false>();
+            if gobanSize == 19 {
+                play<false, 19>();
+            } else if gobanSize == 9 {
+                play<false, 9>();
+            }else{
+                return;
+            }
             player1*.train();
             switchPlayerColor();
             if i % 20 == 0 {
@@ -158,7 +205,13 @@ Game : type = {
             if i == (numberOfGame / 2) {
                 switchPlayerColor();
             }
-            play<false>();
+            if gobanSize == 19 {
+                play<false, 19>();
+            } else if gobanSize == 9 {
+                play<false, 9>();
+            }else{
+                return;
+            }
             if player1*.hasWon {
                 numberOfGameWon++;
             }

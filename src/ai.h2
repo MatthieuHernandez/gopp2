@@ -48,9 +48,10 @@ Ai: type = {
         return neuralNetwork.summary();
     }
 
-    private getGobanState:(in this, in state: State<Stone, 19>) -> std::vector<float> = {
+    private getGobanState:<Size: i8>(in this, in state: State<Stone, Size>) -> std::vector<float> = {
         vec: std::vector<float> = ();
-        vec.reserve(361);
+        size:= state.ssize() * state.ssize();
+        vec.reserve(size);
         (copy col: i8 = 0)
         while col < state.ssize()
         next col++
@@ -73,17 +74,17 @@ Ai: type = {
         return vec;
     }
 
-    private chooseBestMove:(inout this, in nn_output: std::vector<float>) -> Move = {
+    private chooseBestMove:<Size: i8>(inout this, in nn_output: std::vector<float>) -> Move = {
         index: i16 = 0;
         goodMoves: std::vector<std::array<i8, 2>> = ();
         averageMoves: std::vector<std::array<i8, 2>> = ();
         badMoves: std::vector<std::array<i8, 2>> = ();
         (copy col: i8 = 0)
-        while col < 19
+        while col < Size
         next col++
         {
             (copy row: i8 = 0)
-            while row < 19
+            while row < Size
             next row++
             {
                 a: std::array<i8, 2> = (col, row);
@@ -121,20 +122,28 @@ Ai: type = {
         return pass(color);
     }
 
-    public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
-        input:= getGobanState(engine.goban.state);
+    private getMove:<Size: i8>(inout this, inout engine: Engine<Size>) -> Move = {
+        input:= getGobanState<Size>(engine.goban.state);
         output:= neuralNetwork.computeOutput(input);
-        m:= chooseBestMove(output);
+        m:= chooseBestMove<Size>(output);
         if m.pass {
             return m;
         }
         engine.closerValidMove(m);
-        moveIndex:= m.stone.getIndex<19>();
+        moveIndex:= m.stone.getIndex<Size>();
         if moveIndex >= 0 {
             inputs.push_back(input);
             moves.push_back(moveIndex);
         }
         return m;
+    }
+
+    public getMove:(override inout this, inout engine: Engine<9>) -> Move = {
+        return getMove<9>(engine);
+    }
+
+    public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
+        return getMove<19>(engine);
     }
 
     public train:(inout this) = {
