@@ -254,7 +254,7 @@ bool isSaving {false};
             }else {
                 return ; 
             }}
-            CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)));
+            CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)), gobanSize);
             switchPlayerColor();
             if (i % 20 == 0) {
                 isSaving = true;

@@ -11,7 +11,7 @@
 
 #line 1 "../src/ai.h2"
 
-#line 15 "../src/ai.h2"
+#line 14 "../src/ai.h2"
 class Ai;
     
 
@@ -25,7 +25,7 @@ class Ai;
 #line 5 "../src/ai.h2"
 auto createAi() -> void;
 
-#line 15 "../src/ai.h2"
+#line 14 "../src/ai.h2"
 class Ai: public Player {
 
     private: std::string modelPath; 
@@ -39,29 +39,29 @@ class Ai: public Player {
 
     public: Ai(cpp2::impl::in<Color> c, cpp2::impl::in<std::string> path);
 
-#line 36 "../src/ai.h2"
+#line 35 "../src/ai.h2"
     public: Ai(Ai const& that);
 
-#line 47 "../src/ai.h2"
+#line 46 "../src/ai.h2"
     public: [[nodiscard]] auto summary() const& -> std::string;
 
-#line 51 "../src/ai.h2"
+#line 50 "../src/ai.h2"
     private: template<cpp2::i8 Size> [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone,Size>> state) const& -> std::vector<float>;
 
-#line 77 "../src/ai.h2"
+#line 76 "../src/ai.h2"
     private: template<cpp2::i8 Size> [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move;
 
-#line 125 "../src/ai.h2"
+#line 124 "../src/ai.h2"
     private: template<cpp2::i8 Size> [[nodiscard]] auto getMove(Engine<Size>& engine) & -> Move;
 
-#line 141 "../src/ai.h2"
+#line 140 "../src/ai.h2"
     public: [[nodiscard]] auto getMove(Engine<9>& engine) -> Move override;
 
-#line 145 "../src/ai.h2"
+#line 144 "../src/ai.h2"
     public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
 
-#line 149 "../src/ai.h2"
-    public: auto train() & -> void;
+#line 148 "../src/ai.h2"
+    public: auto train(cpp2::impl::in<cpp2::i16> gobanSize) & -> void;
 
 #line 174 "../src/ai.h2"
     public: auto save() & -> void;
@@ -79,16 +79,15 @@ class Ai: public Player {
 
 #line 5 "../src/ai.h2"
 auto createAi() -> void{
-    std::vector<snn::LayerModel> layers {snn::Input(1, 19, 19), 
-                                            snn::FullyConnected(200, snn::activation::ReLU), 
-                                            snn::FullyConnected(200, snn::activation::ReLU), 
-                                            snn::FullyConnected(361, snn::activation::tanh)}; 
-    auto optimizer {snn::StochasticGradientDescent(1e-4f, 0.9f)}; 
+    std::vector<snn::LayerModel> layers {snn::Input(1, 9, 9), 
+                                            snn::FullyConnected(500, snn::activation::ReLU), 
+                                            snn::FullyConnected(81, snn::activation::tanh)}; 
+    auto optimizer {snn::StochasticGradientDescent(1e-5f, 0.3f)}; 
     auto neuralNetwork {snn::StraightforwardNeuralNetwork(cpp2::move(layers), cpp2::move(optimizer))}; 
-    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/model_big_v2.snn");
+    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/9x9/model_v1.snn");
 }
 
-#line 26 "../src/ai.h2"
+#line 25 "../src/ai.h2"
     Ai::Ai(cpp2::impl::in<Color> c, cpp2::impl::in<std::string> path)
         : Player{ c }
         , modelPath{ path }
@@ -96,12 +95,12 @@ auto createAi() -> void{
         , inputs{  }
         , moves{  }{
 
-#line 32 "../src/ai.h2"
+#line 31 "../src/ai.h2"
         CPP2_UFCS(reserve)(inputs, 300);
         CPP2_UFCS(reserve)(moves, 300);
     }
 
-#line 36 "../src/ai.h2"
+#line 35 "../src/ai.h2"
     Ai::Ai(Ai const& that)
         : Player{ that }
         , modelPath{ that.modelPath }
@@ -112,19 +111,19 @@ auto createAi() -> void{
         , numberOfAverageMoves{ that.numberOfAverageMoves }
         , numberOfBadMoves{ that.numberOfBadMoves }{
 
-#line 41 "../src/ai.h2"
+#line 40 "../src/ai.h2"
         modelPath = that.modelPath;
         numberOfGoodMoves = that.numberOfGoodMoves;
         numberOfAverageMoves = that.numberOfAverageMoves;
         numberOfBadMoves = that.numberOfBadMoves;
     }
 
-#line 47 "../src/ai.h2"
+#line 46 "../src/ai.h2"
     [[nodiscard]] auto Ai::summary() const& -> std::string{
         return CPP2_UFCS(summary)(neuralNetwork); 
     }
 
-#line 51 "../src/ai.h2"
+#line 50 "../src/ai.h2"
     template<cpp2::i8 Size> [[nodiscard]] auto Ai::getGobanState(cpp2::impl::in<State<Stone,Size>> state) const& -> std::vector<float>{
         std::vector<float> vec {}; 
         auto size {CPP2_UFCS(ssize)(state) * CPP2_UFCS(ssize)(state)}; 
@@ -132,14 +131,14 @@ auto createAi() -> void{
 {
 cpp2::i8 col{0};
 
-#line 56 "../src/ai.h2"
+#line 55 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(col,CPP2_UFCS(ssize)(state)); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 60 "../src/ai.h2"
+#line 59 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(row,CPP2_UFCS(ssize)(CPP2_ASSERT_IN_BOUNDS(state, col))); 
             ++row ) 
             {
@@ -154,14 +153,14 @@ cpp2::i8 row{0};
                 }}
             }
 }
-#line 73 "../src/ai.h2"
+#line 72 "../src/ai.h2"
         }
 }
-#line 74 "../src/ai.h2"
+#line 73 "../src/ai.h2"
         return vec; 
     }
 
-#line 77 "../src/ai.h2"
+#line 76 "../src/ai.h2"
     template<cpp2::i8 Size> [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output) & -> Move{
         cpp2::i16 index {0}; 
         std::vector<std::array<cpp2::i8,2>> goodMoves {}; 
@@ -170,14 +169,14 @@ cpp2::i8 row{0};
 {
 cpp2::i8 col{0};
 
-#line 83 "../src/ai.h2"
+#line 82 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(col,Size); 
         ++col ) 
         {
 {
 cpp2::i8 row{0};
 
-#line 87 "../src/ai.h2"
+#line 86 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(row,Size); 
             ++row ) 
             {
@@ -192,10 +191,10 @@ cpp2::i8 row{0};
                 ++index;
             }
 }
-#line 100 "../src/ai.h2"
+#line 99 "../src/ai.h2"
         }
 }
-#line 101 "../src/ai.h2"
+#line 100 "../src/ai.h2"
         if (!(CPP2_UFCS(empty)(goodMoves))) {
             ++numberOfGoodMoves;
             std::uniform_int_distribution<cpp2::i64> dist {0, CPP2_UFCS(ssize)(goodMoves) - 1}; 
@@ -220,7 +219,7 @@ cpp2::i8 row{0};
         return pass(color); 
     }
 
-#line 125 "../src/ai.h2"
+#line 124 "../src/ai.h2"
     template<cpp2::i8 Size> [[nodiscard]] auto Ai::getMove(Engine<Size>& engine) & -> Move{
         auto input {getGobanState<Size>(engine.goban.state)}; 
         auto output {CPP2_UFCS(computeOutput)(neuralNetwork, input)}; 
@@ -237,18 +236,19 @@ cpp2::i8 row{0};
         return m; 
     }
 
-#line 141 "../src/ai.h2"
+#line 140 "../src/ai.h2"
     [[nodiscard]] auto Ai::getMove(Engine<9>& engine) -> Move{
         return getMove<9>(engine); 
     }
 
-#line 145 "../src/ai.h2"
+#line 144 "../src/ai.h2"
     [[nodiscard]] auto Ai::getMove(Engine<19>& engine) -> Move{
         return getMove<19>(engine); 
     }
 
-#line 149 "../src/ai.h2"
-    auto Ai::train() & -> void{
+#line 148 "../src/ai.h2"
+    auto Ai::train(cpp2::impl::in<cpp2::i16> gobanSize) & -> void{
+        auto size {gobanSize * gobanSize}; 
         float expectedValue {-1.0}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
             expectedValue = 1.0;
@@ -260,12 +260,12 @@ cpp2::i16 i{0};
         for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(inputs)); 
         ++i ) 
         {
-            auto expected_output {std::vector<float>(361, 0)}; 
+            auto expected_output {std::vector<float>(size, 0)}; 
 {
 cpp2::i16 j{0};
 
 #line 160 "../src/ai.h2"
-            for( ; cpp2::impl::cmp_less(j,361); 
+            for( ; cpp2::impl::cmp_less(j,size); 
             ++j ) 
             {
                 if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(inputs, i), j) != 0.0) {

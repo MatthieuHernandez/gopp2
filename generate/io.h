@@ -47,13 +47,13 @@ template<cpp2::i8 Size> [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> co
 // Make it a coroutine without row and col parameter
 template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void;
 
-#line 132 "../src/io.h2"
+#line 136 "../src/io.h2"
 template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> void;
 
-#line 169 "../src/io.h2"
-[[nodiscard]] auto getSnnModels(cpp2::impl::in<cpp2::i8> size) -> std::vector<std::string>;
+#line 173 "../src/io.h2"
+[[nodiscard]] auto getSnnModels(cpp2::impl::in<cpp2::i8> size) -> std::vector<std::array<std::string,2>>;
 
-#line 186 "../src/io.h2"
+#line 193 "../src/io.h2"
 [[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<Color> color) -> std::string;
 
 //=== Cpp2 function definitions =================================================
@@ -163,9 +163,13 @@ template<cpp2::i8 Size> [[nodiscard]] auto getInputMove(cpp2::impl::in<Color> co
 #line 96 "../src/io.h2"
 template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cpp2::impl::in<cpp2::i16> col) -> void{
     cpp2::i8 maxIndex {Size - 1}; 
-    if ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
-       (row == 9 && (col == 3 || col == 9 || col == 15)) || 
-       (row ==  3 && (col == 3 || col == 9 || col == 15))) {
+    if (((Size == 9 && 
+        ((row == 2 && (col == 2 || col == 6)) || 
+        (row ==  6 && (col == 2 || col == 6)))) || 
+        (Size == 19 && 
+        ((row == 15 && (col == 3 || col == 9 || col == 15)) || 
+        (row == 9 && (col == 3 || col == 9 || col == 15)) || 
+        (row ==  3 && (col == 3 || col == 9 || col == 15))))))  {
         std::cout << "─●";
     }else {
         if (row == maxIndex) {
@@ -197,7 +201,7 @@ template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cp
     }
 }
 
-#line 132 "../src/io.h2"
+#line 136 "../src/io.h2"
 template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> void{
     // First line
     if constexpr (Size == 19) {
@@ -235,9 +239,9 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
     std::cout << std::endl << getNextMessage() << std::endl;
 }
 
-#line 169 "../src/io.h2"
-[[nodiscard]] auto getSnnModels(cpp2::impl::in<cpp2::i8> size) -> std::vector<std::string>{
-    std::vector<std::string> modelNames {}; 
+#line 173 "../src/io.h2"
+[[nodiscard]] auto getSnnModels(cpp2::impl::in<cpp2::i8> size) -> std::vector<std::array<std::string,2>>{
+    std::vector<std::array<std::string,2>> modelFiles {}; 
     std::string path {""}; 
     if (size == 9) {
         path = ".\\snn_models\\9x9";
@@ -248,12 +252,15 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
     auto files {std::filesystem::directory_iterator(path)}; 
     for ( 
     auto const& file : cpp2::move(files) ) {
-         CPP2_UFCS(push_back)(modelNames, CPP2_UFCS(string)(CPP2_UFCS(filename)(CPP2_UFCS(path)(file))));
+        std::string modelName {CPP2_UFCS(string)(CPP2_UFCS(filename)(CPP2_UFCS(path)(file)))}; 
+        std::string modelPath {CPP2_UFCS(string)(CPP2_UFCS(path)(file))}; 
+        std::array<std::string,2> modelFile {cpp2::move(modelName), cpp2::move(modelPath)}; 
+        CPP2_UFCS(push_back)(modelFiles, cpp2::move(modelFile));
     }
-    return modelNames; 
+    return modelFiles; 
 }
 
-#line 186 "../src/io.h2"
+#line 193 "../src/io.h2"
 [[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<Color> color) -> std::string{
     clear();
     auto title {"*                  " + cpp2::impl::as_<std::string>(size) + "x" + cpp2::impl::as_<std::string>(size) + " players"}; 
@@ -269,15 +276,15 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
 {
 cpp2::i8 i{0};
 
-#line 199 "../src/io.h2"
+#line 206 "../src/io.h2"
     for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(modelNames)); 
     ++i ) 
     {
-        auto model {"*     " + cpp2::impl::as_<std::string>((i + 2)) + ". " + CPP2_ASSERT_IN_BOUNDS(modelNames, i)}; 
+        auto model {"*     " + cpp2::impl::as_<std::string>((i + 2)) + ". " + CPP2_ASSERT_IN_BOUNDS_LITERAL(CPP2_ASSERT_IN_BOUNDS(modelNames, i), 0)}; 
         std::cout << std::left << std::setw(49) << std::setfill(' ') << cpp2::move(model) << "*" << std::endl;
     }
 }
-#line 205 "../src/io.h2"
+#line 212 "../src/io.h2"
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
     cpp2::i32 input {0}; 
@@ -289,7 +296,7 @@ cpp2::i8 i{0};
     }
     input -= 2;
     if ((cpp2::impl::cmp_greater_eq(input,0) && cpp2::impl::cmp_less(input,CPP2_UFCS(ssize)(modelNames)))) {
-        return CPP2_ASSERT_IN_BOUNDS(cpp2::move(modelNames), cpp2::move(input)); 
+        return CPP2_ASSERT_IN_BOUNDS_LITERAL(CPP2_ASSERT_IN_BOUNDS(cpp2::move(modelNames), cpp2::move(input)), 1); 
     }
     return ""; 
 }

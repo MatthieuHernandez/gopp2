@@ -172,7 +172,7 @@ Game: type = {
             }else{
                 return;
             }
-            player1*.train();
+            player1*.train(gobanSize);
             switchPlayerColor();
             if i % 20 == 0 {
                 isSaving = true;

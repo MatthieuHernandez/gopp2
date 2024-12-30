@@ -3,13 +3,12 @@
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
 createAi:() = {
-    layers: std::vector<snn::LayerModel> = (snn::Input(1, 19, 19),
-                                            snn::FullyConnected(200, snn::activation::ReLU),
-                                            snn::FullyConnected(200, snn::activation::ReLU),
-                                            snn::FullyConnected(361, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(1e-4f, 0.9f);
+    layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
+                                            snn::FullyConnected(500, snn::activation::ReLU),
+                                            snn::FullyConnected(81, snn::activation::tanh));
+    optimizer:= snn::StochasticGradientDescent(1e-5f, 0.3f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/model_big_v2.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/model_v1.snn");
 }
 
 Ai: type = {
@@ -146,7 +145,8 @@ Ai: type = {
         return getMove<19>(engine);
     }
 
-    public train:(inout this) = {
+    public train:(inout this, gobanSize: i16) = {
+        size:= gobanSize * gobanSize;
         expectedValue: float = -1.0;
         if hasWon { // CPP2 workaround: Conditional operator not yet supported.
             expectedValue = 1.0;
@@ -155,9 +155,9 @@ Ai: type = {
         while i < inputs.ssize()
         next i++
         {
-            expected_output:= std::vector<float>(361, 0);
+            expected_output:= std::vector<float>(size, 0);
             (copy j: i16 = 0)
-            while j < 361
+            while j < size
             next j++
             {
                 if inputs[i][j] != 0.0 {
