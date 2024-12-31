@@ -100,11 +100,11 @@ Game: type = {
                 engine.playMove(m);
                 moveNumber++;
                 if constexpr verbose {
-                    setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
+                    setNextMessage(colorName(m.stone.color) + " played " + m.name() + ".");
                 }
             } else {
                 if constexpr verbose {
-                    setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
+                    setNextMessage(colorName(m.stone.color) + " cannot play " + m.name() + ".");
                 }
             }
             if (moveNumber >= 1000) { // Only to prevent an eventual triple ko.
@@ -218,5 +218,6 @@ Game: type = {
         }
         setNextMessage("The first player won " + numberOfGameWon as std::string +
                     "/" + numberOfGame as std::string + " games againt the 2nd player.");
+        switchPlayerColor();
     }
 }

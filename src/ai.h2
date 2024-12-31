@@ -6,7 +6,7 @@ createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
                                             snn::FullyConnected(500, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(1e-5f, 0.3f);
+    optimizer:= snn::StochasticGradientDescent(3e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
     neuralNetwork.saveAs("./snn_models/9x9/model_v1.snn");
 }
@@ -75,9 +75,9 @@ Ai: type = {
 
     private chooseBestMove:<Size: i8>(inout this, in nn_output: std::vector<float>) -> Move = {
         index: i16 = 0;
-        goodMoves: std::vector<std::array<i8, 2>> = ();
-        averageMoves: std::vector<std::array<i8, 2>> = ();
-        badMoves: std::vector<std::array<i8, 2>> = ();
+        estimatedPositions: std::vector<Stone> = ();
+        numberOfPositions:= Size * Size;
+        estimatedPositions.reserve(numberOfPositions);
         (copy col: i8 = 0)
         while col < Size
         next col++
@@ -86,48 +86,22 @@ Ai: type = {
             while row < Size
             next row++
             {
-                a: std::array<i8, 2> = (col, row);
-                if nn_output[index] > 0.5f {
-                    goodMoves.push_back(a);
-                } else if goodMoves.empty() && nn_output[index] > 0.0f {
-                    averageMoves.push_back(a);
-                } else if goodMoves.empty() && averageMoves.empty() {
-                    badMoves.push_back(a);
-                }
+                estimation:= nn_output[index];
+                stone:=  Stone(color, col, row, estimation);
+                estimatedPositions.push_back(stone);
                 index++;
             }
         }
-        if !goodMoves.empty() {
-            numberOfGoodMoves++;
-            dist: std::uniform_int_distribution<i64> = (0, goodMoves.ssize() - 1);
-            goodMove:= goodMoves[dist(rng)];
-            m:= Move(color, goodMove[0], goodMove[1]);
-            return m;
-        }
-        if !averageMoves.empty() {
-            numberOfAverageMoves++;
-            dist: std::uniform_int_distribution<i64> = (0, averageMoves.ssize() - 1);
-            averageMove:= averageMoves[dist(rng)];
-            m:= Move(color, averageMove[0], averageMove[1]);
-            return m;
-        }
-        if !badMoves.empty() {
-            numberOfBadMoves++;
-            dist: std::uniform_int_distribution<i64> = (0, badMoves.ssize() - 1);
-            badMove:= badMoves[dist(rng)];
-            m:= Move(color, badMove[0], badMove[1]);
-            return m;
-        }
-        return pass(color);
+        std::ranges::sort(estimatedPositions, std::ranges::greater(), Stone::estimation&);
+        dist: std::uniform_int_distribution<i64> = (0, 4);
+        s:= estimatedPositions[dist(rng)];
+        return Move(s);
     }
 
     private getMove:<Size: i8>(inout this, inout engine: Engine<Size>) -> Move = {
         input:= getGobanState<Size>(engine.goban.state);
         output:= neuralNetwork.computeOutput(input);
         m:= chooseBestMove<Size>(output);
-        if m.pass {
-            return m;
-        }
         engine.closerValidMove(m);
         moveIndex:= m.stone.getIndex<Size>();
         if moveIndex >= 0 {
@@ -176,20 +150,20 @@ Ai: type = {
     }
 
     public processEndGame:(override inout this) = {
-        state: std::string = "lost";
+        /*state: std::string = "lost";
         if hasWon { // CPP2 workaround: Conditional operator not yet supported.
             state = "won";
         }
         if color == Color::Black {
-            setNextMessage("Black "+ state + ":");
+            setNextMessage("Black "+ state + ".");
         } else {
-            setNextMessage("White "+ state + ":");
-        }
-        setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
+            setNextMessage("White "+ state + ".");
+        }*/
+        /*setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
         setNextMessage("  " + numberOfAverageMoves as std::string + " moves were considered average.");
         setNextMessage("  " + numberOfBadMoves as std::string + " moves were considered bad.");
         numberOfGoodMoves = 0;
         numberOfAverageMoves = 0;
-        numberOfBadMoves = 0;
+        numberOfBadMoves = 0;*/
     }
 }

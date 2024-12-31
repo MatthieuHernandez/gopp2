@@ -74,7 +74,7 @@ class Game {
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 222 "../src/game.h2"
+#line 223 "../src/game.h2"
 };
 
 
@@ -179,11 +179,11 @@ bool isSaving {false};
                 CPP2_UFCS(playMove)(engine, m);
                 ++moveNumber;
                 if constexpr (verbose) {
-                    setNextMessage(colorName(m.stone.color) + " played " + m.name + ".");
+                    setNextMessage(colorName(m.stone.color) + " played " + CPP2_UFCS(name)(m) + ".");
                 }
             }else {
                 if constexpr (verbose) {
-                    setNextMessage(colorName(m.stone.color) + " cannot play " + m.name + ".");
+                    setNextMessage(colorName(m.stone.color) + " cannot play " + CPP2_UFCS(name)(m) + ".");
                 }
             }
             if ((cpp2::impl::cmp_greater_eq(moveNumber,1000))) {// Only to prevent an eventual triple ko.
@@ -306,6 +306,7 @@ cpp2::i32 i{0};
 #line 219 "../src/game.h2"
         setNextMessage("The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
+        switchPlayerColor();
     }
 #endif
 
