@@ -51,9 +51,9 @@ template<cpp2::i8 Size> auto printIntersection(cpp2::impl::in<cpp2::i16> row, cp
 template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> void;
 
 #line 169 "../src/io.h2"
-[[nodiscard]] auto getSnnModels() -> std::vector<std::string>;
+[[nodiscard]] auto getSnnModels(cpp2::impl::in<cpp2::i8> size) -> std::vector<std::string>;
 
-#line 179 "../src/io.h2"
+#line 186 "../src/io.h2"
 [[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<Color> color) -> std::string;
 
 //=== Cpp2 function definitions =================================================
@@ -236,9 +236,16 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
 }
 
 #line 169 "../src/io.h2"
-[[nodiscard]] auto getSnnModels() -> std::vector<std::string>{
+[[nodiscard]] auto getSnnModels(cpp2::impl::in<cpp2::i8> size) -> std::vector<std::string>{
     std::vector<std::string> modelNames {}; 
-    auto files {std::filesystem::directory_iterator(".\\snn_models")}; 
+    std::string path {""}; 
+    if (size == 9) {
+        path = ".\\snn_models\\9x9";
+    }else {if (size == 19) {
+        path = ".\\snn_models\\19x19";
+    }}
+
+    auto files {std::filesystem::directory_iterator(path)}; 
     for ( 
     auto const& file : cpp2::move(files) ) {
          CPP2_UFCS(push_back)(modelNames, CPP2_UFCS(string)(CPP2_UFCS(filename)(CPP2_UFCS(path)(file))));
@@ -246,29 +253,31 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
     return modelNames; 
 }
 
-#line 179 "../src/io.h2"
+#line 186 "../src/io.h2"
 [[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<Color> color) -> std::string{
     clear();
-    auto title {cpp2::impl::as_<std::string>(size) + "x" + cpp2::impl::as_<std::string>(size) + " players"}; 
+    auto title {"*                  " + cpp2::impl::as_<std::string>(size) + "x" + cpp2::impl::as_<std::string>(size) + " players"}; 
+    auto select {"* Please select " + colorName(color) + " player:"}; 
     std::cout << "**************************************************" << std::endl;
-    std::cout << "*                  " << std::left << std::setw(30) << std::setfill(' ') << cpp2::move(title) << "*" << std::endl;
+    std::cout << std::left << std::setw(49) << std::setfill(' ') << cpp2::move(title) << "*" << std::endl;
     std::cout << "**************************************************" << std::endl;
-    std::cout << "* Please select " << colorName(color) << " player:" << std::endl;
+    std::cout << std::left << std::setw(49) << std::setfill(' ') << cpp2::move(select) << "*" << std::endl;
     std::cout << "*                                                *" << std::endl;
     std::cout << "*     0. Human Player                            *" << std::endl;
     std::cout << "*     1. Random Player                           *" << std::endl;
-    auto modelNames {getSnnModels()}; 
+    auto modelNames {getSnnModels(size)}; 
 {
 cpp2::i8 i{0};
 
-#line 191 "../src/io.h2"
+#line 199 "../src/io.h2"
     for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(modelNames)); 
     ++i ) 
     {
-        std::cout << "*     " << cpp2::impl::as_<std::string>((i + 2)) << ". " << CPP2_ASSERT_IN_BOUNDS(modelNames, i) << std::endl;
+        auto model {"*     " + cpp2::impl::as_<std::string>((i + 2)) + ". " + CPP2_ASSERT_IN_BOUNDS(modelNames, i)}; 
+        std::cout << std::left << std::setw(49) << std::setfill(' ') << cpp2::move(model) << "*" << std::endl;
     }
 }
-#line 196 "../src/io.h2"
+#line 205 "../src/io.h2"
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
     cpp2::i32 input {0}; 
