@@ -46,6 +46,8 @@ class Player {
     public: virtual ~Player() noexcept;
 
 #line 32 "../src/player.h2"
+    public: virtual auto processStartGame() -> void;
+
     public: virtual auto processEndGame() -> void;
 };
 
@@ -75,6 +77,9 @@ class Player {
     }
 
 #line 32 "../src/player.h2"
+    auto Player::processStartGame() -> void{}
+
+#line 34 "../src/player.h2"
     auto Player::processEndGame() -> void{}
 #endif
 

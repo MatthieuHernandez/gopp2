@@ -103,6 +103,8 @@ Game: type = {
     private play:<verbose: bool, Size: i8>(inout this) = {
         start:= std::chrono::high_resolution_clock::now();
         engine: Engine<Size> = ();
+        blackPlayer*.processStartGame();
+        whitePlayer*.processStartGame();
         moveNumber: i16 = 1;
         do {
             if constexpr verbose {

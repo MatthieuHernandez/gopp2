@@ -140,12 +140,15 @@ Ai: type = {
             expected_output[moves[i]] = expectedValue;
             neuralNetwork.trainOnce(inputs[i], expected_output);
         }
-        inputs = ();
-        moves = ();
     }
     
     public save:(inout this) = {
         neuralNetwork.saveAs(modelPath);
+    }
+
+    public processStartGame:(override inout this) = {
+        inputs.clear();
+        moves.clear();
     }
 
     public processEndGame:(override inout this) = {

@@ -61,13 +61,16 @@ class Ai: public Player {
 #line 121 "../src/ai.h2"
     public: auto train(cpp2::impl::in<cpp2::i16> gobanSize) & -> void;
 
-#line 147 "../src/ai.h2"
+#line 145 "../src/ai.h2"
     public: auto save() & -> void;
 
-#line 151 "../src/ai.h2"
+#line 149 "../src/ai.h2"
+    public: auto processStartGame() -> void override;
+
+#line 154 "../src/ai.h2"
     public: auto processEndGame() -> void override;
 
-#line 158 "../src/ai.h2"
+#line 161 "../src/ai.h2"
 };
 
 
@@ -249,16 +252,20 @@ cpp2::i16 j{0};
         }
 }
 #line 143 "../src/ai.h2"
-        inputs = {  };
-        moves = {  };
     }
 
-#line 147 "../src/ai.h2"
+#line 145 "../src/ai.h2"
     auto Ai::save() & -> void{
         CPP2_UFCS(saveAs)(neuralNetwork, modelPath);
     }
 
-#line 151 "../src/ai.h2"
+#line 149 "../src/ai.h2"
+    auto Ai::processStartGame() -> void{
+        CPP2_UFCS(clear)(inputs);
+        CPP2_UFCS(clear)(moves);
+    }
+
+#line 154 "../src/ai.h2"
     auto Ai::processEndGame() -> void{
         std::string state {"lost"}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.

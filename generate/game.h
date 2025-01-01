@@ -62,23 +62,23 @@ class Game {
 #line 103 "../src/game.h2"
     private: template<bool verbose, cpp2::i8 Size> auto play() & -> void;
 
-#line 154 "../src/game.h2"
+#line 156 "../src/game.h2"
     public: auto playOne() & -> void;
 
-#line 170 "../src/game.h2"
+#line 172 "../src/game.h2"
     private: auto switchPlayerColor() & -> void;
 
-#line 176 "../src/game.h2"
+#line 178 "../src/game.h2"
     public: auto trainBlack() & -> void;
 
-#line 211 "../src/game.h2"
+#line 213 "../src/game.h2"
     public: auto evaluate() & -> void;
     public: Game() = default;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 248 "../src/game.h2"
+#line 250 "../src/game.h2"
 };
 
 
@@ -186,6 +186,8 @@ bool isSaving {false};
     template<bool verbose, cpp2::i8 Size> auto Game::play() & -> void{
         auto start {std::chrono::high_resolution_clock::now()}; 
         Engine<Size> engine {}; 
+        CPP2_UFCS(processStartGame)((*cpp2::impl::assert_not_null(blackPlayer)));
+        CPP2_UFCS(processStartGame)((*cpp2::impl::assert_not_null(whitePlayer)));
         cpp2::i16 moveNumber {1}; 
         do {
             if constexpr (verbose) {
@@ -234,7 +236,7 @@ bool isSaving {false};
         printGoban<Size>(cpp2::move(engine).goban);
     }
 
-#line 154 "../src/game.h2"
+#line 156 "../src/game.h2"
     auto Game::playOne() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -251,14 +253,14 @@ bool isSaving {false};
         setNextMessage("Game was played.");
     }
 
-#line 170 "../src/game.h2"
+#line 172 "../src/game.h2"
     auto Game::switchPlayerColor() & -> void{
         (*cpp2::impl::assert_not_null(blackPlayer)).color = Color::White;
         (*cpp2::impl::assert_not_null(whitePlayer)).color = Color::Black;
         std::swap(blackPlayer, whitePlayer);
     }
 
-#line 176 "../src/game.h2"
+#line 178 "../src/game.h2"
     auto Game::trainBlack() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -294,7 +296,7 @@ bool isSaving {false};
         setNextMessage("AI trained.");
     }
 
-#line 211 "../src/game.h2"
+#line 213 "../src/game.h2"
     auto Game::evaluate() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -313,7 +315,7 @@ bool isSaving {false};
 {
 cpp2::i32 i{0};
 
-#line 227 "../src/game.h2"
+#line 229 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
@@ -332,7 +334,7 @@ cpp2::i32 i{0};
             }
         }
 }
-#line 244 "../src/game.h2"
+#line 246 "../src/game.h2"
         setNextMessage("The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
         switchPlayerColor();

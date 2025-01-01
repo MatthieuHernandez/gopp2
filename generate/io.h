@@ -292,7 +292,7 @@ cpp2::i8 i{0};
     std::cout << "> ";
     std::cin >> input;
     clearInput();
-    if ((input == 0 || input == 1)) {
+    if ((cpp2::impl::cmp_greater_eq(input,0) && cpp2::impl::cmp_less_eq(input,2))) {
         return cpp2::impl::as_<std::string>(input); 
     }
     input -= 3;

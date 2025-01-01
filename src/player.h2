@@ -29,5 +29,7 @@ Player: type = {
     public operator=:(virtual move this) = {
     }
 
+    public processStartGame:(virtual inout this) = {}
+
     public processEndGame:(virtual inout this) = {}
 }
