@@ -3,6 +3,7 @@
 #include "io.h2"
 #include "player.h2"
 #include "human.h2"
+#include "dumb.h2"
 #include "random.h2"
 #include "ai.h2"
 
@@ -12,7 +13,7 @@ Game: type = {
 
     private blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_prtr work.
     private whitePlayer: std::shared_ptr<Player> = nullptr;
-    private gobanSize: i8 = 19;
+    private gobanSize: i8 = 9;
 
     public getGobanSize:(in this) -> i8 = {
         return gobanSize;
@@ -20,14 +21,18 @@ Game: type = {
 
     private getPlayerName:(player: std::shared_ptr<Player>) -> std::string = {
         human:= std::dynamic_pointer_cast<Human>(player); // CPP2 workaround: keyword "as" not working.
-        random:= std::dynamic_pointer_cast<Random>(player);
-        ai:= std::dynamic_pointer_cast<Ai>(player);
         if human != nullptr {
             return "Human";
         }
+        dumb:= std::dynamic_pointer_cast<Dumb>(player);
+        if dumb != nullptr {
+            return "Dumb";
+        }
+        random:= std::dynamic_pointer_cast<Random>(player);
         if random != nullptr {
             return "Random";
         }
+        ai:= std::dynamic_pointer_cast<Ai>(player);
         if ai != nullptr {
             return "AI";
         }
@@ -57,9 +62,12 @@ Game: type = {
             return shared.new<Human>(color);
         }
         if(selection == "1") {
+            return shared.new<Dumb>(color);
+        }
+        if(selection == "2") {
             return shared.new<Random>(color);
         }
-        ai:= shared.new<Ai>(color, selection);
+        ai:= shared.new<Ai>(color, 1, selection);
         clear();
         std::cout << ai*.summary() << std::endl;
         waitInput();
@@ -79,6 +87,17 @@ Game: type = {
             return false;
         }
         return true;
+    }
+
+    private setAiRandomness:(inout this, r: i16) = {
+        Ai1:= std::dynamic_pointer_cast<Ai>(blackPlayer); // CPP2 workaround: keyword "as" not working.
+        if Ai1 != nullptr {
+            Ai1*.randomness = r;
+        }
+        Ai2:= std::dynamic_pointer_cast<Ai>(whitePlayer); // CPP2 workaround: keyword "as" not working.
+        if Ai2 != nullptr {
+            Ai2*.randomness = r;
+        }
     }
 
     private play:<verbose: bool, Size: i8>(inout this) = {
@@ -136,6 +155,7 @@ Game: type = {
         if !hasValidPlayer() {
             return;
         }
+        setAiRandomness(1);
         if gobanSize == 19 {
             play<true, 19>();
         } else if gobanSize == 9 {
@@ -162,6 +182,7 @@ Game: type = {
             setNextMessage("Black player should be an AI.");
             return;
         }
+        setAiRandomness(4);
         i: i32 = 0;
         while true
         {
@@ -181,6 +202,9 @@ Game: type = {
             }
             i++;
         }
+        if i%2 == 1 {
+            switchPlayerColor();
+        }
         setNextMessage("AI trained.");
     }
 
@@ -194,6 +218,7 @@ Game: type = {
             setNextMessage("Cannot evaluated with human players.");
             return;
         }
+        setAiRandomness(1);
         player1:= blackPlayer;
         numberOfGame: i16 = 100;
         numberOfGameWon: i16 = 0;

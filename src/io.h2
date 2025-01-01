@@ -200,13 +200,14 @@ printPlayersAndSelect:(size: i8, color: Color) -> std::string = {
     std::cout << std::left << std::setw(49) << std::setfill(' ') << select << "*" << std::endl;
     std::cout << "*                                                *" << std::endl;
     std::cout << "*     0. Human Player                            *" << std::endl;
-    std::cout << "*     1. Random Player                           *" << std::endl;
+    std::cout << "*     1. Dumb Player                             *" << std::endl;
+    std::cout << "*     2. Random Player                           *" << std::endl;
     modelNames:= getSnnModels(size);
     (copy i: i8 = 0)
     while i < modelNames.ssize()
     next i++
     {
-        model:= "*     " + (i + 2) as std::string + ". " + modelNames[i][0];
+        model:= "*     " + (i + 3) as std::string + ". " + modelNames[i][0];
         std::cout << std::left << std::setw(49) << std::setfill(' ') << model << "*" << std::endl;
     }
     std::cout << "**************************************************" << std::endl;
@@ -218,7 +219,7 @@ printPlayersAndSelect:(size: i8, color: Color) -> std::string = {
     if(input == 0 || input == 1) {
         return input as std::string;
     }
-    input -= 2;
+    input -= 3;
     if (input >= 0 && input < modelNames.ssize()) {
         return modelNames[input][1];
     }

@@ -271,20 +271,21 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
     std::cout << std::left << std::setw(49) << std::setfill(' ') << cpp2::move(select) << "*" << std::endl;
     std::cout << "*                                                *" << std::endl;
     std::cout << "*     0. Human Player                            *" << std::endl;
-    std::cout << "*     1. Random Player                           *" << std::endl;
+    std::cout << "*     1. Dumb Player                             *" << std::endl;
+    std::cout << "*     2. Random Player                           *" << std::endl;
     auto modelNames {getSnnModels(size)}; 
 {
 cpp2::i8 i{0};
 
-#line 206 "../src/io.h2"
+#line 207 "../src/io.h2"
     for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(modelNames)); 
     ++i ) 
     {
-        auto model {"*     " + cpp2::impl::as_<std::string>((i + 2)) + ". " + CPP2_ASSERT_IN_BOUNDS_LITERAL(CPP2_ASSERT_IN_BOUNDS(modelNames, i), 0)}; 
+        auto model {"*     " + cpp2::impl::as_<std::string>((i + 3)) + ". " + CPP2_ASSERT_IN_BOUNDS_LITERAL(CPP2_ASSERT_IN_BOUNDS(modelNames, i), 0)}; 
         std::cout << std::left << std::setw(49) << std::setfill(' ') << cpp2::move(model) << "*" << std::endl;
     }
 }
-#line 212 "../src/io.h2"
+#line 213 "../src/io.h2"
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
     cpp2::i32 input {0}; 
@@ -294,7 +295,7 @@ cpp2::i8 i{0};
     if ((input == 0 || input == 1)) {
         return cpp2::impl::as_<std::string>(input); 
     }
-    input -= 2;
+    input -= 3;
     if ((cpp2::impl::cmp_greater_eq(input,0) && cpp2::impl::cmp_less(input,CPP2_UFCS(ssize)(modelNames)))) {
         return CPP2_ASSERT_IN_BOUNDS_LITERAL(CPP2_ASSERT_IN_BOUNDS(cpp2::move(modelNames), cpp2::move(input)), 1); 
     }

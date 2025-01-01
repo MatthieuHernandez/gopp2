@@ -4,26 +4,27 @@
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::FullyConnected(500, snn::activation::ReLU),
+                                            snn::FullyConnected(100, snn::activation::ReLU),
+                                            snn::FullyConnected(100, snn::activation::ReLU),
+                                            snn::FullyConnected(100, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(3e-4f, 0.0f);
+    optimizer:= snn::StochasticGradientDescent(1e-7f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/model_v1.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/model_v2.snn");
 }
 
 Ai: type = {
     this: Player;
+    public randomness: i16; // Randomly select a move from the N best moves.
+
     private modelPath: std::string;
     private neuralNetwork: snn::StraightforwardNeuralNetwork;
     private inputs: snn::vector2D<float>;
     private moves: std::vector<i16>;
 
-    private numberOfGoodMoves: i32 = 0;
-    private numberOfAverageMoves: i32 = 0;
-    private numberOfBadMoves: i32 = 0;
-
-    public operator=:(out this, c: Color, path: std::string) = {
+    public operator=:(out this, c: Color, r: i16, path: std::string) = {
         Player = (c);
+        randomness = r;
         modelPath = path;
         neuralNetwork = snn::StraightforwardNeuralNetwork::loadFrom(modelPath);
         inputs = ();
@@ -34,13 +35,11 @@ Ai: type = {
 
     public operator=:(out this, that) = {
         Player = (that);
+        randomness = that.randomness;
         neuralNetwork = that.neuralNetwork;
         inputs = that.inputs;
         moves = that.moves;
         modelPath = that.modelPath;
-        numberOfGoodMoves = that.numberOfGoodMoves;
-        numberOfAverageMoves = that.numberOfAverageMoves;
-        numberOfBadMoves = that.numberOfBadMoves;
     }
 
     public summary:(in this) -> std::string = {
@@ -150,20 +149,10 @@ Ai: type = {
     }
 
     public processEndGame:(override inout this) = {
-        /*state: std::string = "lost";
+        state: std::string = "lost";
         if hasWon { // CPP2 workaround: Conditional operator not yet supported.
             state = "won";
         }
-        if color == Color::Black {
-            setNextMessage("Black "+ state + ".");
-        } else {
-            setNextMessage("White "+ state + ".");
-        }*/
-        /*setNextMessage("  " + numberOfGoodMoves as std::string + " moves were considered good.");
-        setNextMessage("  " + numberOfAverageMoves as std::string + " moves were considered average.");
-        setNextMessage("  " + numberOfBadMoves as std::string + " moves were considered bad.");
-        numberOfGoodMoves = 0;
-        numberOfAverageMoves = 0;
-        numberOfBadMoves = 0;*/
+        setNextMessage("AI "+ state + ".");
     }
 }

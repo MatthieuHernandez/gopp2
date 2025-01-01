@@ -1,0 +1,27 @@
+#include "player.h2"
+
+Dumb: type = {
+    this: Player;
+
+    public operator=:(out this, c: Color) = {
+        Player = (c);
+    }
+
+    public operator=:(out this, that) = {
+        Player = (that);
+    }
+
+    private getMove:<Size: i8>(inout this, inout engine: Engine<Size>) -> Move = {
+        m:= Move(color, 0, 0);
+        engine.closerValidMove(m);
+        return m;
+    }
+
+    public getMove:(override inout this, inout engine: Engine<9>) -> Move = {
+        return getMove<9>(engine);
+    }
+
+    public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
+        return getMove<19>(engine);
+    }
+}
