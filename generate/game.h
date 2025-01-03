@@ -283,7 +283,7 @@ bool isSaving {false};
             }}
             CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)), gobanSize);
             switchPlayerColor();
-            if (i % 20 == 0) {
+            if (i % 100 == 0) {
                 isSaving = true;
                 CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
                 isSaving = false;
@@ -309,7 +309,7 @@ bool isSaving {false};
         }
         setAiRandomness(1);
         auto player1 {blackPlayer}; 
-        cpp2::i16 numberOfGame {100}; 
+        cpp2::i16 numberOfGame {1000}; 
         cpp2::i16 numberOfGameWon {0}; 
         clear();
 {

@@ -8,7 +8,7 @@ createAi:() = {
                                             snn::FullyConnected(100, snn::activation::ReLU),
                                             snn::FullyConnected(100, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(1e-7f, 0.0f);
+    optimizer:= snn::StochasticGradientDescent(2e-4f, 0.6f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
     neuralNetwork.saveAs("./snn_models/9x9/model_v2.snn");
 }
@@ -21,6 +21,9 @@ Ai: type = {
     private neuralNetwork: snn::StraightforwardNeuralNetwork;
     private inputs: snn::vector2D<float>;
     private moves: std::vector<i16>;
+    private lastGameWon: std::deque<int>;
+    private numberOfGames: const size_t = 1000; // TO calculate winrate.
+    private sumOfLastGameWon: size_t;
 
     public operator=:(out this, c: Color, r: i16, path: std::string) = {
         Player = (c);
@@ -29,6 +32,8 @@ Ai: type = {
         neuralNetwork = snn::StraightforwardNeuralNetwork::loadFrom(modelPath);
         inputs = ();
         moves = ();
+        lastGameWon = ();
+        sumOfLastGameWon = 0;
         inputs.reserve(300);
         moves.reserve(300);
     }
@@ -40,6 +45,8 @@ Ai: type = {
         inputs = that.inputs;
         moves = that.moves;
         modelPath = that.modelPath;
+        lastGameWon = that.lastGameWon;
+        sumOfLastGameWon = that.sumOfLastGameWon;
     }
 
     public summary:(in this) -> std::string = {
@@ -120,15 +127,15 @@ Ai: type = {
 
     public train:(inout this, gobanSize: i16) = {
         size:= gobanSize * gobanSize;
-        expectedValue: float = -1.0;
+        expectedValue: float = -0.99;
         if hasWon { // CPP2 workaround: Conditional operator not yet supported.
-            expectedValue = 1.0;
+            expectedValue = 0.99;
         }
         (copy i: i16 = 0)
         while i < inputs.ssize()
         next i++
         {
-            expected_output:= std::vector<float>(size, 0);
+            expected_output:= std::vector<float>(size, NAN);
             (copy j: i16 = 0)
             while j < size
             next j++
@@ -152,10 +159,22 @@ Ai: type = {
     }
 
     public processEndGame:(override inout this) = {
-        state: std::string = "lost";
         if hasWon { // CPP2 workaround: Conditional operator not yet supported.
-            state = "won";
+            lastGameWon.push_back(1);
+            sumOfLastGameWon += 1;
+        } else {
+            lastGameWon.push_back(0);
         }
-        setNextMessage("AI "+ state + ".");
+        if (lastGameWon.size() > numberOfGames) {
+            sumOfLastGameWon -= lastGameWon.front();
+            lastGameWon.pop_front();
+        }
+        if lastGameWon.ssize() > 100 {
+            winrate: float = sumOfLastGameWon / (float)(lastGameWon.size()) * 100.0f;
+            str: std::string = std::to_string(winrate);
+            setNextMessage("AI winrate: "+ str +" %");
+        } else {
+            setNextMessage("AI winrate: ...");
+        }
     }
 }

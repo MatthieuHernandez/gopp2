@@ -192,8 +192,8 @@ template<cpp2::i8 Size> class Engine {
 #line 120 "../src/engine.h2"
     template <cpp2::i8 Size> [[nodiscard]] auto Engine<Size>::isFinish() const& -> bool{
         if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(moves),1)) {
-            if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 1).pass == true 
-            && CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(size)(moves) - 2).pass == true) {
+            if (CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(ssize)(moves) - 1).pass == true 
+            && CPP2_ASSERT_IN_BOUNDS(moves, CPP2_UFCS(ssize)(moves) - 2).pass == true) {
                 return true; 
             }
         }

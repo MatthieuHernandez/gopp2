@@ -39,7 +39,7 @@ Goban:<Size: i8> type = {
                 adjacent_stones.push_back(state[s.col][s.row+1]);
         }
         if count {
-        iterations += adjacent_stones.size();
+            iterations += adjacent_stones.ssize();
         }
         return adjacent_stones;
     }

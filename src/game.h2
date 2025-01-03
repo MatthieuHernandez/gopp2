@@ -197,7 +197,7 @@ Game: type = {
             }
             player1*.train(gobanSize);
             switchPlayerColor();
-            if i % 20 == 0 {
+            if i % 100 == 0 {
                 isSaving = true;
                 player1*.save();
                 isSaving = false;
@@ -222,7 +222,7 @@ Game: type = {
         }
         setAiRandomness(1);
         player1:= blackPlayer;
-        numberOfGame: i16 = 100;
+        numberOfGame: i16 = 1000;
         numberOfGameWon: i16 = 0;
         clear();
         (copy i: i32 = 0)

@@ -103,7 +103,7 @@ cpp2::i8 row{0};
                 CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row + 1));
         }
         if (count) {
-        iterations += CPP2_UFCS(size)(adjacent_stones);
+            iterations += CPP2_UFCS(ssize)(adjacent_stones);
         }
         return adjacent_stones; 
     }

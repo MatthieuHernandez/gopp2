@@ -119,8 +119,8 @@ Engine:<Size: i8> type = {
 
     public isFinish:(this) -> bool = {
         if moves.ssize() > 1 {
-            if moves[moves.size() - 1].pass == true
-            && moves[moves.size() - 2].pass == true {
+            if moves[moves.ssize() - 1].pass == true
+            && moves[moves.ssize() - 2].pass == true {
                 return true;
             }
         }
