@@ -211,7 +211,7 @@ bool isSaving {false};
                     setNextMessage(colorName(m.stone.color) + " cannot play " + CPP2_UFCS(name)(m) + ".");
                 }
             }
-            if ((cpp2::impl::cmp_greater_eq(moveNumber,1000))) {// Only to prevent an eventual triple ko.
+            if ((cpp2::impl::cmp_greater_eq(moveNumber,999) || (cpp2::impl::cmp_greater_eq(moveNumber,299) && gobanSize == 9))) {// Only to prevent an eventual triple ko.
                 break;
             }
         } while ( !(CPP2_UFCS(isFinish)(engine)));
@@ -270,7 +270,7 @@ bool isSaving {false};
             setNextMessage("Black player should be an AI.");
             return ; 
         }
-        setAiRandomness(2);
+        setAiRandomness(1);
         cpp2::i32 i {0}; 
         while( true ) 
         {

@@ -8,7 +8,7 @@ createAi:() = {
                                             snn::FullyConnected(200, snn::activation::ReLU),
                                             snn::FullyConnected(200, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(3e-5f, 0.30f);
+    optimizer:= snn::StochasticGradientDescent(3e-5f, 0.7f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
     neuralNetwork.saveAs("./snn_models/9x9/model_v8.snn");
 }
@@ -126,6 +126,9 @@ Ai: type = {
     }
 
     public train:(inout this, gobanSize: i16) = {
+        if inputs.ssize() > 120 { // Only train on "short" game.
+            return;
+        }
         size:= gobanSize * gobanSize;
         expectedValue: float = -1.0f;
         if hasWon { // CPP2 workaround: Conditional operator not yet supported.

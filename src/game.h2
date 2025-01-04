@@ -128,7 +128,7 @@ Game: type = {
                     setNextMessage(colorName(m.stone.color) + " cannot play " + m.name() + ".");
                 }
             }
-            if (moveNumber >= 1000) { // Only to prevent an eventual triple ko.
+            if (moveNumber >= 999 || (moveNumber >= 299 && gobanSize == 9)) { // Only to prevent an eventual triple ko.
                 break;
             }
         } while !engine.isFinish();
@@ -184,7 +184,7 @@ Game: type = {
             setNextMessage("Black player should be an AI.");
             return;
         }
-        setAiRandomness(2);
+        setAiRandomness(1);
         i: i32 = 0;
         while true
         {

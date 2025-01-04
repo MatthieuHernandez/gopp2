@@ -64,16 +64,16 @@ class Ai: public Player {
 #line 128 "../src/ai.h2"
     public: auto train(cpp2::impl::in<cpp2::i16> gobanSize) & -> void;
 
-#line 152 "../src/ai.h2"
+#line 155 "../src/ai.h2"
     public: auto save() & -> void;
 
-#line 156 "../src/ai.h2"
+#line 159 "../src/ai.h2"
     public: auto processStartGame() -> void override;
 
-#line 161 "../src/ai.h2"
+#line 164 "../src/ai.h2"
     public: auto processEndGame() -> void override;
 
-#line 180 "../src/ai.h2"
+#line 183 "../src/ai.h2"
 };
 
 
@@ -88,7 +88,7 @@ auto createAi() -> void{
                                             snn::FullyConnected(200, snn::activation::ReLU), 
                                             snn::FullyConnected(200, snn::activation::ReLU), 
                                             snn::FullyConnected(81, snn::activation::tanh)}; 
-    auto optimizer {snn::StochasticGradientDescent(3e-5f, 0.30f)}; 
+    auto optimizer {snn::StochasticGradientDescent(3e-5f, 0.7f)}; 
     auto neuralNetwork {snn::StraightforwardNeuralNetwork(cpp2::move(layers), cpp2::move(optimizer))}; 
     CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/9x9/model_v8.snn");
 }
@@ -231,6 +231,9 @@ cpp2::i8 row{0};
 
 #line 128 "../src/ai.h2"
     auto Ai::train(cpp2::impl::in<cpp2::i16> gobanSize) & -> void{
+        if (cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(inputs),120)) {// Only train on "short" game.
+            return ; 
+        }
         auto size {gobanSize * gobanSize}; 
         float expectedValue {-1.0f}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
@@ -239,7 +242,7 @@ cpp2::i8 row{0};
 {
 cpp2::i16 i{0};
 
-#line 135 "../src/ai.h2"
+#line 138 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(inputs)); 
         ++i ) 
         {
@@ -247,7 +250,7 @@ cpp2::i16 i{0};
 {
 cpp2::i16 j{0};
 
-#line 140 "../src/ai.h2"
+#line 143 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(j,size); 
             ++j ) 
             {
@@ -256,26 +259,26 @@ cpp2::i16 j{0};
                 }
             }
 }
-#line 147 "../src/ai.h2"
+#line 150 "../src/ai.h2"
             CPP2_ASSERT_IN_BOUNDS(expected_output, CPP2_ASSERT_IN_BOUNDS(moves, i)) = expectedValue;
             CPP2_UFCS(trainOnce)(neuralNetwork, CPP2_ASSERT_IN_BOUNDS(inputs, i), cpp2::move(expected_output));
         }
 }
-#line 150 "../src/ai.h2"
+#line 153 "../src/ai.h2"
     }
 
-#line 152 "../src/ai.h2"
+#line 155 "../src/ai.h2"
     auto Ai::save() & -> void{
         CPP2_UFCS(saveAs)(neuralNetwork, modelPath);
     }
 
-#line 156 "../src/ai.h2"
+#line 159 "../src/ai.h2"
     auto Ai::processStartGame() -> void{
         CPP2_UFCS(clear)(inputs);
         CPP2_UFCS(clear)(moves);
     }
 
-#line 161 "../src/ai.h2"
+#line 164 "../src/ai.h2"
     auto Ai::processEndGame() -> void{
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
             CPP2_UFCS(push_back)(lastGameWon, 1);
