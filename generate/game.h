@@ -270,7 +270,7 @@ bool isSaving {false};
             setNextMessage("Black player should be an AI.");
             return ; 
         }
-        setAiRandomness(4);
+        setAiRandomness(2);
         cpp2::i32 i {0}; 
         while( true ) 
         {

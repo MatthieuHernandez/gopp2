@@ -84,9 +84,9 @@ template<cpp2::i8 Size> class Engine {
                 auto col {m.stone.col}; 
                 auto row {m.stone.row}; 
                 CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), row) = m.stone;
-                if (goban.lockedPosition.color == m.stone.color) {
-                    CPP2_UFCS(unlockPosition)(goban);
-                }
+            }
+            if (goban.lockedPosition.color == m.stone.color) {
+                CPP2_UFCS(unlockPosition)(goban);
             }
         }
     }
@@ -177,10 +177,10 @@ template<cpp2::i8 Size> class Engine {
         }
         auto col {m.stone.col}; 
         auto row {m.stone.row}; 
-        if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), cpp2::move(row)).color == Color::None && 
-            !(CPP2_UFCS(isLockedPosition)(goban, m.stone)) && 
-            !(CPP2_UFCS(isTrueEye)(goban, m.stone))) {
-            if (cpp2::impl::cmp_greater(captureStones(m.stone),0) || cpp2::impl::cmp_greater(numberOfLiberties(m.stone),0)) {
+        if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(goban.state, cpp2::move(col)), cpp2::move(row)).color == Color::None && !(CPP2_UFCS(isTrueEye)(goban, m.stone))) {
+            auto captured {captureStones(m.stone)}; 
+            auto liberties {numberOfLiberties(m.stone)}; 
+            if (cpp2::impl::cmp_greater(cpp2::move(liberties),0) || cpp2::impl::cmp_greater(captured,1) || (!(CPP2_UFCS(isLockedPosition)(goban, m.stone)) && captured == 1)) {
                 m.isValid = true;
                 return true; 
             }

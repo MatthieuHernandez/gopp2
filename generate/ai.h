@@ -84,13 +84,13 @@ class Ai: public Player {
 #line 5 "../src/ai.h2"
 auto createAi() -> void{
     std::vector<snn::LayerModel> layers {snn::Input(1, 9, 9), 
-                                            snn::FullyConnected(100, snn::activation::ReLU), 
-                                            snn::FullyConnected(100, snn::activation::ReLU), 
-                                            snn::FullyConnected(100, snn::activation::ReLU), 
+                                            snn::FullyConnected(200, snn::activation::ReLU), 
+                                            snn::FullyConnected(200, snn::activation::ReLU), 
+                                            snn::FullyConnected(200, snn::activation::ReLU), 
                                             snn::FullyConnected(81, snn::activation::tanh)}; 
-    auto optimizer {snn::StochasticGradientDescent(2e-4f, 0.6f)}; 
+    auto optimizer {snn::StochasticGradientDescent(3e-5f, 0.30f)}; 
     auto neuralNetwork {snn::StraightforwardNeuralNetwork(cpp2::move(layers), cpp2::move(optimizer))}; 
-    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/9x9/model_v2.snn");
+    CPP2_UFCS(saveAs)(cpp2::move(neuralNetwork), "./snn_models/9x9/model_v8.snn");
 }
 
 #line 28 "../src/ai.h2"
@@ -200,8 +200,8 @@ cpp2::i8 row{0};
 }
 #line 101 "../src/ai.h2"
         std::ranges::sort(estimatedPositions, std::ranges::greater(), &Stone::estimation);
-        std::uniform_int_distribution<cpp2::i64> dist {0, 4}; 
-        auto s {CPP2_ASSERT_IN_BOUNDS(cpp2::move(estimatedPositions), cpp2::move(dist)(rng))}; 
+        std::uniform_int_distribution<cpp2::i64> dist {0, randomness - 1}; 
+        auto s {CPP2_ASSERT_IN_BOUNDS_LITERAL(cpp2::move(estimatedPositions), 0)}; 
         return Move(cpp2::move(s)); 
     }
 
@@ -232,9 +232,9 @@ cpp2::i8 row{0};
 #line 128 "../src/ai.h2"
     auto Ai::train(cpp2::impl::in<cpp2::i16> gobanSize) & -> void{
         auto size {gobanSize * gobanSize}; 
-        float expectedValue {-0.99}; 
+        float expectedValue {-1.0f}; 
         if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.
-            expectedValue = 0.99;
+            expectedValue = 1.0f;
         }
 {
 cpp2::i16 i{0};

@@ -184,7 +184,7 @@ Game: type = {
             setNextMessage("Black player should be an AI.");
             return;
         }
-        setAiRandomness(4);
+        setAiRandomness(2);
         i: i32 = 0;
         while true
         {

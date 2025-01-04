@@ -17,9 +17,9 @@ Engine:<Size: i8> type = {
                 col:= m.stone.col;
                 row:= m.stone.row;
                 goban.state[col][row] = m.stone;
-                if goban.lockedPosition.color == m.stone.color {
-                    goban.unlockPosition();
-                }
+            }
+            if goban.lockedPosition.color == m.stone.color {
+                goban.unlockPosition();
             }
         }
     }
@@ -105,10 +105,10 @@ Engine:<Size: i8> type = {
         }
         col:= m.stone.col;
         row:= m.stone.row;
-        if goban.state[col][row].color == Color::None &&
-            !goban.isLockedPosition(m.stone) &&
-            !goban.isTrueEye(m.stone) {
-            if captureStones(m.stone) > 0 || numberOfLiberties(m.stone) > 0 {
+        if goban.state[col][row].color == Color::None && !goban.isTrueEye(m.stone) {
+            captured:= captureStones(m.stone);
+            liberties:= numberOfLiberties(m.stone);
+            if liberties > 0 || captured > 1 || (!goban.isLockedPosition(m.stone) && captured == 1) {
                 m.isValid = true;
                 return true;
             }
