@@ -4,13 +4,12 @@
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::FullyConnected(200, snn::activation::ReLU),
-                                            snn::FullyConnected(200, snn::activation::ReLU),
-                                            snn::FullyConnected(200, snn::activation::ReLU),
+                                            snn::FullyConnected(500, snn::activation::ReLU),
+                                            snn::FullyConnected(500, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(3e-5f, 0.7f);
+    optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/model_v8.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/model_v9.snn");
 }
 
 Ai: type = {
@@ -19,21 +18,25 @@ Ai: type = {
 
     private modelPath: std::string;
     private neuralNetwork: snn::StraightforwardNeuralNetwork;
+    private optimizer: std::shared_ptr<snn::internal::StochasticGradientDescent>;
     private inputs: snn::vector2D<float>;
     private moves: std::vector<i16>;
     private lastGameWon: std::deque<int>;
-    private numberOfGames: const size_t = 1000; // TO calculate winrate.
-    private sumOfLastGameWon: size_t;
+    private numberOfGames: const size_t = 1000; // To calculate winrate.
+    private sumOfLastGameWon: size_t = 0;
+    private learningRateUpdateRatio: float = 0.5f;
+    private previousWinrate: float = 0.0f;
+    private isBetter: bool = false;
 
     public operator=:(out this, c: Color, r: i16, path: std::string) = {
         Player = (c);
         randomness = r;
         modelPath = path;
         neuralNetwork = snn::StraightforwardNeuralNetwork::loadFrom(modelPath);
+        optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork.optimizer);
         inputs = ();
         moves = ();
         lastGameWon = ();
-        sumOfLastGameWon = 0;
         inputs.reserve(300);
         moves.reserve(300);
     }
@@ -42,11 +45,15 @@ Ai: type = {
         Player = (that);
         randomness = that.randomness;
         neuralNetwork = that.neuralNetwork;
+        optimizer = that.optimizer;
         inputs = that.inputs;
         moves = that.moves;
         modelPath = that.modelPath;
         lastGameWon = that.lastGameWon;
         sumOfLastGameWon = that.sumOfLastGameWon;
+        learningRateUpdateRatio = that.learningRateUpdateRatio;
+        previousWinrate = that.previousWinrate;
+        isBetter = that.isBetter;
     }
 
     public summary:(in this) -> std::string = {
@@ -126,8 +133,15 @@ Ai: type = {
     }
 
     public train:(inout this, gobanSize: i16) = {
-        if inputs.ssize() > 120 { // Only train on "short" game.
+        if inputs.ssize() > 50 { // Only train on "short" game.
             return;
+        }
+        if randomness == 1 { // Only process on "accurate" game.
+            if hasWon {
+                optimizer*.learningRate *= learningRateUpdateRatio;
+            } else {
+                optimizer*.learningRate /= learningRateUpdateRatio;
+            }
         }
         size:= gobanSize * gobanSize;
         expectedValue: float = -1.0f;
@@ -152,32 +166,47 @@ Ai: type = {
         }
     }
     
-    public save:(inout this) = {
-        neuralNetwork.saveAs(modelPath);
+    public saveIfBetter:(inout this) = {
+        if isBetter {
+            neuralNetwork.saveAs(modelPath);
+            isBetter = false;
+        }
+    }
+
+    private calculateWinrate:(in this) -> float = {
+        return sumOfLastGameWon / (float)(lastGameWon.size()) * 100.0f;
     }
 
     public processStartGame:(override inout this) = {
         inputs.clear();
         moves.clear();
+        currentWinRate:= calculateWinrate();
+        if lastGameWon.ssize() == numberOfGames
+        && currentWinRate > previousWinrate {
+            previousWinrate = currentWinRate;
+            isBetter = true;
+
+        }
     }
 
     public processEndGame:(override inout this) = {
-        if hasWon { // CPP2 workaround: Conditional operator not yet supported.
-            lastGameWon.push_back(1);
-            sumOfLastGameWon += 1;
-        } else {
-            lastGameWon.push_back(0);
-        }
-        if (lastGameWon.size() > numberOfGames) {
-            sumOfLastGameWon -= lastGameWon.front();
-            lastGameWon.pop_front();
+        if randomness == 1 { // Only process on "accurate" game.
+            if hasWon { // CPP2 workaround: Conditional operator not yet supported.
+                lastGameWon.push_back(1);
+                sumOfLastGameWon += 1;
+            } else {
+                lastGameWon.push_back(0);
+            }
+            if (lastGameWon.size() > numberOfGames) {
+                sumOfLastGameWon -= lastGameWon.front();
+                lastGameWon.pop_front();
+            }
         }
         if lastGameWon.ssize() > 100 {
-            winrate: float = sumOfLastGameWon / (float)(lastGameWon.size()) * 100.0f;
-            str: std::string = std::to_string(winrate);
-            setNextMessage("AI winrate: "+ str +" %");
+            setNextMessage("AI winrate: "+ std::to_string(calculateWinrate()) +" %");
         } else {
             setNextMessage("AI winrate: ...");
         }
+        setNextMessage("AI learning rate: "+ std::to_string(optimizer*.learningRate) +" %");
     }
 }

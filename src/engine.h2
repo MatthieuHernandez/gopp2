@@ -97,6 +97,7 @@ Engine:<Size: i8> type = {
 
     public isValidMove:(inout this, inout m: Move) -> bool = {
         if m.isValid || m.pass {
+            goban.unlockPosition();
             m.isValid = true;
             return true;
         }

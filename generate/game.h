@@ -28,7 +28,7 @@ class Game;
 #include "ai.h"
 
 #line 10 "../src/game.h2"
-extern bool isSaving;
+extern bool isRunning;
 
 class Game {
 
@@ -62,23 +62,23 @@ class Game {
 #line 103 "../src/game.h2"
     private: template<bool verbose, cpp2::i8 Size> auto play() & -> void;
 
-#line 156 "../src/game.h2"
+#line 160 "../src/game.h2"
     public: auto playOne() & -> void;
 
-#line 172 "../src/game.h2"
+#line 176 "../src/game.h2"
     private: auto switchPlayerColor() & -> void;
 
-#line 178 "../src/game.h2"
+#line 182 "../src/game.h2"
     public: auto trainBlack() & -> void;
 
-#line 213 "../src/game.h2"
+#line 221 "../src/game.h2"
     public: auto evaluate() & -> void;
     public: Game() = default;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 250 "../src/game.h2"
+#line 258 "../src/game.h2"
 };
 
 
@@ -87,7 +87,7 @@ class Game {
 #line 1 "../src/game.h2"
 
 #line 10 "../src/game.h2"
-bool isSaving {false}; 
+bool isRunning {false}; 
 
 #line 18 "../src/game.h2"
     [[nodiscard]] auto Game::getGobanSize() const& -> cpp2::i8{
@@ -234,9 +234,13 @@ bool isSaving {false};
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(whitePlayer)));
         clear();
         printGoban<Size>(cpp2::move(engine).goban);
+        /*if ((engine.blackPoint > 60 && engine.blackPoint < 81)
+            || (engine.whitePoint > 68 && engine.whitePoint < 88)) {
+            waitInput();
+        }*/
     }
 
-#line 156 "../src/game.h2"
+#line 160 "../src/game.h2"
     auto Game::playOne() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -253,14 +257,14 @@ bool isSaving {false};
         setNextMessage("Game was played.");
     }
 
-#line 172 "../src/game.h2"
+#line 176 "../src/game.h2"
     auto Game::switchPlayerColor() & -> void{
         (*cpp2::impl::assert_not_null(blackPlayer)).color = Color::White;
         (*cpp2::impl::assert_not_null(whitePlayer)).color = Color::Black;
         std::swap(blackPlayer, whitePlayer);
     }
 
-#line 178 "../src/game.h2"
+#line 182 "../src/game.h2"
     auto Game::trainBlack() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -270,10 +274,14 @@ bool isSaving {false};
             setNextMessage("Black player should be an AI.");
             return ; 
         }
-        setAiRandomness(1);
         cpp2::i32 i {0}; 
         while( true ) 
         {
+            if (cpp2::impl::cmp_less(i % 20,10)) {
+                setAiRandomness(40);
+            } else {if (cpp2::impl::cmp_greater_eq(i % 20,10)) {
+                setAiRandomness(1);
+            }}
             if (gobanSize == 19) {
                 play<false,19>();
             }else {if (gobanSize == 9) {
@@ -283,10 +291,10 @@ bool isSaving {false};
             }}
             CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)), gobanSize);
             switchPlayerColor();
-            if (i % 100 == 0) {
-                isSaving = true;
-                CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
-                isSaving = false;
+            if (i % 10 == 0) {
+                isRunning = true;
+                CPP2_UFCS(saveIfBetter)((*cpp2::impl::assert_not_null(player1)));
+                isRunning = false;
             }
             ++i;
         }
@@ -296,7 +304,7 @@ bool isSaving {false};
         setNextMessage("AI trained.");
     }
 
-#line 213 "../src/game.h2"
+#line 221 "../src/game.h2"
     auto Game::evaluate() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -315,7 +323,7 @@ bool isSaving {false};
 {
 cpp2::i32 i{0};
 
-#line 229 "../src/game.h2"
+#line 237 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
@@ -334,7 +342,7 @@ cpp2::i32 i{0};
             }
         }
 }
-#line 246 "../src/game.h2"
+#line 254 "../src/game.h2"
         setNextMessage("The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
         switchPlayerColor();

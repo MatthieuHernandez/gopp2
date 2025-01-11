@@ -19,16 +19,17 @@
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
-        while(isSaving) {
+        while(isRunning) {
             std::cout << "Cannot stop, saving in progress..." << std::endl;
+            std::this_thread::sleep_for(10ms);
         }
         std::exit(0);
     }
 }
 
-#line 15 "../src/main.cpp2"
+#line 16 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int;
-#line 46 "../src/main.cpp2"
+#line 47 "../src/main.cpp2"
 
 int main() {
     try { // CPP2 workaround: Try catch not yet supported.
@@ -44,7 +45,7 @@ int main() {
 
 #line 1 "../src/main.cpp2"
 
-#line 15 "../src/main.cpp2"
+#line 16 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int{
     signal(SIGINT, signalHandler);
     SetConsoleOutputCP(CP_UTF8);

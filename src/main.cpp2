@@ -5,8 +5,9 @@
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
-        while(isSaving) {
+        while(isRunning) {
             std::cout << "Cannot stop, saving in progress..." << std::endl;
+            std::this_thread::sleep_for(10ms);
         }
         std::exit(0);
     }

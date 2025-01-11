@@ -7,7 +7,7 @@
 #include "random.h2"
 #include "ai.h2"
 
-isSaving: bool = false;
+isRunning: bool = false;
 
 Game: type = {
 
@@ -151,6 +151,10 @@ Game: type = {
         whitePlayer*.processEndGame();
         clear();
         printGoban<Size>(engine.goban);
+        /*if ((engine.blackPoint > 60 && engine.blackPoint < 81)
+            || (engine.whitePoint > 68 && engine.whitePoint < 88)) {
+            waitInput();
+        }*/
     }
 
     public playOne:(inout this) = {
@@ -184,23 +188,27 @@ Game: type = {
             setNextMessage("Black player should be an AI.");
             return;
         }
-        setAiRandomness(1);
         i: i32 = 0;
         while true
         {
+            if i % 20 < 10 {
+                setAiRandomness(40);
+            } else if  i % 20 >= 10 {
+                setAiRandomness(1);
+            }
             if gobanSize == 19 {
                 play<false, 19>();
             } else if gobanSize == 9 {
                 play<false, 9>();
-            }else{
+            } else{
                 return;
             }
             player1*.train(gobanSize);
             switchPlayerColor();
-            if i % 100 == 0 {
-                isSaving = true;
-                player1*.save();
-                isSaving = false;
+            if i % 10 == 0 {
+                isRunning = true;
+                player1*.saveIfBetter();
+                isRunning = false;
             }
             i++;
         }
