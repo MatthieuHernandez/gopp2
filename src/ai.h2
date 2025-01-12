@@ -10,7 +10,7 @@ createAi:() = {
     optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
     neuralNetwork.saveAs("./snn_models/9x9/model_v9.snn");
-}
+}                                                                                                                               
 
 Ai: type = {
     this: Player;
@@ -39,6 +39,7 @@ Ai: type = {
         lastGameWon = ();
         inputs.reserve(300);
         moves.reserve(300);
+        optimizer*.learningRate = 1e-8f;
     }
 
     public operator=:(out this, that) = {
@@ -133,14 +134,15 @@ Ai: type = {
     }
 
     public train:(inout this, gobanSize: i16) = {
-        if inputs.ssize() > 50 { // Only train on "short" game.
+        if inputs.ssize() > 75 { // Only train on "short" game.
             return;
         }
-        if randomness == 1 { // Only process on "accurate" game.
-            if hasWon {
-                optimizer*.learningRate *= learningRateUpdateRatio;
+        if randomness == 1 && lastGameWon.ssize() > 100 { // Only process on "accurate" game.
+            winrate:= calculateWinrate();
+            if !hasWon {
+                optimizer*.learningRate = 1e-7f * winrate;
             } else {
-                optimizer*.learningRate /= learningRateUpdateRatio;
+                optimizer*.learningRate = 1e-7f * (1- winrate);
             }
         }
         size:= gobanSize * gobanSize;
@@ -174,7 +176,7 @@ Ai: type = {
     }
 
     private calculateWinrate:(in this) -> float = {
-        return sumOfLastGameWon / (float)(lastGameWon.size()) * 100.0f;
+        return sumOfLastGameWon / (float)(lastGameWon.size());
     }
 
     public processStartGame:(override inout this) = {
@@ -203,10 +205,12 @@ Ai: type = {
             }
         }
         if lastGameWon.ssize() > 100 {
-            setNextMessage("AI winrate: "+ std::to_string(calculateWinrate()) +" %");
+            setNextMessage("AI winrate: "+ std::to_string(calculateWinrate() * 100.0f) +" %");
         } else {
             setNextMessage("AI winrate: ...");
         }
-        setNextMessage("AI learning rate: "+ std::to_string(optimizer*.learningRate) +" %");
+        oss: std::ostringstream = ();
+        oss << "AI learning rate: " << std::scientific << std::setprecision(2) << optimizer*.learningRate;
+        setNextMessage(oss.str());
     }
 }
