@@ -37,7 +37,6 @@ cpp2_main:() -> int = {
             game.evaluate();
         } else if selection == 9 {
             createAi();
-            setNextMessage("AI created.");
         } else {
             setNextMessage("Invalid selection.");
         }

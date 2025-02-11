@@ -223,7 +223,7 @@ Engine:<Size: i8> type = {
         count: i32 = 0;
         findValidMove(m, processedStones, count);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
-        count = count;
+        count = count; // CPP2 workaround: Fix inout recursion.
         if !m.isValid {
             m = pass(m.stone.color);
         }

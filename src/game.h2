@@ -191,9 +191,13 @@ Game: type = {
         i: i32 = 0;
         while true
         {
-            if i % 20 < 10 {
-                setAiRandomness(40);
-            } else if  i % 20 >= 10 {
+            if i % 20 < 2 {
+                setAiRandomness(81);
+            } else if i % 20 < 8 {
+                setAiRandomness(32);
+            } else if i % 20 < 15 {
+                setAiRandomness(4);
+            } else {
                 setAiRandomness(1);
             }
             if gobanSize == 19 {

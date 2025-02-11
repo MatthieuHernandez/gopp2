@@ -310,7 +310,7 @@ cpp2::i8 row{0};
         cpp2::i32 count {0}; 
         findValidMove(m, processedStones, count);
         processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
-        count = count;
+        count = count; // CPP2 workaround: Fix inout recursion.
         if (!(m.isValid)) {
             m = pass(m.stone.color);
         }

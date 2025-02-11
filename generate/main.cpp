@@ -29,7 +29,7 @@ void signalHandler(int signal) {
 
 #line 16 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int;
-#line 47 "../src/main.cpp2"
+#line 46 "../src/main.cpp2"
 
 int main() {
     try { // CPP2 workaround: Try catch not yet supported.
@@ -70,7 +70,6 @@ int main() {
             CPP2_UFCS(evaluate)(game);
         }else {if (cpp2::move(selection) == 9) {
             createAi();
-            setNextMessage("AI created.");
         }else {
             setNextMessage("Invalid selection.");
         }}}}}}}

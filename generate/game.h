@@ -71,14 +71,14 @@ class Game {
 #line 182 "../src/game.h2"
     public: auto trainBlack() & -> void;
 
-#line 221 "../src/game.h2"
+#line 225 "../src/game.h2"
     public: auto evaluate() & -> void;
     public: Game() = default;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 258 "../src/game.h2"
+#line 262 "../src/game.h2"
 };
 
 
@@ -277,11 +277,15 @@ bool isRunning {false};
         cpp2::i32 i {0}; 
         while( true ) 
         {
-            if (cpp2::impl::cmp_less(i % 20,10)) {
-                setAiRandomness(40);
-            } else {if (cpp2::impl::cmp_greater_eq(i % 20,10)) {
+            if (cpp2::impl::cmp_less(i % 20,2)) {
+                setAiRandomness(81);
+            }else {if (cpp2::impl::cmp_less(i % 20,8)) {
+                setAiRandomness(32);
+            }else {if (cpp2::impl::cmp_less(i % 20,15)) {
+                setAiRandomness(4);
+            }else {
                 setAiRandomness(1);
-            }}
+            }}}
             if (gobanSize == 19) {
                 play<false,19>();
             }else {if (gobanSize == 9) {
@@ -304,7 +308,7 @@ bool isRunning {false};
         setNextMessage("AI trained.");
     }
 
-#line 221 "../src/game.h2"
+#line 225 "../src/game.h2"
     auto Game::evaluate() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -323,7 +327,7 @@ bool isRunning {false};
 {
 cpp2::i32 i{0};
 
-#line 237 "../src/game.h2"
+#line 241 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
@@ -342,7 +346,7 @@ cpp2::i32 i{0};
             }
         }
 }
-#line 254 "../src/game.h2"
+#line 258 "../src/game.h2"
         setNextMessage("The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
         switchPlayerColor();
