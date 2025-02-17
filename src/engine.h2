@@ -5,14 +5,19 @@ Engine:<Size: i8> type = {
 
     public goban: Goban<Size> = ();
     public moves: std::vector<Move> = ();
+    public states: std::vector<State<Stone, Size>> = ();
     
     public blackPoint: i16 = 0;
     public whitePoint: i16 = 0;
 
+    public operator=:(out this) = {
+        state: State<Stone, Size> = ();
+        states.push_back(state);
+    }
+
     public playMove:(inout this, inout m: Move) = {
         if isValidMove(m)
         {
-            moves.push_back(m);
             if !m.pass {
                 col:= m.stone.col;
                 row:= m.stone.row;
@@ -21,6 +26,8 @@ Engine:<Size: i8> type = {
             if goban.lockedPosition.color == m.stone.color {
                 goban.unlockPosition();
             }
+            moves.push_back(m);
+            states.push_back(goban.state);
         }
     }
 
@@ -183,7 +190,7 @@ Engine:<Size: i8> type = {
                         color:= Color::None;
                         processedStones2: State<bool, Size> = ();
                         countTerritory(goban.state[col][row], count, color, processedStones1, processedStones2);
-                        processedStones2 = processedStones2; // CPP2 workaround: Fix inout recursion.
+                        assert(processedStones2&);  // CPP2 workaround: Fix inout recursion.
                         if color == Color::Black {
                             blackPoint+= count;
                         }
@@ -222,8 +229,8 @@ Engine:<Size: i8> type = {
         processedStones: State<bool, Size> = (false);
         count: i32 = 0;
         findValidMove(m, processedStones, count);
-        processedStones = processedStones; // CPP2 workaround: Fix inout recursion.
-        count = count; // CPP2 workaround: Fix inout recursion.
+        assert(processedStones&);  // CPP2 workaround: Fix inout recursion.
+        assert(count&);  // CPP2 workaround: Fix inout recursion.
         if !m.isValid {
             m = pass(m.stone.color);
         }

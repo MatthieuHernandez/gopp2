@@ -3,19 +3,19 @@
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
 createAi:() = {
-    layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(16, 3, snn::activation::ReLU),
-                                            snn::Convolution(32, 3, snn::activation::ReLU),
-                                            snn::Convolution(64, 3, snn::activation::ReLU),
-                                            snn::Convolution(128, 3, snn::activation::ReLU),
-                                            snn::FullyConnected(81, snn::activation::tanh));
     /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::FullyConnected(300, snn::activation::ReLU),
-                                            snn::FullyConnected(300, snn::activation::ReLU),
+                                            snn::Convolution(16, 3, snn::activation::sigmoid),
+                                            snn::Convolution(32, 3, snn::activation::sigmoid),
+                                            snn::Convolution(64, 3, snn::activation::sigmoid),
+                                            snn::Convolution(128, 3, snn::activation::sigmoid),
                                             snn::FullyConnected(81, snn::activation::tanh));*/
-    optimizer:= snn::StochasticGradientDescent(1e-6f, 0.0f);
+    layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
+                                            snn::FullyConnected(500, snn::activation::ReLU),
+                                            snn::FullyConnected(500, snn::activation::ReLU),
+                                            snn::FullyConnected(81, snn::activation::tanh));
+    optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/model_v02.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/model_v01.snn");
     if neuralNetwork.isValid() != snn::errorType::noError {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);
@@ -30,12 +30,10 @@ Ai: type = {
     private modelPath: std::string;
     private neuralNetwork: snn::StraightforwardNeuralNetwork;
     private optimizer: std::shared_ptr<snn::internal::StochasticGradientDescent>;
-    private inputs: snn::vector2D<float>;
-    private moves: std::vector<i16>;
     private lastGameWon: std::deque<int>;
-    private numberOfGames: const size_t = 1000; // To calculate winrate.
+    private numberOfGames: const size_t = 200; // To calculate winrate.
     private sumOfLastGameWon: size_t = 0;
-    private defaultLearningRate: float = 1e-6f;
+    private defaultLearningRate: float = 1e-5f;
     private previousWinrate: float = 0.0f;
     private isBetter: bool = false;
 
@@ -45,11 +43,7 @@ Ai: type = {
         modelPath = path;
         neuralNetwork = snn::StraightforwardNeuralNetwork::loadFrom(modelPath);
         optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork.optimizer);
-        inputs = ();
-        moves = ();
         lastGameWon = ();
-        inputs.reserve(300);
-        moves.reserve(300);
     }
 
     public operator=:(out this, that) = {
@@ -57,8 +51,6 @@ Ai: type = {
         randomness = that.randomness;
         neuralNetwork = that.neuralNetwork;
         optimizer = that.optimizer;
-        inputs = that.inputs;
-        moves = that.moves;
         modelPath = that.modelPath;
         lastGameWon = that.lastGameWon;
         sumOfLastGameWon = that.sumOfLastGameWon;
@@ -121,10 +113,7 @@ Ai: type = {
         picked_index:= dist(rng);
         s:= estimatedPositions[picked_index];
         m:= Move(s);
-        engine.closerValidMove(m);
-        return m;
-        /*if engine.isValidMove(m) {
-            engine.closerValidMove(m);
+        if engine.isValidMove(m) {
             return m;
         }
         (copy index2: i16 = 0)
@@ -139,19 +128,19 @@ Ai: type = {
                 }
             }
         }
-        engine.closerValidMove(m);
-        return m;*/
+        return pass(color);
     }
 
     private getMove:<Size: i8>(inout this, inout engine: Engine<Size>) -> Move = {
+
         input:= getGobanState<Size>(engine.goban.state);
         output:= neuralNetwork.computeOutput(input);
         m:= chooseBestMove<Size>(output, engine);
-        moveIndex:= m.stone.getIndex<Size>();
-        if moveIndex >= 0 {
+        /*if m.pass == false {
             inputs.push_back(input);
+            moveIndex:= m.stone.getIndex<Size>();
             moves.push_back(moveIndex);
-        }
+        }*/
         return m;
     }
 
@@ -165,17 +154,17 @@ Ai: type = {
 
     private computeLearningRate:(inout this)-> float = {
         learningRate:= defaultLearningRate;
-        if randomness == 1 {
-            learningRate *= 0.75;
+        /*if randomness <= 8 {
+            learningRate *= 1.2;
         } else {
-            learningRate *= 1.25;
+            learningRate *= 0.8;
         }
-        /*if hasWon {
-            learningRate *= 0.9;
+        if hasWon {
+            learningRate *= 1.2;
         }
         else {
-            learningRate *= 1.1;
-        }*/
+            learningRate *= 0.8;
+        }
         if inputs.ssize() < 40 {
            learningRate *= 16;
         }
@@ -189,38 +178,47 @@ Ai: type = {
             learningRate *= 2;
         } else {
             learningRate *= 1;
-        }
+        }*/
         return learningRate;
     }
 
-    public train:(inout this, gobanSize: i16) = {
-        if neuralNetwork.isValid() != snn::errorType::noError {
-            std::cout << "INVALID MODEL !" << std::endl;
-            std::exit(0);
-        }
+    public train:<Size: i8>(inout this, in engine: Engine<Size>) = {
+
         optimizer*.learningRate = computeLearningRate();
-        size:= gobanSize * gobanSize;
-        expectedValue: float = -1.0f;
-        if hasWon { // CPP2 workaround: Conditional operator not yet supported.
-            expectedValue = 1.0f;
+        size:= Size * Size;
+        expectedBlack: float;
+        expectedWhite: float;
+        if (hasWon && color == Color::Black) ||
+           (!hasWon && color == Color::White) {  // CPP2 workaround: Conditional operator not yet supported.
+            expectedBlack = 1.0f;
+            expectedWhite = -1.0f;
+        } else {
+            expectedBlack = -1.0f;
+            expectedWhite = 1.0f;
         }
         (copy i: i16 = 0)
-        while i < inputs.ssize()
+        while i < (engine.moves.ssize())
         next i++
         {
-            expected_output:= std::vector<float>(size, NAN);
+            inputs:= getGobanState<Size>(engine.states[i]);
+            expectedOutputs:= std::vector<float>(size, NAN);
             weighting:= std::vector<float>(size, 1.0f);
             (copy j: i16 = 0)
             while j < size
             next j++
             {
-                if inputs[i][j] != 0.0 {
-                    expected_output[j] = 0;
-                    weighting[j] = 1e-3f;
+                if inputs[j] != 0.0 {
+                    expectedOutputs[j] = 0;
+                    weighting[j] = 1e-4f;
                 }
             }
-            expected_output[moves[i]] = expectedValue;
-            neuralNetwork.trainOnce(inputs[i], expected_output, weighting);
+            expectedIndex:= engine.moves[i].stone.getIndex<Size>();
+            if i % 2 == 0 {
+                expectedOutputs[expectedIndex] = expectedBlack;
+            } else {
+                expectedOutputs[expectedIndex] = expectedWhite;
+            }
+            neuralNetwork.trainOnce(inputs, expectedOutputs, weighting);
         }
     }
 
@@ -240,8 +238,10 @@ Ai: type = {
     }
 
     public processStartGame:(override inout this) = {
-        inputs.clear();
-        moves.clear();
+        if neuralNetwork.isValid() != snn::errorType::noError {
+            std::cout << "INVALID MODEL !" << std::endl;
+            std::exit(0);
+        }
         currentWinRate:= calculateWinrate();
         if lastGameWon.ssize() == numberOfGames
         && currentWinRate > previousWinrate {
@@ -252,8 +252,8 @@ Ai: type = {
     }
 
     public processEndGame:(override inout this) = {
-        if randomness == 1 { // Only process on "accurate" game.
-            if hasWon { // CPP2 workaround: Conditional operator not yet supported.
+        if randomness == 1 {  // Only process on "accurate" game.
+            if hasWon {  // CPP2 workaround: Conditional operator not yet supported.
                 lastGameWon.push_back(1);
                 sumOfLastGameWon += 1;
             } else {

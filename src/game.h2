@@ -11,7 +11,7 @@ isRunning: bool = false;
 
 Game: type = {
 
-    private blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_prtr work.
+    private blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_ptr work.
     private whitePlayer: std::shared_ptr<Player> = nullptr;
     private gobanSize: i8 = 9;
 
@@ -100,9 +100,8 @@ Game: type = {
         }
     }
 
-    private play:<verbose: bool, Size: i8>(inout this) = {
+    private play:<verbose: bool, Size: i8>(inout this, inout engine: Engine<Size>) = {
         start:= std::chrono::high_resolution_clock::now();
-        engine: Engine<Size> = ();
         blackPlayer*.processStartGame();
         whitePlayer*.processStartGame();
         moveNumber: i16 = 1;
@@ -111,7 +110,7 @@ Game: type = {
                 clear();
                 printGoban<Size>(engine.goban);
             }
-            m: Move = (); // CPP2 workaround: Not able to make unique_prtr work.
+            m: Move = (); // CPP2 workaround: Not able to make unique_ptr work.
             if moveNumber % 2 == 1 {
                 m = blackPlayer*.getMove(engine);
             } else {
@@ -162,11 +161,15 @@ Game: type = {
             return;
         }
         setAiRandomness(1);
-        if gobanSize == 19 {
-            play<true, 19>();
-        } else if gobanSize == 9 {
-            play<true, 9>();
-        }else{
+        if gobanSize == 9 {
+            e: Engine<9> = ();
+            play<true, 9>(e);
+            assert(e&);  // CPP2 workaround: Fix inout.
+        } else if gobanSize == 19 {
+            e: Engine<19> = ();
+            play<true, 19>(e);
+            assert(e&);  // CPP2 workaround: Fix inout.
+        } else {
             return;
         }
         waitInput();
@@ -191,27 +194,26 @@ Game: type = {
         i: i32 = 0;
         while true
         {
-            if i % 20 < 2 {
+            if i % 20 < 10 {
                 setAiRandomness(81);
-            } else if i % 20 < 8 {
-                setAiRandomness(32);
-            } else if i % 20 < 15 {
-                setAiRandomness(4);
             } else {
                 setAiRandomness(1);
             }
-            if gobanSize == 19 {
-                play<false, 19>();
-            } else if gobanSize == 9 {
-                play<false, 9>();
+            if gobanSize == 9 {
+                engine: Engine<9> = ();
+                play<false, 9>(engine);
+                player1*.train<9>(engine);
+            } else if gobanSize == 19 {
+                engine: Engine<19> = ();
+                play<false, 19>(engine);
+                player1*.train<19>(engine);
             } else{
                 return;
             }
-            player1*.train(gobanSize);
             switchPlayerColor();
-            if i % 10 == 0 {
+            if i % 100 == 0 {
                 isRunning = true;
-                player1*.saveIfBetter();
+                player1*.save();
                 isRunning = false;
             }
             i++;
@@ -245,9 +247,13 @@ Game: type = {
                 switchPlayerColor();
             }
             if gobanSize == 19 {
-                play<false, 19>();
+                e: Engine<19> = ();
+                play<false, 19>(e);
+                assert(e&);  // CPP2 workaround: Fix inout.
             } else if gobanSize == 9 {
-                play<false, 9>();
+                e: Engine<9> = ();
+                play<false, 9>(e);
+                assert(e&);  // CPP2 workaround: Fix inout.
             }else{
                 return;
             }

@@ -32,7 +32,7 @@ extern bool isRunning;
 
 class Game {
 
-    private: std::shared_ptr<Player> blackPlayer {nullptr}; // CPP2 workaround: Not able to make unique_prtr work.
+    private: std::shared_ptr<Player> blackPlayer {nullptr}; // CPP2 workaround: Not able to make unique_ptr work.
     private: std::shared_ptr<Player> whitePlayer {nullptr}; 
     private: cpp2::i8 gobanSize {9}; 
 
@@ -60,25 +60,25 @@ class Game {
     private: auto setAiRandomness(cpp2::impl::in<cpp2::i16> r) & -> void;
 
 #line 103 "../src/game.h2"
-    private: template<bool verbose, cpp2::i8 Size> auto play() & -> void;
+    private: template<bool verbose, cpp2::i8 Size> auto play(Engine<Size>& engine) & -> void;
 
-#line 160 "../src/game.h2"
+#line 159 "../src/game.h2"
     public: auto playOne() & -> void;
 
-#line 176 "../src/game.h2"
+#line 179 "../src/game.h2"
     private: auto switchPlayerColor() & -> void;
 
-#line 182 "../src/game.h2"
+#line 185 "../src/game.h2"
     public: auto trainBlack() & -> void;
 
-#line 225 "../src/game.h2"
+#line 227 "../src/game.h2"
     public: auto evaluate() & -> void;
     public: Game() = default;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 262 "../src/game.h2"
+#line 268 "../src/game.h2"
 };
 
 
@@ -183,9 +183,8 @@ bool isRunning {false};
     }
 
 #line 103 "../src/game.h2"
-    template<bool verbose, cpp2::i8 Size> auto Game::play() & -> void{
+    template<bool verbose, cpp2::i8 Size> auto Game::play(Engine<Size>& engine) & -> void{
         auto start {std::chrono::high_resolution_clock::now()}; 
-        Engine<Size> engine {}; 
         CPP2_UFCS(processStartGame)((*cpp2::impl::assert_not_null(blackPlayer)));
         CPP2_UFCS(processStartGame)((*cpp2::impl::assert_not_null(whitePlayer)));
         cpp2::i16 moveNumber {1}; 
@@ -194,7 +193,7 @@ bool isRunning {false};
                 clear();
                 printGoban<Size>(engine.goban);
             }
-            Move m {};    // CPP2 workaround: Not able to make unique_prtr work.
+            Move m {};    // CPP2 workaround: Not able to make unique_ptr work.
             if (moveNumber % 2 == 1) {
                 m = CPP2_UFCS(getMove)((*cpp2::impl::assert_not_null(blackPlayer)), engine);
             }else {
@@ -233,23 +232,27 @@ bool isRunning {false};
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(blackPlayer)));
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(whitePlayer)));
         clear();
-        printGoban<Size>(cpp2::move(engine).goban);
+        printGoban<Size>(engine.goban);
         /*if ((engine.blackPoint > 60 && engine.blackPoint < 81)
             || (engine.whitePoint > 68 && engine.whitePoint < 88)) {
             waitInput();
         }*/
     }
 
-#line 160 "../src/game.h2"
+#line 159 "../src/game.h2"
     auto Game::playOne() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
         }
         setAiRandomness(1);
-        if (gobanSize == 19) {
-            play<true,19>();
-        }else {if (gobanSize == 9) {
-            play<true,9>();
+        if (gobanSize == 9) {
+            Engine<9> e {}; 
+            play<true,9>(e);
+            if (cpp2::cpp2_default.is_active() && !(&e) ) { cpp2::cpp2_default.report_violation(""); }// CPP2 workaround: Fix inout.
+        }else {if (gobanSize == 19) {
+            Engine<19> e {}; 
+            play<true,19>(e);
+            if (cpp2::cpp2_default.is_active() && !(&e) ) { cpp2::cpp2_default.report_violation(""); }// CPP2 workaround: Fix inout.
         }else {
             return ; 
         }}
@@ -257,14 +260,14 @@ bool isRunning {false};
         setNextMessage("Game was played.");
     }
 
-#line 176 "../src/game.h2"
+#line 179 "../src/game.h2"
     auto Game::switchPlayerColor() & -> void{
         (*cpp2::impl::assert_not_null(blackPlayer)).color = Color::White;
         (*cpp2::impl::assert_not_null(whitePlayer)).color = Color::Black;
         std::swap(blackPlayer, whitePlayer);
     }
 
-#line 182 "../src/game.h2"
+#line 185 "../src/game.h2"
     auto Game::trainBlack() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -277,27 +280,26 @@ bool isRunning {false};
         cpp2::i32 i {0}; 
         while( true ) 
         {
-            if (cpp2::impl::cmp_less(i % 20,2)) {
+            if (cpp2::impl::cmp_less(i % 20,10)) {
                 setAiRandomness(81);
-            }else {if (cpp2::impl::cmp_less(i % 20,8)) {
-                setAiRandomness(32);
-            }else {if (cpp2::impl::cmp_less(i % 20,15)) {
-                setAiRandomness(4);
             }else {
                 setAiRandomness(1);
-            }}}
-            if (gobanSize == 19) {
-                play<false,19>();
-            }else {if (gobanSize == 9) {
-                play<false,9>();
+            }
+            if (gobanSize == 9) {
+                Engine<9> engine {}; 
+                play<false,9>(engine);
+                CPP2_UFCS_TEMPLATE(train<9>)((*cpp2::impl::assert_not_null(player1)), cpp2::move(engine));
+            }else {if (gobanSize == 19) {
+                Engine<19> engine {}; 
+                play<false,19>(engine);
+                CPP2_UFCS_TEMPLATE(train<19>)((*cpp2::impl::assert_not_null(player1)), cpp2::move(engine));
             }else {
                 return ; 
             }}
-            CPP2_UFCS(train)((*cpp2::impl::assert_not_null(player1)), gobanSize);
             switchPlayerColor();
-            if (i % 10 == 0) {
+            if (i % 100 == 0) {
                 isRunning = true;
-                CPP2_UFCS(saveIfBetter)((*cpp2::impl::assert_not_null(player1)));
+                CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
                 isRunning = false;
             }
             ++i;
@@ -308,7 +310,7 @@ bool isRunning {false};
         setNextMessage("AI trained.");
     }
 
-#line 225 "../src/game.h2"
+#line 227 "../src/game.h2"
     auto Game::evaluate() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -327,7 +329,7 @@ bool isRunning {false};
 {
 cpp2::i32 i{0};
 
-#line 241 "../src/game.h2"
+#line 243 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
@@ -335,9 +337,13 @@ cpp2::i32 i{0};
                 switchPlayerColor();
             }
             if (gobanSize == 19) {
-                play<false,19>();
+                Engine<19> e {}; 
+                play<false,19>(e);
+                if (cpp2::cpp2_default.is_active() && !(&e) ) { cpp2::cpp2_default.report_violation(""); }// CPP2 workaround: Fix inout.
             }else {if (gobanSize == 9) {
-                play<false,9>();
+                Engine<9> e {}; 
+                play<false,9>(e);
+                if (cpp2::cpp2_default.is_active() && !(&e) ) { cpp2::cpp2_default.report_violation(""); }// CPP2 workaround: Fix inout.
             }else {
                 return ; 
             }}
@@ -346,7 +352,7 @@ cpp2::i32 i{0};
             }
         }
 }
-#line 258 "../src/game.h2"
+#line 264 "../src/game.h2"
         setNextMessage("The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
         switchPlayerColor();
