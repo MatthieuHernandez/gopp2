@@ -4,18 +4,17 @@
 
 createAi:() = {
     /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(16, 3, snn::activation::sigmoid),
-                                            snn::Convolution(32, 3, snn::activation::sigmoid),
-                                            snn::Convolution(64, 3, snn::activation::sigmoid),
-                                            snn::Convolution(128, 3, snn::activation::sigmoid),
+                                            snn::Convolution(16, 3, snn::activation::ReLU),
+                                            snn::Convolution(32, 3, snn::activation::ReLU),
+                                            snn::Convolution(64, 3, snn::activation::ReLU),
+                                            snn::Convolution(128, 3, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));*/
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::FullyConnected(500, snn::activation::ReLU),
-                                            snn::FullyConnected(500, snn::activation::ReLU),
+                                            snn::FullyConnected(1000, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
-    optimizer:= snn::StochasticGradientDescent(1e-5f, 0.0f);
+    optimizer:= snn::StochasticGradientDescent(1e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/model_v01.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/model_v03_dense.snn");
     if neuralNetwork.isValid() != snn::errorType::noError {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);
@@ -31,9 +30,9 @@ Ai: type = {
     private neuralNetwork: snn::StraightforwardNeuralNetwork;
     private optimizer: std::shared_ptr<snn::internal::StochasticGradientDescent>;
     private lastGameWon: std::deque<int>;
-    private numberOfGames: const size_t = 200; // To calculate winrate.
+    private numberOfGames: const size_t = 1000; // To calculate winrate.
     private sumOfLastGameWon: size_t = 0;
-    private defaultLearningRate: float = 1e-5f;
+    private defaultLearningRate: float = 1e-4f;
     private previousWinrate: float = 0.0f;
     private isBetter: bool = false;
 
@@ -136,11 +135,6 @@ Ai: type = {
         input:= getGobanState<Size>(engine.goban.state);
         output:= neuralNetwork.computeOutput(input);
         m:= chooseBestMove<Size>(output, engine);
-        /*if m.pass == false {
-            inputs.push_back(input);
-            moveIndex:= m.stone.getIndex<Size>();
-            moves.push_back(moveIndex);
-        }*/
         return m;
     }
 
@@ -152,39 +146,20 @@ Ai: type = {
         return getMove<19>(engine);
     }
 
-    private computeLearningRate:(inout this)-> float = {
+    private computeLearningRate:(inout this, gameLength: i16)-> float = {
         learningRate:= defaultLearningRate;
-        /*if randomness <= 8 {
-            learningRate *= 1.2;
-        } else {
-            learningRate *= 0.8;
+        if calculateWinrate() > 0.8 {
+            learningRate /= 2;
         }
-        if hasWon {
-            learningRate *= 1.2;
-        }
-        else {
-            learningRate *= 0.8;
-        }
-        if inputs.ssize() < 40 {
-           learningRate *= 16;
-        }
-        else if inputs.ssize() < 50 {
-            learningRate *= 8;
-        }
-        else if inputs.ssize() < 60 {
-            learningRate *= 4;
-        }
-        else if inputs.ssize() < 70 {
-            learningRate *= 2;
-        } else {
-            learningRate *= 1;
-        }*/
         return learningRate;
     }
 
     public train:<Size: i8>(inout this, in engine: Engine<Size>) = {
-
-        optimizer*.learningRate = computeLearningRate();
+        if(engine.moves.ssize() > 291) {
+            return;
+        }
+        gameLength: i16 = unchecked_narrow<i16>(engine.moves.size());
+        optimizer*.learningRate = computeLearningRate(gameLength);
         size:= Size * Size;
         expectedBlack: float;
         expectedWhite: float;
@@ -200,6 +175,9 @@ Ai: type = {
         while i < (engine.moves.ssize())
         next i++
         {
+            if(engine.moves[i].pass == true) {
+                return;
+            }
             inputs:= getGobanState<Size>(engine.states[i]);
             expectedOutputs:= std::vector<float>(size, NAN);
             weighting:= std::vector<float>(size, 1.0f);
@@ -209,7 +187,7 @@ Ai: type = {
             {
                 if inputs[j] != 0.0 {
                     expectedOutputs[j] = 0;
-                    weighting[j] = 1e-4f;
+                    weighting[j] = 1e-3f;
                 }
             }
             expectedIndex:= engine.moves[i].stone.getIndex<Size>();

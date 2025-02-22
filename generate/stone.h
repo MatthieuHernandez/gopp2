@@ -115,7 +115,7 @@ class Stone {
 
 #line 30 "../src/stone.h2"
     template<cpp2::i8 Size> [[nodiscard]] auto Stone::getIndex() const& -> cpp2::i16{
-        return (cpp2::impl::as_<cpp2::i16>(col)) * (Size - 1) + (cpp2::impl::as_<cpp2::i16>(row)); 
+        return (cpp2::impl::as_<cpp2::i16>(col)) * (Size) + (cpp2::impl::as_<cpp2::i16>(row)); 
     }
 #endif
 

@@ -192,13 +192,14 @@ Game: type = {
             return;
         }
         i: i32 = 0;
+        setAiRandomness(1);
         while true
         {
-            if i % 20 < 10 {
+            /*if i % 20 < 10 {
                 setAiRandomness(81);
             } else {
                 setAiRandomness(1);
-            }
+            }*/
             if gobanSize == 9 {
                 engine: Engine<9> = ();
                 play<false, 9>(engine);
@@ -213,7 +214,7 @@ Game: type = {
             switchPlayerColor();
             if i % 100 == 0 {
                 isRunning = true;
-                player1*.save();
+                player1*.saveIfBetter();
                 isRunning = false;
             }
             i++;

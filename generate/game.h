@@ -71,14 +71,14 @@ class Game {
 #line 185 "../src/game.h2"
     public: auto trainBlack() & -> void;
 
-#line 227 "../src/game.h2"
+#line 228 "../src/game.h2"
     public: auto evaluate() & -> void;
     public: Game() = default;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 268 "../src/game.h2"
+#line 269 "../src/game.h2"
 };
 
 
@@ -278,13 +278,14 @@ bool isRunning {false};
             return ; 
         }
         cpp2::i32 i {0}; 
+        setAiRandomness(1);
         while( true ) 
         {
-            if (cpp2::impl::cmp_less(i % 20,10)) {
+            /*if i % 20 < 10 {
                 setAiRandomness(81);
-            }else {
+            } else {
                 setAiRandomness(1);
-            }
+            }*/
             if (gobanSize == 9) {
                 Engine<9> engine {}; 
                 play<false,9>(engine);
@@ -299,7 +300,7 @@ bool isRunning {false};
             switchPlayerColor();
             if (i % 100 == 0) {
                 isRunning = true;
-                CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
+                CPP2_UFCS(saveIfBetter)((*cpp2::impl::assert_not_null(player1)));
                 isRunning = false;
             }
             ++i;
@@ -310,7 +311,7 @@ bool isRunning {false};
         setNextMessage("AI trained.");
     }
 
-#line 227 "../src/game.h2"
+#line 228 "../src/game.h2"
     auto Game::evaluate() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -329,7 +330,7 @@ bool isRunning {false};
 {
 cpp2::i32 i{0};
 
-#line 243 "../src/game.h2"
+#line 244 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
@@ -352,7 +353,7 @@ cpp2::i32 i{0};
             }
         }
 }
-#line 264 "../src/game.h2"
+#line 265 "../src/game.h2"
         setNextMessage("The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
         switchPlayerColor();
