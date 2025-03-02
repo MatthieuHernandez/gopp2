@@ -18,6 +18,7 @@ cppfront -cwd ./generate ../src/human.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/dumb.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/random.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/ai.h2 -import-std $DebugArg |
+cppfront -cwd ./generate ../src/itself.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/game.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/main.cpp2 -import-std $DebugArg
 

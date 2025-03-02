@@ -1,0 +1,25 @@
+#include "player.h2"
+#include "ai.h2"
+
+Itself: type = {
+    this: Player;
+    public ai: Ai;
+
+    public operator=:(out this, c: Color, r: i16, in aiToCopy: Ai) = {
+         Player = (c);
+         ai = Ai(c, r, aiToCopy);
+    }
+
+    public setColor:(virtual inout this, c: Color) = {
+        color = c;
+        ai.setColor(c);
+    }
+
+    public getMove:(virtual inout this, inout engine: Engine<9>) -> Move = {
+        return ai.getMove(engine);
+    }
+
+    public getMove:(virtual inout this, inout engine: Engine<19>) -> Move = {
+        return ai.getMove(engine);
+    }
+}

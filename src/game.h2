@@ -6,6 +6,7 @@
 #include "dumb.h2"
 #include "random.h2"
 #include "ai.h2"
+#include "itself.h2"
 
 isRunning: bool = false;
 
@@ -36,6 +37,10 @@ Game: type = {
         if ai != nullptr {
             return "AI";
         }
+        itself:= std::dynamic_pointer_cast<Itself>(player);
+        if itself != nullptr {
+            return "Itself";
+        }
         return "None";
     }
 
@@ -53,10 +58,14 @@ Game: type = {
         }
     }
 
-    private selectPlayer:(in this, color: Color) -> std::shared_ptr<Player> = {
+    private selectPlayer:(in this, color: Color, player: std::shared_ptr<Player>) -> std::shared_ptr<Player> = {
         selection:= printPlayersAndSelect(gobanSize, color);
         if(selection == "") {
             return nullptr;
+        }
+        if (selection == "-1") {
+            ai:= std::dynamic_pointer_cast<Ai>(player);
+            return shared.new<Itself>(color, 4, ai*);
         }
         if(selection == "0") {
             return shared.new<Human>(color);
@@ -76,8 +85,8 @@ Game: type = {
     }
 
     public selectPlayers:(inout this) = {
-        blackPlayer = selectPlayer(Color::Black);
-        whitePlayer = selectPlayer(Color::White);
+        blackPlayer = selectPlayer(Color::Black, nullptr);
+        whitePlayer = selectPlayer(Color::White, blackPlayer);
         setNextMessage("Players selected.");
     }
 
@@ -90,13 +99,13 @@ Game: type = {
     }
 
     private setAiRandomness:(inout this, r: i16) = {
-        Ai1:= std::dynamic_pointer_cast<Ai>(blackPlayer); // CPP2 workaround: keyword "as" not working.
-        if Ai1 != nullptr {
-            Ai1*.randomness = r;
+        ai1:= std::dynamic_pointer_cast<Ai>(blackPlayer);  // CPP2 workaround: keyword "as" not working.
+        if ai1 != nullptr {
+            ai1*.randomness = r;
         }
-        Ai2:= std::dynamic_pointer_cast<Ai>(whitePlayer); // CPP2 workaround: keyword "as" not working.
-        if Ai2 != nullptr {
-            Ai2*.randomness = r;
+        ai2:= std::dynamic_pointer_cast<Ai>(whitePlayer);  // CPP2 workaround: keyword "as" not working.
+        if ai2 != nullptr {
+            ai2*.randomness = r;
         }
     }
 
@@ -160,7 +169,6 @@ Game: type = {
         if !hasValidPlayer() {
             return;
         }
-        setAiRandomness(1);
         if gobanSize == 9 {
             e: Engine<9> = ();
             play<true, 9>(e);
@@ -177,8 +185,8 @@ Game: type = {
     }
     
     private switchPlayerColor:(inout this) = {
-        blackPlayer*.color = Color::White;
-        whitePlayer*.color = Color::Black;
+        blackPlayer*.setColor(Color::White);
+        whitePlayer*.setColor(Color::Black);
         std::swap(blackPlayer, whitePlayer);
     }
 
@@ -192,14 +200,8 @@ Game: type = {
             return;
         }
         i: i32 = 0;
-        setAiRandomness(1);
         while true
         {
-            /*if i % 20 < 10 {
-                setAiRandomness(81);
-            } else {
-                setAiRandomness(1);
-            }*/
             if gobanSize == 9 {
                 engine: Engine<9> = ();
                 play<false, 9>(engine);
@@ -214,7 +216,7 @@ Game: type = {
             switchPlayerColor();
             if i % 100 == 0 {
                 isRunning = true;
-                player1*.saveIfBetter();
+                player1*.save();
                 isRunning = false;
             }
             i++;

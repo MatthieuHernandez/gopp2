@@ -20,14 +20,14 @@ createAi:() = {
         std::exit(0);
     }
     setNextMessage("AI created.");
-}                                                                                                                               
+}
 
 Ai: type = {
     this: Player;
     public randomness: i16; // Randomly select a move from the N best moves.
 
     private modelPath: std::string;
-    private neuralNetwork: snn::StraightforwardNeuralNetwork;
+    private neuralNetwork: std::shared_ptr<snn::StraightforwardNeuralNetwork>;
     private optimizer: std::shared_ptr<snn::internal::StochasticGradientDescent>;
     private lastGameWon: std::deque<int>;
     private numberOfGames: const size_t = 1000; // To calculate winrate.
@@ -40,8 +40,17 @@ Ai: type = {
         Player = (c);
         randomness = r;
         modelPath = path;
-        neuralNetwork = snn::StraightforwardNeuralNetwork::loadFrom(modelPath);
-        optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork.optimizer);
+        neuralNetwork = shared.new<snn::StraightforwardNeuralNetwork>(snn::StraightforwardNeuralNetwork::loadFrom(modelPath));
+        optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
+        lastGameWon = ();
+    }
+
+    public operator=:(out this, c: Color, r: i16, in ai: Ai) = {
+        Player = (c);
+        randomness = r;
+        modelPath = "";
+        neuralNetwork = ai.neuralNetwork;
+        optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
         lastGameWon = ();
     }
 
@@ -59,7 +68,7 @@ Ai: type = {
     }
 
     public summary:(in this) -> std::string = {
-        return neuralNetwork.summary();
+        return neuralNetwork*.summary();
     }
 
     private getGobanState:<Size: i8>(in this, in state: State<Stone, Size>) -> std::vector<float> = {
@@ -133,7 +142,7 @@ Ai: type = {
     private getMove:<Size: i8>(inout this, inout engine: Engine<Size>) -> Move = {
 
         input:= getGobanState<Size>(engine.goban.state);
-        output:= neuralNetwork.computeOutput(input);
+        output:= neuralNetwork*.computeOutput(input);
         m:= chooseBestMove<Size>(output, engine);
         return m;
     }
@@ -196,14 +205,14 @@ Ai: type = {
             } else {
                 expectedOutputs[expectedIndex] = expectedWhite;
             }
-            neuralNetwork.trainOnce(inputs, expectedOutputs, weighting);
+            neuralNetwork*.trainOnce(inputs, expectedOutputs, weighting);
         }
     }
 
     public save:(inout this) = {
-        neuralNetwork.saveAs(modelPath);
+        neuralNetwork*.saveAs(modelPath);
     }
-    
+
     public saveIfBetter:(inout this) = {
         if isBetter {
             save();
@@ -216,7 +225,7 @@ Ai: type = {
     }
 
     public processStartGame:(override inout this) = {
-        if neuralNetwork.isValid() != snn::errorType::noError {
+        if neuralNetwork*.isValid() != snn::errorType::noError {
             std::cout << "INVALID MODEL !" << std::endl;
             std::exit(0);
         }

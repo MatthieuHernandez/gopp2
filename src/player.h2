@@ -7,8 +7,16 @@ static std::random_device rd;
 static std::mt19937 rng(rd());
 
 Player: type = {
-    public color: Color;
+    protected color: Color;
     public hasWon: bool;
+
+    public getColor:(in this) -> Color = {
+        return color;
+    }
+
+    public setColor:(virtual inout this, c: Color) = {
+        color = c;
+    }
 
     public getMove:(virtual inout this, inout engine: Engine<9>) -> Move;
 

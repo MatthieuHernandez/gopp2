@@ -262,6 +262,7 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
 
 #line 193 "../src/io.h2"
 [[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<Color> color) -> std::string{
+    auto add_itself {color == Color::White}; 
     clear();
     auto title {"*                  " + cpp2::impl::as_<std::string>(size) + "x" + cpp2::impl::as_<std::string>(size) + " players"}; 
     auto select {"* Please select " + colorName(color) + " player:"}; 
@@ -270,6 +271,9 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
     std::cout << "**************************************************" << std::endl;
     std::cout << std::left << std::setw(49) << std::setfill(' ') << cpp2::move(select) << "*" << std::endl;
     std::cout << "*                                                *" << std::endl;
+    if ((color == Color::White)) {
+        std::cout << "*    -1. Itself                                  *" << std::endl;
+    }
     std::cout << "*     0. Human Player                            *" << std::endl;
     std::cout << "*     1. Dumb Player                             *" << std::endl;
     std::cout << "*     2. Random Player                           *" << std::endl;
@@ -277,7 +281,7 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
 {
 cpp2::i8 i{0};
 
-#line 207 "../src/io.h2"
+#line 211 "../src/io.h2"
     for( ; cpp2::impl::cmp_less(i,CPP2_UFCS(ssize)(modelNames)); 
     ++i ) 
     {
@@ -285,14 +289,14 @@ cpp2::i8 i{0};
         std::cout << std::left << std::setw(49) << std::setfill(' ') << cpp2::move(model) << "*" << std::endl;
     }
 }
-#line 213 "../src/io.h2"
+#line 217 "../src/io.h2"
     std::cout << "**************************************************" << std::endl;
     std::cout << std::endl << getNextMessage() << std::endl;
     cpp2::i32 input {0}; 
     std::cout << "> ";
     std::cin >> input;
     clearInput();
-    if ((cpp2::impl::cmp_greater_eq(input,0) && cpp2::impl::cmp_less_eq(input,2))) {
+    if ((cpp2::impl::cmp_greater_eq(input,-1) && cpp2::impl::cmp_less_eq(input,2))) {
         return cpp2::impl::as_<std::string>(input); 
     }
     input -= 3;
