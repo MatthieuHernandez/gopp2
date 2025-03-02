@@ -44,8 +44,8 @@ if [[ "$BUILD_TYPE" == "Debug" ]]; then
 fi
 
 # Configurer et compiler avec CMake et Ninja
-cmake -S . -B $BUILD_DIR -G Ninja -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
-ninja -C $BUILD_DIR
+cmake -S . -B $BUILD_DIR -G"Unix Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+make -C $BUILD_DIR
 
 # Exécuter le binaire si demandé
 if [[ "$RUN" != "norun" ]]; then
