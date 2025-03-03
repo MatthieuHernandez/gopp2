@@ -49,5 +49,5 @@ make -C $BUILD_DIR
 
 # Exécuter le binaire si demandé
 if [[ "$RUN" != "norun" ]]; then
-    "$BUILD_DIR/gopp2.exe"
+    "$BUILD_DIR/gopp2"
 fi

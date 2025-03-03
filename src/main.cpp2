@@ -1,7 +1,23 @@
-#include "windows.h"
-
 #include "io.h2"
 #include "game.h2"
+
+#ifdef _WIN32
+#include "windows.h"
+#endif
+
+constexpr bool win32 =
+#ifdef _WIN32
+    true;
+#else
+    false;
+#endif
+
+void windowsConfig() {
+    #ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    #endif
+}
+
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
@@ -14,8 +30,8 @@ void signalHandler(int signal) {
 }
 
 cpp2_main:() -> int = {
+    windowsConfig();
     signal(SIGINT, signalHandler);
-    SetConsoleOutputCP(CP_UTF8);
     exit: bool = false;
     game:= Game();
     do {

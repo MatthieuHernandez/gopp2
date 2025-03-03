@@ -12,10 +12,26 @@
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/main.cpp2"
-#include "windows.h"
-
 #include "io.h"
 #include "game.h"
+
+#ifdef _WIN32
+#include "windows.h"
+#endif
+
+constexpr bool win32 =
+#ifdef _WIN32
+    true;
+#else
+    false;
+#endif
+
+void windowsConfig() {
+    #ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    #endif
+}
+
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
@@ -27,9 +43,9 @@ void signalHandler(int signal) {
     }
 }
 
-#line 16 "../src/main.cpp2"
+#line 32 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int;
-#line 46 "../src/main.cpp2"
+#line 62 "../src/main.cpp2"
 
 int main() {
     try { // CPP2 workaround: Try catch not yet supported.
@@ -45,10 +61,10 @@ int main() {
 
 #line 1 "../src/main.cpp2"
 
-#line 16 "../src/main.cpp2"
+#line 32 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int{
+    windowsConfig();
     signal(SIGINT, signalHandler);
-    SetConsoleOutputCP(CP_UTF8);
     bool exit {false}; 
     auto game {Game()}; 
     do {
