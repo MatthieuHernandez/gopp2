@@ -19,19 +19,19 @@ if [[ "$BUILD_TYPE" == "Debug" ]]; then
     DEBUG_ARG="-d"
 fi
 
-cppfront -cwd ./generate ../src/color.h2 $DebugArg |
-cppfront -cwd ./generate ../src/stone.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/move.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/goban.h2  -import-std $DebugArg |
-cppfront -cwd ./generate ../src/engine.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/io.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/player.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/human.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/dumb.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/random.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/ai.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/itself.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/game.h2 -import-std $DebugArg |
+cppfront -cwd ./generate ../src/color.h2 $DebugArg
+cppfront -cwd ./generate ../src/stone.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/move.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/goban.h2  -import-std $DebugArg
+cppfront -cwd ./generate ../src/engine.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/io.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/player.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/human.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/dumb.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/random.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/ai.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/itself.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/game.h2 -import-std $DebugArg
 cppfront -cwd ./generate ../src/main.cpp2 -import-std $DebugArg
 
 # Déplacer les fichiers de debug si nécessaire
@@ -44,7 +44,7 @@ if [[ "$BUILD_TYPE" == "Debug" ]]; then
 fi
 
 # Configurer et compiler avec CMake et Ninja
-cmake -S . -B $BUILD_DIR -G"Unix Makefiles" -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+cmake -S . -B $BUILD_DIR -G"Unix Makefiles" -DCMAKE_CXX_COMPILER=g++-14 -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 make -C $BUILD_DIR
 
 # Exécuter le binaire si demandé

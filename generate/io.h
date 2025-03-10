@@ -244,9 +244,9 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
     std::vector<std::array<std::string,2>> modelFiles {}; 
     std::string path {""}; 
     if (size == 9) {
-        path = ".\\snn_models\\9x9";
+        path = "./snn_models/9x9";
     }else {if (size == 19) {
-        path = ".\\snn_models\\19x19";
+        path = "./snn_models/19x19";
     }}
 
     auto files {std::filesystem::directory_iterator(path)}; 
