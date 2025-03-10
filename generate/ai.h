@@ -97,18 +97,18 @@ class Ai: public Player {
 
 #line 5 "../src/ai.h2"
 auto createAi() -> void{
-    /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(16, 3, snn::activation::ReLU),
-                                            snn::Convolution(32, 3, snn::activation::ReLU),
-                                            snn::Convolution(64, 3, snn::activation::ReLU),
-                                            snn::Convolution(128, 3, snn::activation::ReLU),
-                                            snn::FullyConnected(81, snn::activation::tanh));*/
     std::vector<snn::LayerModel> layers {snn::Input(1, 9, 9), 
-                                            snn::FullyConnected(1000, snn::activation::ReLU), 
+                                            snn::Convolution(16, 3, snn::activation::ReLU), 
+                                            snn::Convolution(32, 3, snn::activation::ReLU), 
+                                            snn::Convolution(64, 3, snn::activation::ReLU), 
+                                            snn::Convolution(128, 3, snn::activation::ReLU), 
                                             snn::FullyConnected(81, snn::activation::tanh)}; 
+    /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
+                                            snn::FullyConnected(1000, snn::activation::ReLU),
+                                            snn::FullyConnected(81, snn::activation::tanh));*/
     auto optimizer {snn::StochasticGradientDescent(1e-4f, 0.0f)}; 
     auto neuralNetwork {snn::StraightforwardNeuralNetwork(cpp2::move(layers), cpp2::move(optimizer))}; 
-    CPP2_UFCS(saveAs)(neuralNetwork, "./snn_models/9x9/model_v03_dense.snn");
+    CPP2_UFCS(saveAs)(neuralNetwork, "./snn_models/9x9/model_02.snn");
     if (CPP2_UFCS(isValid)(cpp2::move(neuralNetwork)) != snn::errorType::noError) {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);

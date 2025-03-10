@@ -3,18 +3,18 @@
 #include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
 
 createAi:() = {
-    /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
+    layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
                                             snn::Convolution(16, 3, snn::activation::ReLU),
                                             snn::Convolution(32, 3, snn::activation::ReLU),
                                             snn::Convolution(64, 3, snn::activation::ReLU),
                                             snn::Convolution(128, 3, snn::activation::ReLU),
-                                            snn::FullyConnected(81, snn::activation::tanh));*/
-    layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::FullyConnected(1000, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
+    /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
+                                            snn::FullyConnected(1000, snn::activation::ReLU),
+                                            snn::FullyConnected(81, snn::activation::tanh));*/
     optimizer:= snn::StochasticGradientDescent(1e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/model_v03_dense.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/model_02.snn");
     if neuralNetwork.isValid() != snn::errorType::noError {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);
