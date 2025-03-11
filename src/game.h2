@@ -216,7 +216,7 @@ Game: type = {
             switchPlayerColor();
             if i % 100 == 0 {
                 isRunning = true;
-                player1*.save();
+                player1*.saveIfBetter();
                 isRunning = false;
             }
             i++;

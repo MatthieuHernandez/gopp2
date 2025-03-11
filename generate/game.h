@@ -302,7 +302,7 @@ bool isRunning {false};
             switchPlayerColor();
             if (i % 100 == 0) {
                 isRunning = true;
-                CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
+                CPP2_UFCS(saveIfBetter)((*cpp2::impl::assert_not_null(player1)));
                 isRunning = false;
             }
             ++i;
