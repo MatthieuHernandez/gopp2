@@ -15,6 +15,8 @@ constexpr int RaspberryScreenHeight = 480;
 
 class Window : public QMainWindow {
   private:
+  QWidget* gobanWidget = nullptr;
+
     std::tuple<QHBoxLayout*, QVBoxLayout*> getTabLayouts() {
         auto* tabWidget = new QTabWidget;
         this->setCentralWidget(tabWidget);
@@ -41,12 +43,18 @@ class Window : public QMainWindow {
         return {mainLayout, menuLayout};
     }
 
-    void displayGoban(QHBoxLayout* layout) {
-        auto* gobanWidget = new GobanWidget<9>(this);
-        layout->addWidget(gobanWidget, Qt::AlignTop, Qt::AlignLeft);
+    void displayGoban(const int8_t size, QHBoxLayout* mainLayout) {
+        if (size == 9) {
+            gobanWidget = new GobanWidget<9>(this);
+        } else if (size == 13) {
+            gobanWidget = new GobanWidget<13>(this);
+        } else {
+            gobanWidget = new GobanWidget<19>(this);
+        }
+        mainLayout->addWidget(gobanWidget, Qt::AlignTop, Qt::AlignLeft);
     }
 
-    void displayMenuLine1(QVBoxLayout* menuLayout) {
+    void displayMenuLine1(QHBoxLayout* mainLayout, QVBoxLayout* menuLayout) {
         auto* line1Layout = new QHBoxLayout();
         menuLayout->addLayout(line1Layout);
         QLabel* selectGobanText = new QLabel("Select Goban: ", this);
@@ -57,6 +65,11 @@ class Window : public QMainWindow {
         line1Layout->addWidget(selectGobanText);
         line1Layout->addItem(new QSpacerItem(50, 0));
         line1Layout->addWidget(selectGoban);
+        QObject::connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
+            auto size = selectGoban->itemData(index).toInt();
+            delete gobanWidget;
+            displayGoban(size, mainLayout);
+        });
     }
 
     void displayMenuLine2(QVBoxLayout* menuLayout) {
@@ -88,9 +101,9 @@ class Window : public QMainWindow {
         QHBoxLayout* mainLayout = nullptr;
         QVBoxLayout* menuLayout = nullptr;
         std::tie(mainLayout, menuLayout) = getTabLayouts();
-        displayMenuLine1(menuLayout);
+        displayMenuLine1(mainLayout, menuLayout);
         displayMenuLine2(menuLayout);
-        displayGoban(mainLayout);
+        displayGoban(9, mainLayout);
         //displayMenuLine3(menuLayout);
     }
 };
