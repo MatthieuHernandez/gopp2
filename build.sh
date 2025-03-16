@@ -32,6 +32,7 @@ cppfront -cwd ./generate ../src/random.h2 -import-std $DebugArg
 cppfront -cwd ./generate ../src/ai.h2 -import-std $DebugArg
 cppfront -cwd ./generate ../src/itself.h2 -import-std $DebugArg
 cppfront -cwd ./generate ../src/game.h2 -import-std $DebugArg
+cppfront -cwd ./generate ../src/gui.h2 -import-std $DebugArg
 cppfront -cwd ./generate ../src/main.cpp2 -import-std $DebugArg
 
 # Déplacer les fichiers de debug si nécessaire

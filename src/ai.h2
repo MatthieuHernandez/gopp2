@@ -97,7 +97,7 @@ Ai: type = {
         return vec;
     }
 
-    private chooseBestMove:<Size: i8>(inout this, in nn_output: std::vector<float>, inout engine: Engine<Size>) -> Move = {
+    private chooseBestMove:<Size: i8>(inout this, in nnOutput: std::vector<float>, inout engine: Engine<Size>) -> Move = {
         index: i16 = 0;
         estimatedPositions: std::vector<Stone> = ();
         numberOfPositions:= Size * Size;
@@ -110,7 +110,7 @@ Ai: type = {
             while row < Size
             next row++
             {
-                estimation:= nn_output[index];
+                estimation:= nnOutput[index];
                 stone:=  Stone(color, col, row, estimation);
                 estimatedPositions.push_back(stone);
                 index++;
@@ -118,8 +118,8 @@ Ai: type = {
         }
         std::ranges::sort(estimatedPositions, std::ranges::greater(), Stone::estimation&);
         dist: std::uniform_int_distribution<i64> = (0, randomness-1);
-        picked_index:= dist(rng);
-        s:= estimatedPositions[picked_index];
+        pickedIndex:= dist(rng);
+        s:= estimatedPositions[pickedIndex];
         m:= Move(s);
         if engine.isValidMove(m) {
             return m;
@@ -128,7 +128,7 @@ Ai: type = {
         while index2 < numberOfPositions
         next index2++
         {
-            if (index2 != picked_index) {
+            if (index2 != pickedIndex) {
                 s2:= estimatedPositions[index2];
                 m2:= Move(s2);
                 if engine.isValidMove(m2) {

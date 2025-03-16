@@ -55,7 +55,7 @@ class Ai: public Player {
     private: template<cpp2::i8 Size> [[nodiscard]] auto getGobanState(cpp2::impl::in<State<Stone,Size>> state) const& -> std::vector<float>;
 
 #line 100 "../src/ai.h2"
-    private: template<cpp2::i8 Size> [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output, Engine<Size>& engine) & -> Move;
+    private: template<cpp2::i8 Size> [[nodiscard]] auto chooseBestMove(cpp2::impl::in<std::vector<float>> nnOutput, Engine<Size>& engine) & -> Move;
 
 #line 142 "../src/ai.h2"
     private: template<cpp2::i8 Size> [[nodiscard]] auto getMove(Engine<Size>& engine) & -> Move;
@@ -206,7 +206,7 @@ cpp2::i8 row{0};
     }
 
 #line 100 "../src/ai.h2"
-    template<cpp2::i8 Size> [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nn_output, Engine<Size>& engine) & -> Move{
+    template<cpp2::i8 Size> [[nodiscard]] auto Ai::chooseBestMove(cpp2::impl::in<std::vector<float>> nnOutput, Engine<Size>& engine) & -> Move{
         cpp2::i16 index {0}; 
         std::vector<Stone> estimatedPositions {}; 
         auto numberOfPositions {Size * Size}; 
@@ -225,7 +225,7 @@ cpp2::i8 row{0};
             for( ; cpp2::impl::cmp_less(row,Size); 
             ++row ) 
             {
-                auto estimation {CPP2_ASSERT_IN_BOUNDS(nn_output, index)}; 
+                auto estimation {CPP2_ASSERT_IN_BOUNDS(nnOutput, index)}; 
                 auto stone {Stone(color, col, row, cpp2::move(estimation))}; 
                 CPP2_UFCS(push_back)(estimatedPositions, cpp2::move(stone));
                 ++index;
@@ -237,8 +237,8 @@ cpp2::i8 row{0};
 #line 119 "../src/ai.h2"
         std::ranges::sort(estimatedPositions, std::ranges::greater(), &Stone::estimation);
         std::uniform_int_distribution<cpp2::i64> dist {0, randomness - 1}; 
-        auto picked_index {cpp2::move(dist)(rng)}; 
-        auto s {CPP2_ASSERT_IN_BOUNDS(estimatedPositions, picked_index)}; 
+        auto pickedIndex {cpp2::move(dist)(rng)}; 
+        auto s {CPP2_ASSERT_IN_BOUNDS(estimatedPositions, pickedIndex)}; 
         auto m {Move(cpp2::move(s))}; 
         if (CPP2_UFCS(isValidMove)(engine, m)) {
             return m; 
@@ -250,7 +250,7 @@ cpp2::i16 index2{0};
         for( ; cpp2::impl::cmp_less(index2,numberOfPositions); 
         ++index2 ) 
         {
-            if ((index2 != picked_index)) {
+            if ((index2 != pickedIndex)) {
                 auto s2 {CPP2_ASSERT_IN_BOUNDS(estimatedPositions, index2)}; 
                 auto m2 {Move(cpp2::move(s2))}; 
                 if (CPP2_UFCS(isValidMove)(engine, m2)) {

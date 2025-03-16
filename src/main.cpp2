@@ -1,5 +1,6 @@
 #include "io.h2"
 #include "game.h2"
+#include "../src/gui.h"
 
 #ifdef _WIN32
 #include "windows.h"
@@ -60,11 +61,21 @@ cpp2_main:() -> int = {
   return 0;
 }
 
-int main() {
+/*int main() {
     try { // CPP2 workaround: Try catch not yet supported.
         return cpp2_main();
     } catch (const std::exception& e) {
         std::cerr << "Caught exception: " << e.what() << std::endl;
     }
     return 0;
+}*/
+
+
+#include <QApplication>
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    Window window;
+    window.show();
+    return app.exec();
 }

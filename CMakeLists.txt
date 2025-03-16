@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD  20)
 
 include_directories(../cppfront/include)
 
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -21,5 +23,5 @@ FetchContent_MakeAvailable(StraightforwardNeuralNetwork)
 add_executable(gopp2 ./generate/main.cpp)
 
 target_compile_options(gopp2 PRIVATE -w)
-target_link_libraries(gopp2 StraightforwardNeuralNetwork)
+target_link_libraries(gopp2 Qt6::Widgets StraightforwardNeuralNetwork)
 

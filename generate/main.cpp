@@ -14,6 +14,7 @@
 #line 1 "../src/main.cpp2"
 #include "io.h"
 #include "game.h"
+#include "../src/gui.h"
 
 #ifdef _WIN32
 #include "windows.h"
@@ -43,17 +44,27 @@ void signalHandler(int signal) {
     }
 }
 
-#line 32 "../src/main.cpp2"
+#line 33 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int;
-#line 62 "../src/main.cpp2"
+#line 63 "../src/main.cpp2"
 
-int main() {
+/*int main() {
     try { // CPP2 workaround: Try catch not yet supported.
         return cpp2_main();
     } catch (const std::exception& e) {
         std::cerr << "Caught exception: " << e.what() << std::endl;
     }
     return 0;
+}*/
+
+
+#include <QApplication>
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    Window window;
+    window.show();
+    return app.exec();
 }
 
 
@@ -61,7 +72,7 @@ int main() {
 
 #line 1 "../src/main.cpp2"
 
-#line 32 "../src/main.cpp2"
+#line 33 "../src/main.cpp2"
 [[nodiscard]] auto cpp2_main() -> int{
     windowsConfig();
     signal(SIGINT, signalHandler);

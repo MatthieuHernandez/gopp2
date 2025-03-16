@@ -89,23 +89,23 @@ cpp2::i8 row{0};
 
 #line 27 "../src/goban.h2"
            template <cpp2::i8 Size> [[nodiscard]] auto Goban<Size>::getAdjacentStone(cpp2::impl::in<Stone> s, cpp2::impl::in<State<bool,Size>> processedStones, cpp2::impl::in<bool> count) & -> std::vector<Stone>{
-        std::vector<Stone> adjacent_stones {}; 
+        std::vector<Stone> adjacentStones {}; 
         if (cpp2::impl::cmp_greater(s.col,0) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col - 1), s.row))) {
-            CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col - 1), s.row));
+            CPP2_UFCS(push_back)(adjacentStones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col - 1), s.row));
         }
         if (cpp2::impl::cmp_less(s.col,maxIndex) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col + 1), s.row))) {
-            CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col + 1), s.row));
+            CPP2_UFCS(push_back)(adjacentStones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col + 1), s.row));
         }
         if (cpp2::impl::cmp_greater(s.row,0) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col), s.row - 1))) {
-            CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row - 1));
+            CPP2_UFCS(push_back)(adjacentStones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row - 1));
         }
         if (cpp2::impl::cmp_less(s.row,maxIndex) && !(CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(processedStones, s.col), s.row + 1))) {
-                CPP2_UFCS(push_back)(adjacent_stones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row + 1));
+                CPP2_UFCS(push_back)(adjacentStones, CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(state, s.col), s.row + 1));
         }
         if (count) {
-            iterations += CPP2_UFCS(ssize)(adjacent_stones);
+            iterations += CPP2_UFCS(ssize)(adjacentStones);
         }
-        return adjacent_stones; 
+        return adjacentStones; 
     }
 
 #line 47 "../src/goban.h2"
