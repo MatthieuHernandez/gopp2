@@ -24,7 +24,7 @@ class GobanWidget : public QWidget {
                 layout->addWidget(labels[index], row, col);
             }
         }
-
         this->setLayout(layout);
+        this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
 };

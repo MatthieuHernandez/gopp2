@@ -7,6 +7,7 @@
 #include <QTabWidget>
 
 #include "goban_widget.h"
+#include "../generate/io.h"
 
 constexpr int gobanImageSize = 429;
 
@@ -16,94 +17,129 @@ constexpr int RaspberryScreenHeight = 480;
 class Window : public QMainWindow {
   private:
   QWidget* gobanWidget = nullptr;
+  QTabWidget* tabWidget = nullptr;
+  QVBoxLayout* menuLayout = nullptr;
+  QVBoxLayout* mainLayout = nullptr;
+  int8_t gobanSize = 9;
 
-    std::tuple<QHBoxLayout*, QVBoxLayout*> getTabLayouts() {
-        auto* tabWidget = new QTabWidget;
+
+    void displayTabLayouts() {
+        this->tabWidget = new QTabWidget;
         this->setCentralWidget(tabWidget);
 
         this->setFixedSize(RaspberryScreenWidth, RaspberryScreenHeight);
         this->centralWidget()->setFixedSize(this->size());
 
+        QWidget* menuTab = new QWidget(this);
+        this->menuLayout = new QVBoxLayout(menuTab);
+        this->menuLayout->setContentsMargins(8, 8, 8, 8);
+        this->menuLayout->setSpacing(8);
+        this->menuLayout->setAlignment(Qt::AlignTop);
+        menuTab->setLayout(this->menuLayout);
+        this->tabWidget->addTab(menuTab, "Menu");
+
         QWidget *mainTab = new QWidget(this);
-        auto* mainLayout = new QHBoxLayout(mainTab);
-        mainLayout->setContentsMargins(0, 0, 0, 0);
-        mainLayout->setSpacing(0);
-        mainLayout->setAlignment(Qt::AlignTop);
+        this->mainLayout = new QVBoxLayout(mainTab);
+        this->mainLayout->setContentsMargins(0, 0, 0, 0);
+        this->mainLayout->setSpacing(0);
+        this->mainLayout->setAlignment(Qt::AlignTop);
         mainTab->setLayout(mainLayout);
-        tabWidget->addTab(mainTab, "Main");
-
-        QWidget *menuTab = new QWidget(this);
-        auto* menuLayout = new QVBoxLayout(menuTab);
-        menuLayout->setContentsMargins(8, 8, 8, 8);
-        menuLayout->setSpacing(8);
-        menuLayout->setAlignment(Qt::AlignTop);
-        menuTab->setLayout(menuLayout);
-        tabWidget->addTab(menuTab, "Menu");
-
-        return {mainLayout, menuLayout};
+        this->tabWidget->addTab(mainTab, "Game");
+        this->tabWidget->tabBar()->hide();
     }
 
-    void displayGoban(const int8_t size, QHBoxLayout* mainLayout) {
-        if (size == 9) {
-            gobanWidget = new GobanWidget<9>(this);
-        } else if (size == 13) {
-            gobanWidget = new GobanWidget<13>(this);
-        } else {
-            gobanWidget = new GobanWidget<19>(this);
+    void displayGoban() {
+        if(this->gobanWidget != nullptr) {
+            delete this->gobanWidget;
         }
-        mainLayout->addWidget(gobanWidget, Qt::AlignTop, Qt::AlignLeft);
+        if (this->gobanSize == 9) {
+            this->gobanWidget = new GobanWidget<9>(this);
+        } else if (this->gobanSize == 13) {
+            this->gobanWidget = new GobanWidget<13>(this);
+        } else {
+            this->gobanWidget = new GobanWidget<19>(this);
+        }
+        this->mainLayout->insertWidget(0, this->gobanWidget);
+
     }
 
-    void displayMenuLine1(QHBoxLayout* mainLayout, QVBoxLayout* menuLayout) {
+    void displayMainLine2() {
+        auto* line2Layout = new QHBoxLayout();
+        this->mainLayout->addLayout(line2Layout);
+        auto* stopButton = new QPushButton("Stop", this);
+        line2Layout->addWidget(stopButton, 1);
+        this->connect(stopButton, &QPushButton::clicked, this, [=]() {
+            this->tabWidget->setCurrentIndex(0);
+        });
+    }
+
+    void displayMenuLine1() {
         auto* line1Layout = new QHBoxLayout();
-        menuLayout->addLayout(line1Layout);
-        QLabel* selectGobanText = new QLabel("Select Goban: ", this);
+        this->menuLayout->addLayout(line1Layout);
+        QLabel* selectGobanText = new QLabel("Goban size:", this);
         QComboBox* selectGoban = new QComboBox(this);
         selectGoban->insertItem(0, "9x9", 9);
         selectGoban->insertItem(1, "13x13", 13);
         selectGoban->insertItem(2, "19x19", 19);
         line1Layout->addWidget(selectGobanText);
-        line1Layout->addItem(new QSpacerItem(50, 0));
         line1Layout->addWidget(selectGoban);
-        QObject::connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
-            auto size = selectGoban->itemData(index).toInt();
-            delete gobanWidget;
-            displayGoban(size, mainLayout);
+        line1Layout->addItem(new QSpacerItem(100, 0));
+        this->connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
+            this->gobanSize = selectGoban->itemData(index).toInt();
+            displayGoban();
         });
     }
 
-    void displayMenuLine2(QVBoxLayout* menuLayout) {
+    void displayMenuLine2() {
         auto* line2Layout = new QHBoxLayout();
-        menuLayout->addLayout(line2Layout);
-        QLabel* selectPlayersText = new QLabel("Select Players:", this);
+        this->menuLayout->addLayout(line2Layout);
+        QLabel* selectPlayersText = new QLabel("Players:", this);
         QComboBox* selectPlayer1 = new QComboBox(this);
-        QLabel* vsText = new QLabel(" vs ", this);
+        QLabel* vsText = new QLabel("vs", this);
         vsText->adjustSize();
         vsText->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
         vsText->setMaximumWidth(vsText->sizeHint().width());
         QComboBox* selectPlayer2 = new QComboBox(this);
         line2Layout->addWidget(selectPlayersText);
-        line2Layout->addItem(new QSpacerItem(50, 0));
         line2Layout->addWidget(selectPlayer1);
         line2Layout->addWidget(vsText);
         line2Layout->addWidget(selectPlayer2);
+        auto models = getSnnModels(this->gobanSize);
+
+        selectPlayer2->insertItem(0, "Itself", "-1");
+        selectPlayer1->insertItem(0, "Human", "0");
+        selectPlayer2->insertItem(1, "Human", "0");
+        selectPlayer1->insertItem(1, "Dumb", "1");
+        selectPlayer2->insertItem(2, "Dumb", "1");
+        selectPlayer1->insertItem(2, "Random", "2");
+        selectPlayer2->insertItem(3, "Random", "2");
+        int i = 3;
+        for (auto& model : models) {
+            QString name = QString::fromStdString(model[0]);
+            QString path = QString::fromStdString(model[1]);
+            selectPlayer1->insertItem(i, name, path);
+            selectPlayer2->insertItem(i+1, name, path);
+            i++;
+        }
     }
 
-    /*void displayMenuLine3(QVBoxLayout* menuLayout) {
-        auto* line2Layout = new QHBoxLayout(this);
-        menuLayout->addLayout(line2Layout);
-        QLabel* select_players_text = new QLabel("Select Players:", this);
-        line2Layout->addWidget(select_players_text);
-    }*/
+    void displayMenuLine3() {
+        auto* line3Layout = new QHBoxLayout();
+        this->menuLayout->addLayout(line3Layout);
+        auto* playOneButton = new QPushButton("Play one game", this);
+        line3Layout->addWidget(playOneButton);
+        this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
+            this->tabWidget->setCurrentIndex(1);
+        });
+    }
 
   public:
     Window(QWidget* parent = nullptr) : QMainWindow(parent) {
-        QHBoxLayout* mainLayout = nullptr;
-        QVBoxLayout* menuLayout = nullptr;
-        std::tie(mainLayout, menuLayout) = getTabLayouts();
-        displayMenuLine1(mainLayout, menuLayout);
-        displayMenuLine2(menuLayout);
-        displayGoban(9, mainLayout);
-        //displayMenuLine3(menuLayout);
+        this->displayTabLayouts();
+        this->displayMenuLine1();
+        this->displayMenuLine2();
+        this->displayMenuLine3();
+        this->displayGoban();
+        this->displayMainLine2();
     }
 };
