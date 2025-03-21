@@ -3,8 +3,8 @@
 Dumb: type = {
     this: Player;
 
-    public operator=:(out this, c: Color) = {
-        Player = (c);
+    public operator=:(out this, i: *Interface, c: Color) = {
+        Player = (i, c);
     }
 
     public operator=:(out this, that) = {

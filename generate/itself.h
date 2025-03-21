@@ -26,7 +26,7 @@ class Itself: public Player {
 
     public: Ai ai; 
 
-    public: Itself(cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> r, cpp2::impl::in<Ai> aiToCopy);
+    public: Itself(Interface* i, cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> r, cpp2::impl::in<Ai> aiToCopy);
 
 #line 13 "../src/itself.h2"
     public: virtual auto setColor(cpp2::impl::in<Color> c) -> void;
@@ -49,9 +49,9 @@ class Itself: public Player {
 #line 1 "../src/itself.h2"
 
 #line 8 "../src/itself.h2"
-    Itself::Itself(cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> r, cpp2::impl::in<Ai> aiToCopy)
-         : Player{ c }
-         , ai{ Ai(c, r, aiToCopy) }{
+    Itself::Itself(Interface* i, cpp2::impl::in<Color> c, cpp2::impl::in<cpp2::i16> r, cpp2::impl::in<Ai> aiToCopy)
+         : Player{ i, c }
+         , ai{ Ai(i, c, r, aiToCopy) }{
 
 #line 11 "../src/itself.h2"
     }

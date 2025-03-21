@@ -24,7 +24,7 @@ class Human;
 class Human: public Player {
 
 #line 6 "../src/human.h2"
-    public: Human(cpp2::impl::in<Color> c);
+    public: Human(Interface* i, cpp2::impl::in<Color> c);
 
 #line 10 "../src/human.h2"
     public: Human(Human const& that);
@@ -44,8 +44,8 @@ class Human: public Player {
 #line 1 "../src/human.h2"
 
 #line 6 "../src/human.h2"
-    Human::Human(cpp2::impl::in<Color> c)
-        : Player{ c }{
+    Human::Human(Interface* i, cpp2::impl::in<Color> c)
+        : Player{ i, c }{
 
 #line 8 "../src/human.h2"
     }
@@ -59,12 +59,12 @@ class Human: public Player {
 
 #line 14 "../src/human.h2"
     [[nodiscard]] auto Human::getMove([[maybe_unused]] Engine<9>& unnamed_param_2) -> Move{
-        return getInputMove<9>(color); 
+        return CPP2_UFCS(waitForAMove)((*cpp2::impl::assert_not_null(interface)), color); 
     }
 
 #line 18 "../src/human.h2"
     [[nodiscard]] auto Human::getMove([[maybe_unused]] Engine<19>& unnamed_param_2) -> Move{
-        return getInputMove<19>(color); 
+        return CPP2_UFCS(waitForAMove)((*cpp2::impl::assert_not_null(interface)), color); 
     }
 #endif
 

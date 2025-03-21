@@ -1,3 +1,4 @@
+#include "interface.h2"
 #include "move.h2"
 #include "engine.h2"
 
@@ -7,8 +8,15 @@ static std::random_device rd;
 static std::mt19937 rng(rd());
 
 Player: type = {
+    protected interface: *Interface;
     protected color: Color;
     public hasWon: bool;
+
+    public operator=:(out this, i: *Interface, c: Color) = {
+        interface = i;
+        color = c;
+        hasWon = false;
+    }
 
     public getColor:(in this) -> Color = {
         return color;
@@ -21,11 +29,6 @@ Player: type = {
     public getMove:(virtual inout this, inout engine: Engine<9>) -> Move;
 
     public getMove:(virtual inout this, inout engine: Engine<19>) -> Move;
-
-    public operator=:(out this, c: Color) = {
-        color = c;
-        hasWon = false;
-    }
 
     // CPP2 workaround: Default operator seems not working.
     public operator=:(out this, that) = {

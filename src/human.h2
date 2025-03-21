@@ -3,8 +3,8 @@
 Human: type = {
     this: Player;
 
-    public operator=:(out this, c: Color) = {
-        Player = (c);
+    public operator=:(out this, i: *Interface, c: Color) = {
+        Player = (i, c);
     }
 
     public operator=:(out this, that) = {
@@ -12,10 +12,10 @@ Human: type = {
     }
 
     public getMove:(override inout this, inout _: Engine<9>) -> Move = {
-        return getInputMove<9>(color);
+        return interface*.waitForAMove(color);
     }
 
     public getMove:(override inout this, inout _: Engine<19>) -> Move = {
-        return getInputMove<19>(color);
+        return interface*.waitForAMove(color);
     }
 }

@@ -24,7 +24,7 @@ class Random;
 class Random: public Player {
 
 #line 6 "../src/random.h2"
-    public: Random(cpp2::impl::in<Color> c);
+           public: Random(Interface* i, cpp2::impl::in<Color> c);
 
 #line 10 "../src/random.h2"
     public: Random(Random const& that);
@@ -47,8 +47,8 @@ class Random: public Player {
 #line 1 "../src/random.h2"
 
 #line 6 "../src/random.h2"
-    Random::Random(cpp2::impl::in<Color> c)
-        : Player{ c }{
+           Random::Random(Interface* i, cpp2::impl::in<Color> c)
+        : Player{ i, c }{
 
 #line 8 "../src/random.h2"
     }

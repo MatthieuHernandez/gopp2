@@ -12,8 +12,9 @@
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/main.cpp2"
-#include "io.h"
+#include "cli_interface.h"
 #include "game.h"
+#include "interface.h"
 #include "../src/gui.h"
 
 #ifdef _WIN32
@@ -44,27 +45,29 @@ void signalHandler(int signal) {
     }
 }
 
-#line 33 "../src/main.cpp2"
-[[nodiscard]] auto cpp2_main() -> int;
-#line 63 "../src/main.cpp2"
-
-/*int main() {
-    try { // CPP2 workaround: Try catch not yet supported.
-        return cpp2_main();
-    } catch (const std::exception& e) {
-        std::cerr << "Caught exception: " << e.what() << std::endl;
-    }
-    return 0;
-}*/
+#line 34 "../src/main.cpp2"
+[[nodiscard]] auto cliApp() -> int;
+#line 76 "../src/main.cpp2"
 
 
 #include <QApplication>
 
 int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
-    Window window;
-    window.show();
-    return app.exec();
+
+    if (argc > 1 && static_cast<std::string>(argv[1]) == "nogui") {
+        try { // CPP2 workaround: Try catch not yet supported.
+            return cliApp();
+        } catch (const std::exception& e) {
+            std::cerr << "Caught exception: " << e.what() << std::endl;
+        }
+    }
+    else {
+        QApplication guiApp(argc, argv);
+        Window window;
+        window.show();
+        return guiApp.exec();
+    }
+    return 0;
 }
 
 
@@ -72,23 +75,35 @@ int main(int argc, char *argv[]) {
 
 #line 1 "../src/main.cpp2"
 
-#line 33 "../src/main.cpp2"
-[[nodiscard]] auto cpp2_main() -> int{
+#line 34 "../src/main.cpp2"
+[[nodiscard]] auto cliApp() -> int{
     windowsConfig();
     signal(SIGINT, signalHandler);
     bool exit {false}; 
-    auto game {Game()}; 
+    auto cliInterface {CliInterface()}; 
+    auto game {Game(&cliInterface)}; 
     do {
         auto size {CPP2_UFCS(getGobanSize)(game)}; 
         auto players {CPP2_UFCS(getPlayerNames)(game)}; 
-        auto selection {printMenuAndSelect(cpp2::move(size), cpp2::move(players))}; 
+        auto selection {printMenuAndSelect(size, cpp2::move(players))}; 
         if (selection == 0) {
-            clear("Bye.");
+            CPP2_UFCS(clear)(cliInterface);
+            CPP2_UFCS(print)(cliInterface, "Bye.");
             exit = true;
         }else {if (selection == 1) {
-            CPP2_UFCS(changeGobanSize)(game);
+        if ((CPP2_UFCS(getGobanSize)(game) == 9)) {
+            CPP2_UFCS(setGobanSize)(game, 13);
+        }else {if ((CPP2_UFCS(getGobanSize)(game) == 13)) {
+            CPP2_UFCS(setGobanSize)(game, 19);
+        }else {if ((CPP2_UFCS(getGobanSize)(game) == 19)) {
+            CPP2_UFCS(setGobanSize)(game, 9);
+        }}}
         }else {if (selection == 2) {
-            CPP2_UFCS(selectPlayers)(game);
+            auto selection {printPlayersAndSelect(size, Color::Black)}; 
+            CPP2_UFCS(selectPlayer)(game, Color::Black, selection);
+            selection = printPlayersAndSelect(cpp2::move(size), Color::White);
+            CPP2_UFCS(selectPlayer)(game, Color::White, cpp2::move(selection));
+            CPP2_UFCS(print)(cliInterface, "Players selected.");
         }else {if (selection == 3) {
             CPP2_UFCS(playOne)(game);
         }else {if (selection == 4) {
@@ -98,7 +113,7 @@ int main(int argc, char *argv[]) {
         }else {if (cpp2::move(selection) == 9) {
             createAi();
         }else {
-            setNextMessage("Invalid selection.");
+            CPP2_UFCS(print)(cliInterface, "Invalid selection.");
         }}}}}}}
     } while ( !(exit));
   return 0; 

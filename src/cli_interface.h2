@@ -1,0 +1,34 @@
+#include "interface.h2"
+#include "io.h2"
+
+CliInterface: type = {
+    this: Interface;
+
+    public print:(override inout this, in message: std::string) = {
+        std::cout << message << std::endl;
+    }
+
+    public printLater:(override inout this, in message: std::string) = {
+        setNextMessage(message);
+    }
+
+    public clear:(override inout this) = {
+        clearConsole();
+    }
+
+    public refreshGoban:(override inout this, in goban: Goban<9>) = {
+        printGoban<9>(goban);
+    }
+
+    public refreshGoban:(override inout this, in goban: Goban<19>) = {
+        printGoban<19>(goban);
+    }
+
+    public wait:(override inout this) = {
+        waitInput();
+    }
+
+    public waitForAMove:(override inout this, in c: Color) -> Move = {
+        return getInputMove<9>(c);
+    }
+}

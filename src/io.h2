@@ -13,7 +13,7 @@ getNextMessage:() -> std::string = {
     return m;
 }
 
-clear:(message: std::string = "") = { std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
+clearConsole:(message: std::string = "") = { std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
 
 clearInput:() = {
     std::cin.clear();
@@ -21,7 +21,7 @@ clearInput:() = {
 }
 
 printMenuAndSelect:(size: i8, players: std::string) -> i32 = {
-    clear();
+    clearConsole();
     goban:= size as std::string + "x" + size as std::string;
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                   GOPP2 Menu                   *" << std::endl;
@@ -192,7 +192,7 @@ getSnnModels:(size: i8) -> std::vector<std::array<std::string, 2>> = {
 
 printPlayersAndSelect:(size: i8, color: Color) -> std::string = {
     add_itself:= color == Color::White;
-    clear();
+    clearConsole();
     title:= "*                  " + size as std::string + "x" + size as std::string + " players";
     select:= "* Please select " + colorName(color) + " player:";
     std::cout << "**************************************************" << std::endl;

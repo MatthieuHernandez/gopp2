@@ -1,0 +1,18 @@
+#include "goban.h2"
+#include "move.h2"
+
+Interface: type = {
+    public print:(virtual inout this, in message: std::string);
+
+    public printLater:(virtual inout this, in message: std::string);
+
+    public clear:(virtual inout this);
+
+    public refreshGoban:(virtual inout this, in goban: Goban<9>);
+
+    public refreshGoban:(virtual inout this, in goban: Goban<19>);
+
+    public wait:(virtual inout this);
+
+    public waitForAMove:(virtual inout this, in c: Color) -> Move;
+}

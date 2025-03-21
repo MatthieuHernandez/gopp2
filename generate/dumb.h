@@ -24,7 +24,7 @@ class Dumb;
 class Dumb: public Player {
 
 #line 6 "../src/dumb.h2"
-    public: Dumb(cpp2::impl::in<Color> c);
+    public: Dumb(Interface* i, cpp2::impl::in<Color> c);
 
 #line 10 "../src/dumb.h2"
     public: Dumb(Dumb const& that);
@@ -47,8 +47,8 @@ class Dumb: public Player {
 #line 1 "../src/dumb.h2"
 
 #line 6 "../src/dumb.h2"
-    Dumb::Dumb(cpp2::impl::in<Color> c)
-        : Player{ c }{
+    Dumb::Dumb(Interface* i, cpp2::impl::in<Color> c)
+        : Player{ i, c }{
 
 #line 8 "../src/dumb.h2"
     }

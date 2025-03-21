@@ -1,5 +1,6 @@
-#include "io.h2"
+#include "cli_interface.h2"
 #include "game.h2"
+#include "interface.h2"
 #include "../src/gui.h"
 
 #ifdef _WIN32
@@ -30,22 +31,34 @@ void signalHandler(int signal) {
     }
 }
 
-cpp2_main:() -> int = {
+cliApp:() -> int = {
     windowsConfig();
     signal(SIGINT, signalHandler);
     exit: bool = false;
-    game:= Game();
+    cliInterface:= CliInterface();
+    game:= Game(cliInterface&);
     do {
         size:= game.getGobanSize();
         players:= game.getPlayerNames();
         selection:= printMenuAndSelect(size, players);
         if selection == 0 {
-            clear("Bye.");
+            cliInterface.clear();
+            cliInterface.print("Bye.");
             exit = true;
         } else if selection == 1 {
-            game.changeGobanSize();
+        if(game.getGobanSize() == 9) {
+            game.setGobanSize(13);
+        } else if(game.getGobanSize() == 13) {
+            game.setGobanSize(19);
+        } else if(game.getGobanSize() == 19) {
+            game.setGobanSize(9);
+        }
         } else if selection == 2 {
-            game.selectPlayers();
+            selection:= printPlayersAndSelect(size, Color::Black);
+            game.selectPlayer(Color::Black, selection);
+            selection = printPlayersAndSelect(size, Color::White);
+            game.selectPlayer(Color::White, selection);
+            cliInterface.print("Players selected.");
         } else if selection == 3 {
             game.playOne();
         } else if selection == 4 {
@@ -55,27 +68,29 @@ cpp2_main:() -> int = {
         } else if selection == 9 {
             createAi();
         } else {
-            setNextMessage("Invalid selection.");
+            cliInterface.print("Invalid selection.");
         }
     } while !exit;
   return 0;
 }
 
-/*int main() {
-    try { // CPP2 workaround: Try catch not yet supported.
-        return cpp2_main();
-    } catch (const std::exception& e) {
-        std::cerr << "Caught exception: " << e.what() << std::endl;
-    }
-    return 0;
-}*/
-
 
 #include <QApplication>
 
 int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
-    Window window;
-    window.show();
-    return app.exec();
+
+    if (argc > 1 && static_cast<std::string>(argv[1]) == "nogui") {
+        try { // CPP2 workaround: Try catch not yet supported.
+            return cliApp();
+        } catch (const std::exception& e) {
+            std::cerr << "Caught exception: " << e.what() << std::endl;
+        }
+    }
+    else {
+        QApplication guiApp(argc, argv);
+        Window window;
+        window.show();
+        return guiApp.exec();
+    }
+    return 0;
 }

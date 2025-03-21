@@ -27,7 +27,7 @@ auto setNextMessage(cpp2::impl::in<std::string> message) -> void;
 [[nodiscard]] auto getNextMessage() -> std::string;
 
 #line 16 "../src/io.h2"
-auto clear(cpp2::impl::in<std::string> message = "") -> void;
+auto clearConsole(cpp2::impl::in<std::string> message = "") -> void;
 
 auto clearInput() -> void;
 
@@ -76,7 +76,7 @@ auto setNextMessage(cpp2::impl::in<std::string> message) -> void{
 }
 
 #line 16 "../src/io.h2"
-auto clear(cpp2::impl::in<std::string> message) -> void{std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
+auto clearConsole(cpp2::impl::in<std::string> message) -> void{std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
 
 #line 18 "../src/io.h2"
 auto clearInput() -> void{
@@ -86,7 +86,7 @@ auto clearInput() -> void{
 
 #line 23 "../src/io.h2"
 [[nodiscard]] auto printMenuAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<std::string> players) -> cpp2::i32{
-    clear();
+    clearConsole();
     auto goban {cpp2::impl::as_<std::string>(size) + "x" + cpp2::impl::as_<std::string>(size)}; 
     std::cout << "**************************************************" << std::endl;
     std::cout << "*                   GOPP2 Menu                   *" << std::endl;
@@ -263,7 +263,7 @@ template<cpp2::i8 Size> auto printGoban(cpp2::impl::in<Goban<Size>> goban) -> vo
 #line 193 "../src/io.h2"
 [[nodiscard]] auto printPlayersAndSelect(cpp2::impl::in<cpp2::i8> size, cpp2::impl::in<Color> color) -> std::string{
     auto add_itself {color == Color::White}; 
-    clear();
+    clearConsole();
     auto title {"*                  " + cpp2::impl::as_<std::string>(size) + "x" + cpp2::impl::as_<std::string>(size) + " players"}; 
     auto select {"* Please select " + colorName(color) + " player:"}; 
     std::cout << "**************************************************" << std::endl;

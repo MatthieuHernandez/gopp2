@@ -7,6 +7,7 @@
 #include <QTabWidget>
 
 #include "goban_widget.h"
+#include "../generate/game.h"
 #include "../generate/io.h"
 
 constexpr int gobanImageSize = 429;
@@ -21,7 +22,7 @@ class Window : public QMainWindow {
   QVBoxLayout* menuLayout = nullptr;
   QVBoxLayout* mainLayout = nullptr;
   int8_t gobanSize = 9;
-
+ //Game game;
 
     void displayTabLayouts() {
         this->tabWidget = new QTabWidget;
@@ -133,12 +134,34 @@ class Window : public QMainWindow {
         });
     }
 
+    void displayMenuLine4() {
+        auto* line4Layout = new QHBoxLayout();
+        this->menuLayout->addLayout(line4Layout);
+        auto* trainButton = new QPushButton("Train black player", this);
+        line4Layout->addWidget(trainButton);
+        this->connect(trainButton, &QPushButton::clicked, this, [=]() {
+            this->tabWidget->setCurrentIndex(1);
+        });
+    }
+
+    void displayMenuLine5() {
+        auto* line5Layout = new QHBoxLayout();
+        this->menuLayout->addLayout(line5Layout);
+        auto* evaluateButton = new QPushButton("Evaluate players against each other", this);
+        line5Layout->addWidget(evaluateButton);
+        this->connect(evaluateButton, &QPushButton::clicked, this, [=]() {
+            this->tabWidget->setCurrentIndex(1);
+        });
+    }
+
   public:
     Window(QWidget* parent = nullptr) : QMainWindow(parent) {
         this->displayTabLayouts();
         this->displayMenuLine1();
         this->displayMenuLine2();
         this->displayMenuLine3();
+        this->displayMenuLine4();
+        this->displayMenuLine5();
         this->displayGoban();
         this->displayMainLine2();
     }
