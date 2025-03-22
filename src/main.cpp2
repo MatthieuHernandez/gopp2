@@ -1,7 +1,7 @@
 #include "cli_interface.h2"
 #include "game.h2"
 #include "interface.h2"
-#include "../src/gui.h"
+#include "../src/window.h"
 
 #ifdef _WIN32
 #include "windows.h"

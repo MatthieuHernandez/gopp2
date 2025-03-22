@@ -15,7 +15,7 @@
 #include "cli_interface.h"
 #include "game.h"
 #include "interface.h"
-#include "../src/gui.h"
+#include "../src/window.h"
 
 #ifdef _WIN32
 #include "windows.h"
