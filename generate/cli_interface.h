@@ -64,32 +64,32 @@ class CliInterface: public Interface {
 
 #line 11 "../src/cli_interface.h2"
     auto CliInterface::printLater(cpp2::impl::in<std::string> message) -> void{
-        setNextMessage(message);
+        cli::setNextMessage(message);
     }
 
 #line 15 "../src/cli_interface.h2"
     auto CliInterface::clear() -> void{
-        clearConsole();
+        cli::clearConsole();
     }
 
 #line 19 "../src/cli_interface.h2"
     auto CliInterface::refreshGoban(cpp2::impl::in<Goban<9>> goban) -> void{
-        printGoban<9>(goban);
+        cli::printGoban<9>(goban);
     }
 
 #line 23 "../src/cli_interface.h2"
     auto CliInterface::refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void{
-        printGoban<19>(goban);
+        cli::printGoban<19>(goban);
     }
 
 #line 27 "../src/cli_interface.h2"
     auto CliInterface::wait() -> void{
-        waitInput();
+        cli::waitInput();
     }
 
 #line 31 "../src/cli_interface.h2"
     [[nodiscard]] auto CliInterface::waitForAMove(cpp2::impl::in<Color> c) -> Move{
-        return getInputMove<9>(c); 
+        return cli::getInputMove<9>(c); 
     }
 #endif
 

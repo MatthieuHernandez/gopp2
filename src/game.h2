@@ -23,6 +23,10 @@ Game: type = {
         return gobanSize;
     }
 
+    public setGobanSize:(inout this, size: i8) = {
+        gobanSize = size;
+    }
+
     private getPlayerName:(player: std::shared_ptr<Player>) -> std::string = {
         human:= std::dynamic_pointer_cast<Human>(player); // CPP2 workaround: keyword "as" not working.
         if human != nullptr {
@@ -51,10 +55,6 @@ Game: type = {
         p1:= getPlayerName(blackPlayer);
         p2:= getPlayerName(whitePlayer);
         return p1 +" vs " + p2;
-    }
-
-    public setGobanSize:(inout this, size: i8) = {
-        gobanSize = size;
     }
 
     public selectPlayer:(inout this, color: Color, selection: std::string) = {
@@ -113,7 +113,7 @@ Game: type = {
         do {
             if constexpr verbose {
                 interface*.clear();
-                printGoban<Size>(engine.goban);
+                interface*.refreshGoban(engine.goban);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_ptr work.
             if moveNumber % 2 == 1 {
@@ -154,7 +154,7 @@ Game: type = {
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
         interface*.clear();
-        printGoban<Size>(engine.goban);
+        interface*.refreshGoban(engine.goban);
         /*if ((engine.blackPoint > 60 && engine.blackPoint < 81)
             || (engine.whitePoint > 68 && engine.whitePoint < 88)) {
             waitInput();
@@ -166,6 +166,7 @@ Game: type = {
             return;
         }
         if gobanSize == 9 {
+            qDebug() << "99999";
             e: Engine<9> = ();
             play<true, 9>(e);
             assert(e&);  // CPP2 workaround: Fix inout.

@@ -9,26 +9,26 @@ CliInterface: type = {
     }
 
     public printLater:(override inout this, in message: std::string) = {
-        setNextMessage(message);
+        cli::setNextMessage(message);
     }
 
     public clear:(override inout this) = {
-        clearConsole();
+        cli::clearConsole();
     }
 
     public refreshGoban:(override inout this, in goban: Goban<9>) = {
-        printGoban<9>(goban);
+        cli::printGoban<9>(goban);
     }
 
     public refreshGoban:(override inout this, in goban: Goban<19>) = {
-        printGoban<19>(goban);
+        cli::printGoban<19>(goban);
     }
 
     public wait:(override inout this) = {
-        waitInput();
+        cli::waitInput();
     }
 
     public waitForAMove:(override inout this, in c: Color) -> Move = {
-        return getInputMove<9>(c);
+        return cli::getInputMove<9>(c);
     }
 }

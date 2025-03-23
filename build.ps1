@@ -15,6 +15,7 @@ cppfront -cwd ./generate ../src/move.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/goban.h2  -import-std $DebugArg |
 cppfront -cwd ./generate ../src/engine.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/io.h2 -import-std $DebugArg |
+cppfront -cwd ./generate ../src/cli.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/player.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/human.h2 -import-std $DebugArg |
 cppfront -cwd ./generate ../src/dumb.h2 -import-std $DebugArg |

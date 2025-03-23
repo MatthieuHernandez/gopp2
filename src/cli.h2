@@ -1,0 +1,234 @@
+#include "goban.h2"
+#include "move.h2"
+
+cli: namespace = {
+
+nextMessage: std::string = "\n";
+
+setNextMessage:(message: std::string) = {
+    nextMessage = nextMessage + "\n" + message;
+}
+
+getNextMessage:() -> std::string = {
+    m:= nextMessage;
+    nextMessage = "";
+    return m;
+}
+
+clearConsole:(message: std::string = "") = { std::cout << "\x1B[2J\x1B[H" << message << std::endl; }
+
+clearInput:() = {
+    std::cin.clear();
+    std::cin.ignore(INT_MAX, '\n');
+}
+
+printMenuAndSelect:(size: i8, players: std::string) -> i32 = {
+    clearConsole();
+    goban:= size as std::string + "x" + size as std::string;
+    std::cout << "**************************************************" << std::endl;
+    std::cout << "*                   GOPP2 Menu                   *" << std::endl;
+    std::cout << "**************************************************" << std::endl;
+    std::cout << "* Please select one of the following:            *" << std::endl;
+    std::cout << "*                                                *" << std::endl;
+    std::cout << "*     1. Select Goban: " << std::left << std::setw(26) << std::setfill(' ') << goban << "*" << std::endl;
+    std::cout << "*     2. Select Players: " << std::left << std::setw(24) << std::setfill(' ') << players  << "*" << std::endl;
+    std::cout << "*     3. Play one game                           *" << std::endl;
+    std::cout << "*     4. Train Black player                      *" << std::endl;
+    std::cout << "*     5. Evaluate players against each other     *" << std::endl;
+    std::cout << "*     0. Exit                                    *" << std::endl;
+    std::cout << "**************************************************" << std::endl;
+    std::cout << getNextMessage() << std::endl;
+    return getInputMenu();
+}
+
+getInputMenu:() -> i32 = {
+    input: i32 = 0;
+    std::cout << "> ";
+    std::cin >> input;
+    clearInput();
+    return input;
+}
+
+waitInput:() = {
+    input: std::string = "";
+    std::cout << "> ";
+    std::cin.get();
+}
+
+getInputMove:<Size: i8>(color: Color) -> Move = {
+    input: std::string = "";
+    std::cout << std::endl << colorName(color) << " to play:" << std::endl << "> ";
+    std::cin >> input;
+    clearInput();
+    if(input == "pass") {
+        setNextMessage("Player pass.");
+        return pass(color);
+    }
+    input[0] = std::toupper(input[0]);
+    if((Size == 9 &&
+       (input.ssize() != 2 ||
+       input[0] < 'A' || input[0] > 'J' || input[0] == 'I' ||
+       (input[1] < '1' || input[1] > '9'))) ||
+       (Size == 19 &&
+       (input.ssize() < 2 || input.ssize() > 3 ||
+       input[0] < 'A' || input[0] > 'T' || input[0] == 'I' ||
+       (input.ssize() == 2 && (input[1] < '1' || input[1] > '9')) ||
+       (input.ssize() == 3 && (input[1] != '1' || input[2] < '0' || input[2] > '9'))))
+       
+       ) {
+        std::cout << "\033[A\033[A\033[A\033[A\033[K" << "Invalid Move." << std::endl;
+        return getInputMove<Size>(color);
+    }
+    col: i8 = 0;
+    col = input[0] - 65;
+    if col > 8 { // No I column
+        col --;
+    }
+    row: i8 = 0;
+    if input.ssize() == 2 {
+        row = input[1] - 49;
+    } else {
+        row = ((input[1] - 48) * 10) + (input[2] - 49);
+    }
+    m: Move = (color, col, row, false);
+    return m;
+}
+
+// Make it a coroutine without row and col parameter
+printIntersection:<Size: i8>(row: i16, col: i16) = {
+    maxIndex: i8 = Size - 1;
+    if ((Size == 9 &&
+        ((row == 2 && (col == 2 || col == 6)) ||
+        (row ==  6 && (col == 2 || col == 6)))) ||
+        (Size == 19 &&
+        ((row == 15 && (col == 3 || col == 9 || col == 15)) ||
+        (row == 9 && (col == 3 || col == 9 || col == 15)) ||
+        (row ==  3 && (col == 3 || col == 9 || col == 15)))) ) {
+        std::cout << "─●";
+    } else {
+        if row == maxIndex {
+            if col == 0 {
+                std::cout << " ┌";
+            } 
+            else if col == maxIndex {
+                std::cout << "─┐";
+            } else {
+                std::cout << "─┬";
+            }
+        } else if row == 0 {
+            if col == 0 {
+                std::cout << " └";
+            } else if col == maxIndex {
+                std::cout << "─┘";
+            } else {
+                std::cout << "─┴";
+            }
+        } else {
+            if col == 0 {
+                std::cout << " ├";
+            } else if col == maxIndex {
+                std::cout << "─┤";
+            } else {
+                std::cout << "─┼";
+            }
+        }
+    }
+}
+
+printGoban:<Size: i8>(goban: Goban<Size>) = {
+    // First line
+    if constexpr Size == 19 {
+        std::cout << "     A B C D E F G H J K L M N O P Q R S T" << std::endl;
+    }
+    if constexpr Size == 9 {
+        std::cout << "     A B C D E F G H J" << std::endl;
+    } 
+    maxIndex: i8 = Size - 1;
+    row: i8 = maxIndex;
+    while row > -1
+    next row--
+    {
+        //v: i8 = row + 1
+        if row < 9 {
+            std::cout << "  " << (row + 1) as std::string <<" ";
+        } else {
+             std::cout << " " << (row + 1) as std::string <<" ";
+        }
+        col: i8 = 0;
+        while col <= maxIndex
+        next col++
+        {
+            if goban.state[col][row].color == 1 {
+                std::cout << "⚫";
+            } else if goban.state[col][row].color == 2 {
+                std::cout << "⚪";
+            }
+            else if goban.state[col][row].color == 0 {
+                printIntersection<Size>(row, col);
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl << getNextMessage() << std::endl;
+}
+
+getSnnModels:(size: i8) -> std::vector<std::array<std::string, 2>> = {
+    modelFiles: std::vector<std::array<std::string, 2>> = ();
+    path: std::string = "";
+    if size == 9 {
+        path = "./snn_models/9x9";
+    } else if size == 19 {
+        path = "./snn_models/19x19";
+    }
+    
+    files:= std::filesystem::directory_iterator(path);
+    for files
+    do (in file) {
+        modelName: std::string = file.path().filename().string();
+        modelPath: std::string = file.path().string();
+        modelFile: std::array<std::string, 2> = (modelName, modelPath);
+        modelFiles.push_back(modelFile);
+    }
+    return modelFiles;
+}
+
+printPlayersAndSelect:(size: i8, color: Color) -> std::string = {
+    add_itself:= color == Color::White;
+    clearConsole();
+    title:= "*                  " + size as std::string + "x" + size as std::string + " players";
+    select:= "* Please select " + colorName(color) + " player:";
+    std::cout << "**************************************************" << std::endl;
+    std::cout << std::left << std::setw(49) << std::setfill(' ') << title << "*" << std::endl;
+    std::cout << "**************************************************" << std::endl;
+    std::cout << std::left << std::setw(49) << std::setfill(' ') << select << "*" << std::endl;
+    std::cout << "*                                                *" << std::endl;
+    if(color == Color::White) {
+        std::cout << "*    -1. Itself                                  *" << std::endl;
+    }
+    std::cout << "*     0. Human Player                            *" << std::endl;
+    std::cout << "*     1. Dumb Player                             *" << std::endl;
+    std::cout << "*     2. Random Player                           *" << std::endl;
+    modelNames:= getSnnModels(size);
+    (copy i: i8 = 0)
+    while i < modelNames.ssize()
+    next i++
+    {
+        model:= "*     " + (i + 3) as std::string + ". " + modelNames[i][0];
+        std::cout << std::left << std::setw(49) << std::setfill(' ') << model << "*" << std::endl;
+    }
+    std::cout << "**************************************************" << std::endl;
+    std::cout << std::endl << getNextMessage() << std::endl;
+    input: i32 = 0;
+    std::cout << "> ";
+    std::cin >> input;
+    clearInput();
+    if(input >= -1 && input <= 2) {
+        return input as std::string;
+    }
+    input -= 3;
+    if (input >= 0 && input < modelNames.ssize()) {
+        return modelNames[input][1];
+    }
+    return "";
+}
+}

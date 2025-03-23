@@ -12,8 +12,11 @@
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/main.cpp2"
-#include "cli_interface.h"
+
+#include <QApplication>
 #include "game.h"
+#include "gui_interface.h"
+#include "cli_interface.h"
 #include "interface.h"
 #include "../src/window.h"
 
@@ -45,15 +48,11 @@ void signalHandler(int signal) {
     }
 }
 
-#line 34 "../src/main.cpp2"
+#line 37 "../src/main.cpp2"
 [[nodiscard]] auto cliApp() -> int;
-#line 76 "../src/main.cpp2"
-
-
-#include <QApplication>
+#line 79 "../src/main.cpp2"
 
 int main(int argc, char *argv[]) {
-
     if (argc > 1 && static_cast<std::string>(argv[1]) == "nogui") {
         try { // CPP2 workaround: Try catch not yet supported.
             return cliApp();
@@ -62,8 +61,11 @@ int main(int argc, char *argv[]) {
         }
     }
     else {
-        QApplication guiApp(argc, argv);
-        Window window;
+        auto guiInterface = GuiInterface();
+        auto game = Game(&guiInterface);
+        auto guiApp = QApplication(argc, argv);
+        auto window = Window(&guiInterface, &game);
+        guiInterface.window = &window;
         window.show();
         return guiApp.exec();
     }
@@ -75,7 +77,7 @@ int main(int argc, char *argv[]) {
 
 #line 1 "../src/main.cpp2"
 
-#line 34 "../src/main.cpp2"
+#line 37 "../src/main.cpp2"
 [[nodiscard]] auto cliApp() -> int{
     windowsConfig();
     signal(SIGINT, signalHandler);
@@ -85,7 +87,7 @@ int main(int argc, char *argv[]) {
     do {
         auto size {CPP2_UFCS(getGobanSize)(game)}; 
         auto players {CPP2_UFCS(getPlayerNames)(game)}; 
-        auto selection {printMenuAndSelect(size, cpp2::move(players))}; 
+        auto selection {cli::printMenuAndSelect(size, cpp2::move(players))}; 
         if (selection == 0) {
             CPP2_UFCS(clear)(cliInterface);
             CPP2_UFCS(print)(cliInterface, "Bye.");
@@ -99,9 +101,9 @@ int main(int argc, char *argv[]) {
             CPP2_UFCS(setGobanSize)(game, 9);
         }}}
         }else {if (selection == 2) {
-            auto selection {printPlayersAndSelect(size, Color::Black)}; 
+            auto selection {cli::printPlayersAndSelect(size, Color::Black)}; 
             CPP2_UFCS(selectPlayer)(game, Color::Black, selection);
-            selection = printPlayersAndSelect(cpp2::move(size), Color::White);
+            selection = cli::printPlayersAndSelect(cpp2::move(size), Color::White);
             CPP2_UFCS(selectPlayer)(game, Color::White, cpp2::move(selection));
             CPP2_UFCS(print)(cliInterface, "Players selected.");
         }else {if (selection == 3) {

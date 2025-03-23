@@ -1,3 +1,5 @@
+#pragma once
+#include <memory>
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -7,22 +9,22 @@
 #include <QTabWidget>
 
 #include "goban_widget.h"
+#include "../generate/interface.h"
 #include "../generate/game.h"
+#include "../generate/cli.h"
 #include "../generate/io.h"
 
 constexpr int gobanImageSize = 429;
-
 constexpr int RaspberryScreenWidth = 320;
 constexpr int RaspberryScreenHeight = 480;
 
 class Window : public QMainWindow {
   private:
-  QWidget* gobanWidget = nullptr;
-  QTabWidget* tabWidget = nullptr;
-  QVBoxLayout* menuLayout = nullptr;
-  QVBoxLayout* mainLayout = nullptr;
-  int8_t gobanSize = 9;
- //Game game;
+    GobanWidget* gobanWidget = nullptr;
+    QTabWidget* tabWidget = nullptr;
+    QVBoxLayout* menuLayout = nullptr;
+    QVBoxLayout* mainLayout = nullptr;
+    Game* game = nullptr;
 
     void displayTabLayouts() {
         this->tabWidget = new QTabWidget;
@@ -49,19 +51,19 @@ class Window : public QMainWindow {
         this->tabWidget->tabBar()->hide();
     }
 
-    void displayGoban() {
+    template<int8_t Size>
+    void displayGoban(const Goban<Size>& goban) {
         if(this->gobanWidget != nullptr) {
             delete this->gobanWidget;
         }
-        if (this->gobanSize == 9) {
-            this->gobanWidget = new GobanWidget<9>(this);
-        } else if (this->gobanSize == 13) {
-            this->gobanWidget = new GobanWidget<13>(this);
+        if (this->game->getGobanSize() == 9) {
+            this->gobanWidget = new GobanWidget(this);
+        } else if (this->game->getGobanSize()  == 13) {
+            this->gobanWidget = new GobanWidget(this);
         } else {
-            this->gobanWidget = new GobanWidget<19>(this);
+            this->gobanWidget = new GobanWidget(this);
         }
         this->mainLayout->insertWidget(0, this->gobanWidget);
-
     }
 
     void displayMainLine2() {
@@ -86,8 +88,8 @@ class Window : public QMainWindow {
         line1Layout->addWidget(selectGoban);
         line1Layout->addItem(new QSpacerItem(100, 0));
         this->connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
-            this->gobanSize = selectGoban->itemData(index).toInt();
-            displayGoban();
+            const auto selection = selectGoban->itemData(index).toInt();
+            this->game->setGobanSize(selection);
         });
     }
 
@@ -105,7 +107,7 @@ class Window : public QMainWindow {
         line2Layout->addWidget(selectPlayer1);
         line2Layout->addWidget(vsText);
         line2Layout->addWidget(selectPlayer2);
-        auto models = getSnnModels(this->gobanSize);
+        auto models = io::getSnnModels(this->game->getGobanSize());
 
         selectPlayer2->insertItem(0, "Itself", "-1");
         selectPlayer1->insertItem(0, "Human", "0");
@@ -115,13 +117,24 @@ class Window : public QMainWindow {
         selectPlayer1->insertItem(2, "Random", "2");
         selectPlayer2->insertItem(3, "Random", "2");
         int i = 3;
-        for (auto& model : models) {
+        for (const auto& model : models) {
             QString name = QString::fromStdString(model[0]);
             QString path = QString::fromStdString(model[1]);
             selectPlayer1->insertItem(i, name, path);
             selectPlayer2->insertItem(i+1, name, path);
             i++;
         }
+        selectPlayer1->setCurrentIndex(1);
+        this->connect(selectPlayer1, &QComboBox::currentIndexChanged, [=](int index) {
+            const auto selection = selectPlayer1->itemData(index).toString().toStdString();
+            this->game->selectPlayer(Color::Black, selection);
+        });
+        this->connect(selectPlayer2, &QComboBox::currentIndexChanged, [=](int index) {
+            const auto selection = selectPlayer2->itemData(index).toString().toStdString();
+            this->game->selectPlayer(Color::White, selection);
+        });
+        selectPlayer1->setCurrentIndex(0);
+        selectPlayer2->setCurrentIndex(1);
     }
 
     void displayMenuLine3() {
@@ -130,6 +143,9 @@ class Window : public QMainWindow {
         auto* playOneButton = new QPushButton("Play one game", this);
         line3Layout->addWidget(playOneButton);
         this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
+            qDebug() << "Info: Start a game.";
+            //this->game->playOne();
+            //this->gobanWidget->refresh<9>();
             this->tabWidget->setCurrentIndex(1);
         });
     }
@@ -155,14 +171,26 @@ class Window : public QMainWindow {
     }
 
   public:
-    Window(QWidget* parent = nullptr) : QMainWindow(parent) {
+    Window(Interface* interface, Game* game, QWidget* parent = nullptr)
+        : QMainWindow(parent),
+          game(game) {
         this->displayTabLayouts();
         this->displayMenuLine1();
         this->displayMenuLine2();
         this->displayMenuLine3();
         this->displayMenuLine4();
         this->displayMenuLine5();
-        this->displayGoban();
         this->displayMainLine2();
+    }
+
+    template<int8_t Size>
+    void refreshGoban(const Goban<Size>& goban) {
+        if(this->gobanWidget != nullptr) {
+            qDebug() << "Error: Goban widget is null.";
+        } else {
+            //this->gobanWidget->refresh<Size>(goban);
+            //this->gobanWidget->refresh();
+            qDebug() << "Info: Goban refreshed.";
+        }
     }
 };
