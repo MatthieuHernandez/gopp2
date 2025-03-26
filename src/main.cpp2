@@ -1,10 +1,11 @@
 
 #include <QApplication>
+#include "../src/window.h"
 #include "game.h2"
 #include "gui_interface.h2"
 #include "cli_interface.h2"
+#include "cli.h2"
 #include "interface.h2"
-#include "../src/window.h"
 
 #ifdef _WIN32
 #include "windows.h"
@@ -17,17 +18,20 @@ constexpr bool win32 =
     false;
 #endif
 
+
 void windowsConfig() {
     #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
     #endif
 }
 
+static std::unique_ptr<Game> game = nullptr;
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
-        while(isRunning) {
+        while(game != nullptr && !game->canBeStopped()) {
             std::cout << "Cannot stop, saving in progress..." << std::endl;
+            using namespace std::literals::chrono_literals;
             std::this_thread::sleep_for(10ms);
         }
         std::exit(0);
@@ -36,38 +40,38 @@ void signalHandler(int signal) {
 
 cliApp:() -> int = {
     windowsConfig();
-    signal(SIGINT, signalHandler);
     exit: bool = false;
     cliInterface:= CliInterface();
-    game:= Game(cliInterface&);
+    game:= unique.new<Game>(cliInterface&);
+    signal(SIGINT, signalHandler);
     do {
-        size:= game.getGobanSize();
-        players:= game.getPlayerNames();
+        size:= game*.getGobanSize();
+        players:= game*.getPlayerNames();
         selection:= cli::printMenuAndSelect(size, players);
         if selection == 0 {
             cliInterface.clear();
             cliInterface.print("Bye.");
             exit = true;
         } else if selection == 1 {
-        if(game.getGobanSize() == 9) {
-            game.setGobanSize(13);
-        } else if(game.getGobanSize() == 13) {
-            game.setGobanSize(19);
-        } else if(game.getGobanSize() == 19) {
-            game.setGobanSize(9);
+        if(game*.getGobanSize() == 9) {
+            game*.setGobanSize(13);
+        } else if(game*.getGobanSize() == 13) {
+            game*.setGobanSize(19);
+        } else if(game*.getGobanSize() == 19) {
+            game*.setGobanSize(9);
         }
         } else if selection == 2 {
             selection:= cli::printPlayersAndSelect(size, Color::Black);
-            game.selectPlayer(Color::Black, selection);
+            game*.selectPlayer(Color::Black, selection);
             selection = cli::printPlayersAndSelect(size, Color::White);
-            game.selectPlayer(Color::White, selection);
+            game*.selectPlayer(Color::White, selection);
             cliInterface.print("Players selected.");
         } else if selection == 3 {
-            game.playOne();
+            game*.playOne();
         } else if selection == 4 {
-            game.trainBlack();
+            game*.trainBlack();
         } else if selection == 5 {
-            game.evaluate();
+            game*.evaluate();
         } else if selection == 9 {
             createAi();
         } else {
@@ -87,9 +91,9 @@ int main(int argc, char *argv[]) {
     }
     else {
         auto guiInterface = GuiInterface();
-        auto game = Game(&guiInterface);
+        auto game = std::make_unique<Game>(&guiInterface);
         auto guiApp = QApplication(argc, argv);
-        auto window = Window(&guiInterface, &game);
+        auto window = Window(&guiInterface, game.get());
         guiInterface.window = &window;
         window.show();
         return guiApp.exec();

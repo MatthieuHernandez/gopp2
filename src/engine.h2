@@ -5,7 +5,7 @@ Engine:<Size: i8> type = {
 
     public goban: Goban<Size> = ();
     public moves: std::vector<Move> = ();
-    public states: std::vector<State<Stone, Size>> = ();
+    public states: std::vector<std::array<std::array<Stone, Size>, Size>> = ();
     
     public blackPoint: i16 = 0;
     public whitePoint: i16 = 0;
@@ -18,7 +18,7 @@ Engine:<Size: i8> type = {
     public playMove:(inout this, inout m: Move) = {
         if isValidMove(m)
         {
-            if !m.pass {
+            if !m.isPass {
                 col:= m.stone.col;
                 row:= m.stone.row;
                 goban.state[col][row] = m.stone;
@@ -103,7 +103,7 @@ Engine:<Size: i8> type = {
     }
 
     public isValidMove:(inout this, inout m: Move) -> bool = {
-        if m.isValid || m.pass {
+        if m.isValid || m.isPass {
             goban.unlockPosition();
             m.isValid = true;
             return true;
@@ -128,8 +128,8 @@ Engine:<Size: i8> type = {
 
     public isFinish:(this) -> bool = {
         if moves.ssize() > 1 {
-            if moves[moves.ssize() - 1].pass == true
-            && moves[moves.ssize() - 2].pass == true {
+            if moves[moves.ssize() - 1].isPass == true
+            && moves[moves.ssize() - 2].isPass == true {
                 return true;
             }
         }
@@ -223,7 +223,7 @@ Engine:<Size: i8> type = {
     }
 
     public closerValidMove:(inout this, inout m: Move) = {
-        if m.pass {
+        if m.isPass {
             return;
         }
         processedStones: State<bool, Size> = (false);

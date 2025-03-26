@@ -1,3 +1,4 @@
+#include "cli.h2"
 #include "interface.h2"
 #include "io.h2"
 

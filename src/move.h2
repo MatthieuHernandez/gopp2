@@ -6,24 +6,24 @@ pass:(color: Color) -> Move = {
 
 Move: type = {
     public stone: Stone;
-    public pass: bool;
+    public isPass: bool;
     public isValid: bool;
 
     public operator=:(out this) = {
         stone = ();
-        pass = false;
+        isPass = false;
         isValid = false;
     }
 
     public operator=:(out this, color: Color, col: i8, row: i8, pas: bool = false) = {
         stone = (color, col, row);
-        pass = pas;
+        isPass = pas;
         isValid = false;
     }
 
     public operator=:(out this, in s: Stone) = {
         stone = s;
-        pass = false;
+        isPass = false;
         isValid = false;
     }
 
@@ -42,7 +42,7 @@ Move: type = {
 
     public operator=:(out this, that) = {
         stone = that.stone;
-        pass = that.pass;
+        isPass = that.isPass;
         isValid = that.isValid;
     }
 }

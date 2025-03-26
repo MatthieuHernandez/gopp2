@@ -1,10 +1,12 @@
 #pragma once
 #include <QLabel>
 #include <QPixmap>
+#include <QGridLayout>
 
-#include "../generate/goban.h"
+//#include "../generate/goban.h"
 
 class GobanWidget : public QWidget {
+    //Q_OBJECT
   private:
     QPixmap* middle = nullptr;
     QPixmap* hoshi = nullptr;
@@ -40,9 +42,12 @@ class GobanWidget : public QWidget {
         this->layout = new QGridLayout(this);
         this->layout->setSpacing(0);
 
+        this->setLayout(layout);
+        this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    }
 
+    void refresh9(/*const Goban<9>& goban*/) {
         const int8_t Size = 9;
-
         std::array<QLabel*, Size*Size> labels = {nullptr};
         int8_t maxIndex = Size - 1;
         QPixmap* img = nullptr;
@@ -95,14 +100,11 @@ class GobanWidget : public QWidget {
                 this->layout->addWidget(labels[index], row, col);
             }
         }
-        
-        this->setLayout(layout);
-        this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
 
-    /*template<int8_t Size>
-    void refresh(/*const Goban<Size>& goban) {
-        /*std::array<QLabel*, Size*Size> labels = {nullptr};
+    void refresh19(/*const Goban<19>& goban*/) {
+        const int8_t Size = 19;
+        std::array<QLabel*, Size*Size> labels = {nullptr};
         int8_t maxIndex = Size - 1;
         QPixmap* img = nullptr;
         for (int8_t row = 0; row < Size; ++row) {
@@ -154,6 +156,7 @@ class GobanWidget : public QWidget {
                 this->layout->addWidget(labels[index], row, col);
             }
         }
-    }*/
+    }
+
 
 };

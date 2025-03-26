@@ -14,11 +14,12 @@
 #line 1 "../src/main.cpp2"
 
 #include <QApplication>
+#include "../src/window.h"
 #include "game.h"
 #include "gui_interface.h"
 #include "cli_interface.h"
+#include "cli.h"
 #include "interface.h"
-#include "../src/window.h"
 
 #ifdef _WIN32
 #include "windows.h"
@@ -31,26 +32,29 @@ constexpr bool win32 =
     false;
 #endif
 
+
 void windowsConfig() {
     #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
     #endif
 }
 
+static std::unique_ptr<Game> game = nullptr;
 
 void signalHandler(int signal) {
     if (signal == SIGINT) {
-        while(isRunning) {
+        while(game != nullptr && !game->canBeStopped()) {
             std::cout << "Cannot stop, saving in progress..." << std::endl;
+            using namespace std::literals::chrono_literals;
             std::this_thread::sleep_for(10ms);
         }
         std::exit(0);
     }
 }
 
-#line 37 "../src/main.cpp2"
+#line 41 "../src/main.cpp2"
 [[nodiscard]] auto cliApp() -> int;
-#line 79 "../src/main.cpp2"
+#line 83 "../src/main.cpp2"
 
 int main(int argc, char *argv[]) {
     if (argc > 1 && static_cast<std::string>(argv[1]) == "nogui") {
@@ -62,9 +66,9 @@ int main(int argc, char *argv[]) {
     }
     else {
         auto guiInterface = GuiInterface();
-        auto game = Game(&guiInterface);
+        auto game = std::make_unique<Game>(&guiInterface);
         auto guiApp = QApplication(argc, argv);
-        auto window = Window(&guiInterface, &game);
+        auto window = Window(&guiInterface, game.get());
         guiInterface.window = &window;
         window.show();
         return guiApp.exec();
@@ -77,41 +81,41 @@ int main(int argc, char *argv[]) {
 
 #line 1 "../src/main.cpp2"
 
-#line 37 "../src/main.cpp2"
+#line 41 "../src/main.cpp2"
 [[nodiscard]] auto cliApp() -> int{
     windowsConfig();
-    signal(SIGINT, signalHandler);
     bool exit {false}; 
     auto cliInterface {CliInterface()}; 
-    auto game {Game(&cliInterface)}; 
+    auto game {CPP2_UFCS_TEMPLATE(cpp2_new<Game>)(cpp2::unique, &cliInterface)}; 
+    signal(SIGINT, signalHandler);
     do {
-        auto size {CPP2_UFCS(getGobanSize)(game)}; 
-        auto players {CPP2_UFCS(getPlayerNames)(game)}; 
+        auto size {CPP2_UFCS(getGobanSize)((*cpp2::impl::assert_not_null(game)))}; 
+        auto players {CPP2_UFCS(getPlayerNames)((*cpp2::impl::assert_not_null(game)))}; 
         auto selection {cli::printMenuAndSelect(size, cpp2::move(players))}; 
         if (selection == 0) {
             CPP2_UFCS(clear)(cliInterface);
             CPP2_UFCS(print)(cliInterface, "Bye.");
             exit = true;
         }else {if (selection == 1) {
-        if ((CPP2_UFCS(getGobanSize)(game) == 9)) {
-            CPP2_UFCS(setGobanSize)(game, 13);
-        }else {if ((CPP2_UFCS(getGobanSize)(game) == 13)) {
-            CPP2_UFCS(setGobanSize)(game, 19);
-        }else {if ((CPP2_UFCS(getGobanSize)(game) == 19)) {
-            CPP2_UFCS(setGobanSize)(game, 9);
+        if ((CPP2_UFCS(getGobanSize)((*cpp2::impl::assert_not_null(game))) == 9)) {
+            CPP2_UFCS(setGobanSize)((*cpp2::impl::assert_not_null(game)), 13);
+        }else {if ((CPP2_UFCS(getGobanSize)((*cpp2::impl::assert_not_null(game))) == 13)) {
+            CPP2_UFCS(setGobanSize)((*cpp2::impl::assert_not_null(game)), 19);
+        }else {if ((CPP2_UFCS(getGobanSize)((*cpp2::impl::assert_not_null(game))) == 19)) {
+            CPP2_UFCS(setGobanSize)((*cpp2::impl::assert_not_null(game)), 9);
         }}}
         }else {if (selection == 2) {
             auto selection {cli::printPlayersAndSelect(size, Color::Black)}; 
-            CPP2_UFCS(selectPlayer)(game, Color::Black, selection);
+            CPP2_UFCS(selectPlayer)((*cpp2::impl::assert_not_null(game)), Color::Black, selection);
             selection = cli::printPlayersAndSelect(cpp2::move(size), Color::White);
-            CPP2_UFCS(selectPlayer)(game, Color::White, cpp2::move(selection));
+            CPP2_UFCS(selectPlayer)((*cpp2::impl::assert_not_null(game)), Color::White, cpp2::move(selection));
             CPP2_UFCS(print)(cliInterface, "Players selected.");
         }else {if (selection == 3) {
-            CPP2_UFCS(playOne)(game);
+            CPP2_UFCS(playOne)((*cpp2::impl::assert_not_null(game)));
         }else {if (selection == 4) {
-            CPP2_UFCS(trainBlack)(game);
+            CPP2_UFCS(trainBlack)((*cpp2::impl::assert_not_null(game)));
         }else {if (selection == 5) {
-            CPP2_UFCS(evaluate)(game);
+            CPP2_UFCS(evaluate)((*cpp2::impl::assert_not_null(game)));
         }else {if (cpp2::move(selection) == 9) {
             createAi();
         }else {

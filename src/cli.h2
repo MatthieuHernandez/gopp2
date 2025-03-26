@@ -158,12 +158,12 @@ printGoban:<Size: i8>(goban: Goban<Size>) = {
         while col <= maxIndex
         next col++
         {
-            if goban.state[col][row].color == 1 {
+            if goban.state[col][row].color == Color::Black {
                 std::cout << "⚫";
-            } else if goban.state[col][row].color == 2 {
+            } else if goban.state[col][row].color == Color::White {
                 std::cout << "⚪";
             }
-            else if goban.state[col][row].color == 0 {
+            else if goban.state[col][row].color == Color::None {
                 printIntersection<Size>(row, col);
             }
         }

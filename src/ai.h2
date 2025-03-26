@@ -1,5 +1,5 @@
 #include "player.h2"
-#include <snn/neural_network/StraightforwardNeuralNetwork.hpp>
+#include "snn.h2"
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
@@ -183,7 +183,7 @@ Ai: type = {
         while i < (engine.moves.ssize())
         next i++
         {
-            if(engine.moves[i].pass == true) {
+            if(engine.moves[i].isPass == true) {
                 return;
             }
             inputs:= getGobanState<Size>(engine.states[i]);

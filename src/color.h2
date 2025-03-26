@@ -1,24 +1,24 @@
-enum Color: uint8_t {
-    None = 0,
-    Black = 1,
-    White = 2,
-};
+Color: @enum<i8> type = {
+    None := 0;
+    Black := 1;
+    White := 2;
+}
 
-Color otherColor(const Color& c) {
-    if (c == Color::Black) {
+otherColor:(in c: Color) -> Color = {
+    if c == Color::Black {
         return Color::White;
     }
-    else if (c == Color::White) {
+    else if c == Color::White {
         return Color::Black;
     }
     return Color::None;
 }
 
-std::string colorName(const Color& c) {
-    if (c == Color::Black) {
+ colorName:(in c: Color) -> std::string = {
+    if c == Color::Black {
         return "Black";
     }
-    else if (c == Color::White) {
+    else if c == Color::White {
         return "White";
     }
     return "None";

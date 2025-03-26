@@ -11,85 +11,46 @@
 
 #line 1 "../src/cli_interface.h2"
 
-#line 4 "../src/cli_interface.h2"
+#line 5 "../src/cli_interface.h2"
 class CliInterface;
     
 
 //=== Cpp2 type definitions and function declarations ===========================
 
 #line 1 "../src/cli_interface.h2"
+#include "cli.h"
 #include "interface.h"
 #include "io.h"
 
-#line 4 "../src/cli_interface.h2"
+#line 5 "../src/cli_interface.h2"
 class CliInterface: public Interface {
 
-#line 7 "../src/cli_interface.h2"
+#line 8 "../src/cli_interface.h2"
     public: auto print(cpp2::impl::in<std::string> message) -> void override;
 
-#line 11 "../src/cli_interface.h2"
+#line 12 "../src/cli_interface.h2"
     public: auto printLater(cpp2::impl::in<std::string> message) -> void override;
 
-#line 15 "../src/cli_interface.h2"
+#line 16 "../src/cli_interface.h2"
     public: auto clear() -> void override;
 
-#line 19 "../src/cli_interface.h2"
+#line 20 "../src/cli_interface.h2"
     public: auto refreshGoban(cpp2::impl::in<Goban<9>> goban) -> void override;
 
-#line 23 "../src/cli_interface.h2"
+#line 24 "../src/cli_interface.h2"
     public: auto refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void override;
 
-#line 27 "../src/cli_interface.h2"
+#line 28 "../src/cli_interface.h2"
     public: auto wait() -> void override;
 
-#line 31 "../src/cli_interface.h2"
+#line 32 "../src/cli_interface.h2"
     public: [[nodiscard]] auto waitForAMove(cpp2::impl::in<Color> c) -> Move override;
     public: CliInterface() = default;
     public: CliInterface(CliInterface const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(CliInterface const&) -> void = delete;
 
 
-#line 34 "../src/cli_interface.h2"
+#line 35 "../src/cli_interface.h2"
 };
 
-
-//=== Cpp2 function definitions =================================================
-
-#line 1 "../src/cli_interface.h2"
-
-#line 7 "../src/cli_interface.h2"
-    auto CliInterface::print(cpp2::impl::in<std::string> message) -> void{
-        std::cout << message << std::endl;
-    }
-
-#line 11 "../src/cli_interface.h2"
-    auto CliInterface::printLater(cpp2::impl::in<std::string> message) -> void{
-        cli::setNextMessage(message);
-    }
-
-#line 15 "../src/cli_interface.h2"
-    auto CliInterface::clear() -> void{
-        cli::clearConsole();
-    }
-
-#line 19 "../src/cli_interface.h2"
-    auto CliInterface::refreshGoban(cpp2::impl::in<Goban<9>> goban) -> void{
-        cli::printGoban<9>(goban);
-    }
-
-#line 23 "../src/cli_interface.h2"
-    auto CliInterface::refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void{
-        cli::printGoban<19>(goban);
-    }
-
-#line 27 "../src/cli_interface.h2"
-    auto CliInterface::wait() -> void{
-        cli::waitInput();
-    }
-
-#line 31 "../src/cli_interface.h2"
-    [[nodiscard]] auto CliInterface::waitForAMove(cpp2::impl::in<Color> c) -> Move{
-        return cli::getInputMove<9>(c); 
-    }
 #endif
-

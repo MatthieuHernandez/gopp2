@@ -12,15 +12,11 @@ GuiInterface: type = {
     public clear:(override inout this) = {}
 
     public refreshGoban:(override inout this, in goban: Goban<9>) = {
-        window*.refreshGoban(goban);
+        window*.refreshGoban();
     }
 
-    /*public refreshGoban:(override inout this, in goban: Goban<13>) = {
-        window*.refreshGoban(goban);
-    }*/
-
     public refreshGoban:(override inout this, in goban: Goban<19>) = {
-        window*.refreshGoban(goban);
+        window*.refreshGoban();
     }
 
     public wait:(override inout this) = {

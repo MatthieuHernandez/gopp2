@@ -7,9 +7,8 @@
 #include "ai.h2"
 #include "itself.h2"
 
-isRunning: bool = false;
-
 Game: type = {
+    private isSaving: bool = false;
     private interface: *Interface;
     private blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_ptr work.
     private whitePlayer: std::shared_ptr<Player> = nullptr;
@@ -17,6 +16,10 @@ Game: type = {
 
     public operator=:(out this, i: *Interface) = {
         interface = i;
+    }
+
+    public canBeStopped:(in this) -> bool = {
+        return !isSaving;
     }
 
     public getGobanSize:(in this) -> i8 = {
@@ -166,7 +169,6 @@ Game: type = {
             return;
         }
         if gobanSize == 9 {
-            qDebug() << "99999";
             e: Engine<9> = ();
             play<true, 9>(e);
             assert(e&);  // CPP2 workaround: Fix inout.
@@ -212,9 +214,9 @@ Game: type = {
             }
             switchPlayerColor();
             if i % 100 == 0 {
-                isRunning = true;
+                isSaving = true;
                 player1*.saveIfBetter();
-                isRunning = false;
+                isSaving = false;
             }
             i++;
         }

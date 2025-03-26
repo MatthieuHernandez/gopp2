@@ -2,10 +2,10 @@
 #include "move.h2"
 #include "engine.h2"
 
-using namespace std::chrono_literals;
 
-static std::random_device rd;
-static std::mt19937 rng(rd());
+
+rd : std::random_device = ();
+rng : std::mt19937 = (rd());
 
 Player: type = {
     protected interface: *Interface;

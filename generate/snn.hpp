@@ -1,0 +1,1 @@
+#include <snn/neural_network/StraightforwardNeuralNetwork.hpp>

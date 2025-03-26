@@ -3,22 +3,26 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QObject>
 #include <QMainWindow>
 #include <QPixmap>
 #include <QPushButton>
+#include <QtConcurrent>
 #include <QTabWidget>
 
 #include "goban_widget.h"
-#include "../generate/interface.h"
-#include "../generate/game.h"
-#include "../generate/cli.h"
-#include "../generate/io.h"
 
-constexpr int gobanImageSize = 429;
-constexpr int RaspberryScreenWidth = 320;
-constexpr int RaspberryScreenHeight = 480;
+#include "../generate/interface.h"
+#include "../generate/io.h"
+#include "../generate/game.h"
+
+inline constexpr int gobanImageSize = 429;
+inline constexpr int RaspberryScreenWidth = 320;
+inline constexpr int RaspberryScreenHeight = 480;
+
 
 class Window : public QMainWindow {
+    Q_OBJECT
   private:
     GobanWidget* gobanWidget = nullptr;
     QTabWidget* tabWidget = nullptr;
@@ -26,7 +30,7 @@ class Window : public QMainWindow {
     QVBoxLayout* mainLayout = nullptr;
     Game* game = nullptr;
 
-    void displayTabLayouts() {
+    void Window::displayTabLayouts() {
         this->tabWidget = new QTabWidget;
         this->setCentralWidget(tabWidget);
 
@@ -51,19 +55,12 @@ class Window : public QMainWindow {
         this->tabWidget->tabBar()->hide();
     }
 
-    template<int8_t Size>
-    void displayGoban(const Goban<Size>& goban) {
-        if(this->gobanWidget != nullptr) {
-            delete this->gobanWidget;
-        }
-        if (this->game->getGobanSize() == 9) {
-            this->gobanWidget = new GobanWidget(this);
-        } else if (this->game->getGobanSize()  == 13) {
-            this->gobanWidget = new GobanWidget(this);
-        } else {
-            this->gobanWidget = new GobanWidget(this);
-        }
+    void displayGoban() {
+        this->gobanWidget = new GobanWidget(this);
         this->mainLayout->insertWidget(0, this->gobanWidget);
+        this->connect(this, &Window::refreshGobanSignal, this->gobanWidget, &GobanWidget::refresh9);
+        //this->connect(this, &Window::refreshGoban13Signal, this->gobanWidget, &GobanWidget::refresh13);
+        //this->connect(this, &Window::refreshGoban19Signal, this->gobanWidget, &GobanWidget::refresh19);
     }
 
     void displayMainLine2() {
@@ -144,9 +141,10 @@ class Window : public QMainWindow {
         line3Layout->addWidget(playOneButton);
         this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
             qDebug() << "Info: Start a game.";
-            //this->game->playOne();
-            //this->gobanWidget->refresh<9>();
             this->tabWidget->setCurrentIndex(1);
+            QtConcurrent::run([this]() {
+                this->game->playOne();
+            });
         });
     }
 
@@ -171,7 +169,7 @@ class Window : public QMainWindow {
     }
 
   public:
-    Window(Interface* interface, Game* game, QWidget* parent = nullptr)
+    Window::Window(Interface* interface, Game* game, QWidget* parent = nullptr)
         : QMainWindow(parent),
           game(game) {
         this->displayTabLayouts();
@@ -181,16 +179,18 @@ class Window : public QMainWindow {
         this->displayMenuLine4();
         this->displayMenuLine5();
         this->displayMainLine2();
+        this->displayGoban();
     }
+    virtual ~Window() = default;
 
-    template<int8_t Size>
-    void refreshGoban(const Goban<Size>& goban) {
-        if(this->gobanWidget != nullptr) {
-            qDebug() << "Error: Goban widget is null.";
-        } else {
-            //this->gobanWidget->refresh<Size>(goban);
-            //this->gobanWidget->refresh();
-            qDebug() << "Info: Goban refreshed.";
-        }
+    void refreshGoban() {
+        qDebug() << "Info: refreshGoban signal emit";
+        emit refreshGobanSignal();
+        
     }
+    
+
+  signals:
+    void refreshGobanSignal();
+
 };

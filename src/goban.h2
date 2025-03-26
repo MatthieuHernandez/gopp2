@@ -1,8 +1,6 @@
 #include "stone.h2"
 
-// CPP1 workaround: Do not know how to do this in CPP2.
-template<class T, int8_t Size>
-using State = std::array<std::array<T, Size>, Size>;
+State: <T: type, Size: i8> type == std::array<std::array<T, Size>, Size>;
 
 Goban:<Size: i8> type = {
     public state: State<Stone, Size> = ();

@@ -43,9 +43,4 @@ class Interface {
 #line 18 "../src/interface.h2"
 };
 
-
-//=== Cpp2 function definitions =================================================
-
-#line 1 "../src/interface.h2"
-
 #endif
