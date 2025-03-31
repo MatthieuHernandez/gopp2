@@ -1,4 +1,6 @@
 build/
 .vscode/
+src/generated/*.hpp
+src/generated/*.h
 *.h2-*
 *.cpp2-*

@@ -14,9 +14,9 @@
 
 #include "goban_widget.h"
 
-#include "../generate/interface.h"
-#include "../generate/io.h"
-#include "../generate/game.h"
+#include "interface.h"
+#include "io.h"
+#include "game.h"
 
 using namespace std::literals::chrono_literals;
 
@@ -34,7 +34,9 @@ class Window : public QMainWindow {
     QVBoxLayout* mainLayout = nullptr;
     Game* game = nullptr;
 
-    void Window::displayTabLayouts() {
+    std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
+
+    void displayTabLayouts() {
         this->tabWidget = new QTabWidget;
         this->setCentralWidget(tabWidget);
 
@@ -194,20 +196,25 @@ class Window : public QMainWindow {
     virtual ~Window() = default;
 
     template<int8_t Size>
-    void refreshGoban(const Goban<Size>& goban) {
-        QThread::msleep(10); // Prevents the GUI from being saturated with signals.
-        if constexpr (Size == 9) {
-            emit refreshGoban9Signal(&goban);
-        } else if constexpr (Size == 13) {
-            emit refreshGoban13Signal(&goban);
-        } else if constexpr (Size == 19) {
-            emit refreshGoban19Signal(&goban);
+    void refreshGoban(std::shared_ptr<Engine<Size>> engine) {
+        using namespace std::chrono;
+        const auto duration = duration_cast<milliseconds>(steady_clock::now() - this->last);
+        if (duration.count() < 100 && !engine->isFinish()) {
+            return; // Prevents the GUI from being saturated with signals.
         }
+        if constexpr (Size == 9) {
+            emit refreshGoban9Signal(engine);
+        } else if constexpr (Size == 13) {
+            emit refreshGoban13Signal(engine);
+        } else if constexpr (Size == 19) {
+            emit refreshGoban19Signal(engine);
+        }
+        this->last = steady_clock::now();
     }
 
   signals:
-    void refreshGoban9Signal(const Goban<9>* goban);
-    void refreshGoban13Signal(const Goban<13>* goban);
-    void refreshGoban19Signal(const Goban<19>* goban);
+    void refreshGoban9Signal(std::shared_ptr<Engine<9>> goban);
+    void refreshGoban13Signal(std::shared_ptr<Engine<13>> goban);
+    void refreshGoban19Signal(std::shared_ptr<Engine<19>> goban);
 
 };

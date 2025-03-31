@@ -6,15 +6,15 @@
 
 #include "cpp2util.h"
 
-#line 1 "../src/main.cpp2"
+#line 1 "../cpp2/main.cpp2"
 
 
 //=== Cpp2 type definitions and function declarations ===========================
 
-#line 1 "../src/main.cpp2"
+#line 1 "../cpp2/main.cpp2"
 
 #include <QApplication>
-#include "../src/window.h"
+#include "window.h"
 #include "game.h"
 #include "gui_interface.h"
 #include "cli_interface.h"
@@ -52,9 +52,9 @@ void signalHandler(int signal) {
     }
 }
 
-#line 41 "../src/main.cpp2"
+#line 41 "../cpp2/main.cpp2"
 [[nodiscard]] auto cliApp() -> int;
-#line 83 "../src/main.cpp2"
+#line 83 "../cpp2/main.cpp2"
 
 int main(int argc, char *argv[]) {
     if (argc > 1 && static_cast<std::string>(argv[1]) == "nogui") {
@@ -79,9 +79,9 @@ int main(int argc, char *argv[]) {
 
 //=== Cpp2 function definitions =================================================
 
-#line 1 "../src/main.cpp2"
+#line 1 "../cpp2/main.cpp2"
 
-#line 41 "../src/main.cpp2"
+#line 41 "../cpp2/main.cpp2"
 [[nodiscard]] auto cliApp() -> int{
     windowsConfig();
     bool exit {false}; 

@@ -108,7 +108,7 @@ Game: type = {
         }
     }
 
-    private play:<verbose: bool, Size: i8>(inout this, inout engine: Engine<Size>) = {
+    private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>) = {
         start:= std::chrono::high_resolution_clock::now();
         blackPlayer*.processStartGame();
         whitePlayer*.processStartGame();
@@ -116,16 +116,16 @@ Game: type = {
         do {
             if constexpr verbose {
                 interface*.clear();
-                //interface*.refreshGoban(engine.goban);
+                interface*.refreshGoban(engine);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_ptr work.
             if moveNumber % 2 == 1 {
-                m = blackPlayer*.getMove(engine);
+                m = blackPlayer*.getMove(engine*);
             } else {
-                m = whitePlayer*.getMove(engine);
+                m = whitePlayer*.getMove(engine*);
             }
-            if engine.isValidMove(m) {
-                engine.playMove(m);
+            if engine*.isValidMove(m) {
+                engine*.playMove(m);
                 moveNumber++;
                 if constexpr verbose {
                     interface*.printLater(colorName(m.stone.color) + " played " + m.name() + ".");
@@ -138,32 +138,15 @@ Game: type = {
             if (moveNumber >= 999 || (moveNumber >= 299 && gobanSize == 9)) { // Only to prevent an eventual triple ko.
                 break;
             }
-        } while !engine.isFinish();
-        numberOfLib2 : i32 = 0;
-        (copy col: i8 = 0)
-        while col < Size
-        next col++
-        {
-            (copy row: i8 = 0)
-            while row < Size
-            next row++
-            {
-                if engine.goban.state[col][row].color == Color::None {
-                    numberOfLib2++;
-                }
-            }
-        }
+        } while !engine*.isFinish();
         stop:= std::chrono::high_resolution_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
         interface*.printLater("The game lasted " + duration as std::string + " ms.");
-        interface*.printLater("After " + engine.goban.iterations as std::string + " iterations.");
+        interface*.printLater("After " + engine*.goban.iterations as std::string + " iterations.");
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
-        using std::literals::chrono_literals::_;
-
         interface*.clear();
-        interface*.refreshGoban(engine.goban);
-        std::this_thread::sleep_for(100ms);
+        interface*.refreshGoban(engine);
     }
 
     public playOne:(inout this) = {
@@ -171,17 +154,14 @@ Game: type = {
             return;
         }
         if gobanSize == 9 {
-            e: Engine<9> = ();
+            e:= shared.new<Engine<9>>();
             play<true, 9>(e);
-            assert(e&);  // CPP2 workaround: Fix inout.
         } else if gobanSize == 13 {
-            e: Engine<13> = ();
+            e:= shared.new<Engine<13>>();
             play<true, 13>(e);
-            assert(e&);  // CPP2 workaround: Fix inout.
         } else if gobanSize == 19 {
-            e: Engine<19> = ();
+            e:= shared.new<Engine<19>>();
             play<true, 19>(e);
-            assert(e&);  // CPP2 workaround: Fix inout.
         } else {
             return;
         }
@@ -208,13 +188,17 @@ Game: type = {
         while true
         {
             if gobanSize == 9 {
-                engine: Engine<9> = ();
-                play<false, 9>(engine);
-                player1*.train<9>(engine);
+                e:= shared.new<Engine<9>>();
+                play<false, 9>(e);
+                player1*.train<9>(e*);
+            } else if gobanSize == 13 {
+                e:= shared.new<Engine<13>>();
+                play<false, 13>(e);
+                player1*.train<13>(e*);
             } else if gobanSize == 19 {
-                engine: Engine<19> = ();
-                play<false, 19>(engine);
-                player1*.train<19>(engine);
+                e:= shared.new<Engine<19>>();
+                play<false, 19>(e);
+                player1*.train<19>(e*);
             } else{
                 return;
             }
@@ -254,15 +238,18 @@ Game: type = {
             if i == (numberOfGame / 2) {
                 switchPlayerColor();
             }
-            if gobanSize == 19 {
-                e: Engine<19> = ();
-                play<false, 19>(e);
-                assert(e&);  // CPP2 workaround: Fix inout.
-            } else if gobanSize == 9 {
-                e: Engine<9> = ();
+            if gobanSize == 9 {
+                e:= shared.new<Engine<9>>();
                 play<false, 9>(e);
-                assert(e&);  // CPP2 workaround: Fix inout.
-            }else{
+            }
+            else if gobanSize == 13 {
+                e:= shared.new<Engine<13>>();
+                play<false, 13>(e);
+            }
+            else if gobanSize == 19 {
+                e:= shared.new<Engine<19>>();
+                play<false, 19>(e);
+            } else {
                 return;
             }
             if player1*.hasWon {

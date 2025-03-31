@@ -24,8 +24,13 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Concurrent Widgets)
 
-add_executable(gopp2 ./src/lib.cpp ./generate/main.cpp ./src/window.cpp)
+add_executable(gopp2 ./src/cpp1/cpp2_sources.cpp
+                     ./src/cpp1/window.cpp
+                     ./src/generated/main.cpp)
 
+target_include_directories(gopp2 PRIVATE ./src/cpp1
+                                         ./src/cpp2
+                                         ./src/generated)
 
 target_compile_options(gopp2 PRIVATE -w)
 target_link_libraries(gopp2 PRIVATE Qt6::Concurrent Qt6::Widgets StraightforwardNeuralNetwork)

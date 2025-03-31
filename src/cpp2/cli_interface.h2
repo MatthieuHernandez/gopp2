@@ -17,16 +17,16 @@ CliInterface: type = {
         cli::clearConsole();
     }
 
-    public refreshGoban:(override inout this, in goban: Goban<9>) = {
-        cli::printGoban<9>(goban);
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<9>>) = {
+        cli::printGoban<9>(engine*.goban);
     }
 
-    public refreshGoban:(override inout this, in goban: Goban<13>) = {
-        cli::printGoban<13>(goban);
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<13>>) = {
+        cli::printGoban<13>(engine*.goban);
     }
 
-    public refreshGoban:(override inout this, in goban: Goban<19>) = {
-        cli::printGoban<19>(goban);
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<19>>) = {
+        cli::printGoban<19>(engine*.goban);
     }
 
     public wait:(override inout this) = {

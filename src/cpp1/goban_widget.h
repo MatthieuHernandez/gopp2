@@ -3,7 +3,7 @@
 #include <QPixmap>
 #include <QGridLayout>
 
-#include "../generate/goban.h"
+#include "engine.h"
 
 class GobanWidget : public QWidget {
     //Q_OBJECT
@@ -60,12 +60,13 @@ class GobanWidget : public QWidget {
     }
 
     template<int8_t Size>
-    void refresh(const Goban<Size>* goban) {
+    void refresh(std::shared_ptr<Engine<Size>> engine) {
+        const auto& goban = engine->goban;
         int numberOfLib = 0;
         for (int8_t col = 0; col < Size; ++col) {
             for (int8_t row = 0; row < Size; ++row) {
-                if (goban->state[col][row].color != Color::Black && 
-                    goban->state[col][row].color != Color::White){
+                if (goban.state[col][row].color != Color::Black && 
+                    goban.state[col][row].color != Color::White){
                     numberOfLib++;
                 }
             }
@@ -75,9 +76,9 @@ class GobanWidget : public QWidget {
         QPixmap* img = nullptr;
         for (int8_t col = 0; col < Size; ++col) {
             for (int8_t row = 0; row < Size; ++row) {
-                if (goban->state[col][row].color == Color::Black) {
+                if (goban.state[col][row].color == Color::Black) {
                     img = this->blackStone;
-                } else if (goban->state[col][row].color == Color::White){
+                } else if (goban.state[col][row].color == Color::White){
                     img = this->whiteStone;
                 } else {
                     if ((Size == 9 &&

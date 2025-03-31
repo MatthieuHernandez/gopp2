@@ -1,4 +1,4 @@
-#include "goban.h2"
+#include "engine.h2"
 #include "move.h2"
 
 Interface: type = {
@@ -8,11 +8,11 @@ Interface: type = {
 
     public clear:(virtual inout this);
 
-    public refreshGoban:(virtual inout this, in goban: Goban<9>);
+    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<9>>);
 
-    public refreshGoban:(virtual inout this, in goban: Goban<13>);
+    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<13>>);
 
-    public refreshGoban:(virtual inout this, in goban: Goban<19>);
+    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<19>>);
 
     public wait:(virtual inout this);
 

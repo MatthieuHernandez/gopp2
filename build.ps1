@@ -9,25 +9,24 @@ $DebugArg = ""
 
 if ($BuildType -eq "Debug") { $DebugArg = "-d" }
 
-cppfront -cwd ./generate ../src/color.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/stone.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/move.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/goban.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/engine.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/io.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/cli.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/player.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/human.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/dumb.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/random.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/ai.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/itself.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/game.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/interface.h2 -pure-cpp2 $DebugArg |
-cppfront -cwd ./generate ../src/cli_interface.h2 -pure-cpp2 $DebugArg |
-#cppfront -cwd ./generate ../src/snn.h2 $DebugArg |
-cppfront -cwd ./generate ../src/gui_interface.h2 -import-std $DebugArg |
-cppfront -cwd ./generate ../src/main.cpp2 -import-std $DebugArg
+cppfront -cwd ./src/generated ../cpp2/color.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/stone.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/move.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/goban.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/engine.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/io.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/cli.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/player.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/human.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/dumb.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/random.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/ai.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/itself.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/game.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/interface.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/cli_interface.h2 -pure-cpp2 $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/gui_interface.h2 -import-std $DebugArg |
+cppfront -cwd ./src/generated ../cpp2/main.cpp2 -import-std $DebugArg
 
 # Move files used for debugging to the build folder.
 if ($BuildType -eq "Debug") {

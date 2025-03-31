@@ -1,6 +1,6 @@
 
 #include <QApplication>
-#include "../src/window.h"
+#include "window.h"
 #include "game.h2"
 #include "gui_interface.h2"
 #include "cli_interface.h2"
