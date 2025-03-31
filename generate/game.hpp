@@ -88,7 +88,7 @@
 #line 63 "../src/game.h2"
     auto Game::selectPlayer(cpp2::impl::in<Color> color, cpp2::impl::in<std::string> selection) & -> void{
         std::shared_ptr<Player> player {nullptr}; 
-        if ((selection == "")) {
+        if ((selection == "" || color == Color::None)) {
             player = nullptr;
         }else {if ((selection == "-1" && color == Color::Black)) {
             player = nullptr;
@@ -145,7 +145,7 @@
         do {
             if constexpr (verbose) {
                 CPP2_UFCS(clear)((*cpp2::impl::assert_not_null(interface)));
-                CPP2_UFCS(refreshGoban)((*cpp2::impl::assert_not_null(interface)), engine.goban);
+                //interface*.refreshGoban(engine.goban);
             }
             Move m {};    // CPP2 workaround: Not able to make unique_ptr work.
             if (moveNumber % 2 == 1) {
@@ -168,32 +168,44 @@
                 break;
             }
         } while ( !(CPP2_UFCS(isFinish)(engine)));
-        CPP2_UFCS(countScore)(engine);
-        CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "The game ends after " + cpp2::impl::as_<std::string>(cpp2::move(moveNumber)) + " moves.");
-        if ((cpp2::impl::cmp_greater(engine.blackPoint,engine.whitePoint))) {
-            (*cpp2::impl::assert_not_null(blackPlayer)).hasWon = true;
-            (*cpp2::impl::assert_not_null(whitePlayer)).hasWon = false;
-            CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "Black win " + cpp2::impl::as_<std::string>(engine.blackPoint) + " to " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5.");
-        }else {
-            (*cpp2::impl::assert_not_null(whitePlayer)).hasWon = true;
-            (*cpp2::impl::assert_not_null(blackPlayer)).hasWon = false;
-            CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "White win " + cpp2::impl::as_<std::string>(engine.whitePoint) + ".5 to " + cpp2::impl::as_<std::string>(engine.blackPoint) + ".");
+        cpp2::i32 numberOfLib2 {0}; 
+{
+cpp2::i8 col{0};
+
+#line 144 "../src/game.h2"
+        for( ; cpp2::impl::cmp_less(col,Size); 
+        ++col ) 
+        {
+{
+cpp2::i8 row{0};
+
+#line 148 "../src/game.h2"
+            for( ; cpp2::impl::cmp_less(row,Size); 
+            ++row ) 
+            {
+                if (CPP2_ASSERT_IN_BOUNDS(CPP2_ASSERT_IN_BOUNDS(engine.goban.state, col), row).color == Color::None) {
+                    ++numberOfLib2;
+                }
+            }
+}
+#line 155 "../src/game.h2"
         }
+}
+#line 156 "../src/game.h2"
         auto stop {std::chrono::high_resolution_clock::now()}; 
         auto duration {CPP2_UFCS(count)(std::chrono::duration_cast<std::chrono::milliseconds>(cpp2::move(stop) - cpp2::move(start)))}; 
         CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "The game lasted " + cpp2::impl::as_<std::string>(cpp2::move(duration)) + " ms.");
         CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "After " + cpp2::impl::as_<std::string>(engine.goban.iterations) + " iterations.");
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(blackPlayer)));
         CPP2_UFCS(processEndGame)((*cpp2::impl::assert_not_null(whitePlayer)));
+        using namespace std::literals::chrono_literals;
+
         CPP2_UFCS(clear)((*cpp2::impl::assert_not_null(interface)));
         CPP2_UFCS(refreshGoban)((*cpp2::impl::assert_not_null(interface)), engine.goban);
-        /*if ((engine.blackPoint > 60 && engine.blackPoint < 81)
-            || (engine.whitePoint > 68 && engine.whitePoint < 88)) {
-            waitInput();
-        }*/
+        std::this_thread::sleep_for(100ms);
     }
 
-#line 167 "../src/game.h2"
+#line 169 "../src/game.h2"
     auto Game::playOne() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -217,14 +229,14 @@
         CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "Game was played.");
     }
 
-#line 190 "../src/game.h2"
+#line 192 "../src/game.h2"
     auto Game::switchPlayerColor() & -> void{
         CPP2_UFCS(setColor)((*cpp2::impl::assert_not_null(blackPlayer)), Color::White);
         CPP2_UFCS(setColor)((*cpp2::impl::assert_not_null(whitePlayer)), Color::Black);
         std::swap(blackPlayer, whitePlayer);
     }
 
-#line 196 "../src/game.h2"
+#line 198 "../src/game.h2"
     auto Game::trainBlack() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -262,7 +274,7 @@
         CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "AI trained.");
     }
 
-#line 233 "../src/game.h2"
+#line 235 "../src/game.h2"
     auto Game::evaluate() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -281,7 +293,7 @@
 {
 cpp2::i32 i{0};
 
-#line 249 "../src/game.h2"
+#line 251 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
@@ -304,7 +316,7 @@ cpp2::i32 i{0};
             }
         }
 }
-#line 270 "../src/game.h2"
+#line 272 "../src/game.h2"
         CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
         switchPlayerColor();

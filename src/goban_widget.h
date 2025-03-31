@@ -61,9 +61,17 @@ class GobanWidget : public QWidget {
 
     template<int8_t Size>
     void refresh(const Goban<Size>* goban) {
+        int numberOfLib = 0;
+        for (int8_t col = 0; col < Size; ++col) {
+            for (int8_t row = 0; row < Size; ++row) {
+                if (goban->state[col][row].color != Color::Black && 
+                    goban->state[col][row].color != Color::White){
+                    numberOfLib++;
+                }
+            }
+        }
         this->resetLayout();
-        std::array<QLabel*, Size*Size> labels = {nullptr};
-        int8_t maxIndex = Size - 1;
+        constexpr int8_t maxIndex = Size - 1;
         QPixmap* img = nullptr;
         for (int8_t col = 0; col < Size; ++col) {
             for (int8_t row = 0; row < Size; ++row) {
@@ -114,10 +122,10 @@ class GobanWidget : public QWidget {
                     }
                 }
                 int8_t index = row * Size + col;
-                labels[index] = new QLabel(this);
-                labels[index]->setPixmap(*img);
-                labels[index]->setScaledContents(true);
-                this->gridLayout->addWidget(labels[index], row, col);
+                auto label = new QLabel(this);
+                label->setPixmap(*img);
+                label->setScaledContents(true);
+                this->gridLayout->addWidget(label, row, col);
             }
         }
     }

@@ -62,7 +62,7 @@ Game: type = {
 
     public selectPlayer:(inout this, color: Color, selection: std::string) = {
         player: std::shared_ptr<Player> = nullptr;
-        if(selection == "") {
+        if(selection == "" || color == Color::None) {
             player = nullptr;
         } else if (selection == "-1" && color == Color::Black) {
             player = nullptr;
@@ -116,7 +116,7 @@ Game: type = {
         do {
             if constexpr verbose {
                 interface*.clear();
-                interface*.refreshGoban(engine.goban);
+                //interface*.refreshGoban(engine.goban);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_ptr work.
             if moveNumber % 2 == 1 {
@@ -139,16 +139,19 @@ Game: type = {
                 break;
             }
         } while !engine.isFinish();
-        engine.countScore();
-        interface*.printLater("The game ends after " + moveNumber as std::string + " moves.");
-        if (engine.blackPoint > engine.whitePoint) {
-            blackPlayer*.hasWon = true;
-            whitePlayer*.hasWon = false;
-            interface*.printLater("Black win " + engine.blackPoint as std::string + " to " + engine.whitePoint as std::string + ".5.");
-        } else {
-            whitePlayer*.hasWon = true;
-            blackPlayer*.hasWon = false;
-            interface*.printLater("White win " + engine.whitePoint as std::string + ".5 to " + engine.blackPoint as std::string + ".");
+        numberOfLib2 : i32 = 0;
+        (copy col: i8 = 0)
+        while col < Size
+        next col++
+        {
+            (copy row: i8 = 0)
+            while row < Size
+            next row++
+            {
+                if engine.goban.state[col][row].color == Color::None {
+                    numberOfLib2++;
+                }
+            }
         }
         stop:= std::chrono::high_resolution_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
@@ -156,12 +159,11 @@ Game: type = {
         interface*.printLater("After " + engine.goban.iterations as std::string + " iterations.");
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
+        using std::literals::chrono_literals::_;
+
         interface*.clear();
         interface*.refreshGoban(engine.goban);
-        /*if ((engine.blackPoint > 60 && engine.blackPoint < 81)
-            || (engine.whitePoint > 68 && engine.whitePoint < 88)) {
-            waitInput();
-        }*/
+        std::this_thread::sleep_for(100ms);
     }
 
     public playOne:(inout this) = {

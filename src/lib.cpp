@@ -30,3 +30,4 @@
 #include "../generate/interface.hpp"
 #include "../generate/cli_interface.h"
 #include "../generate/cli_interface.hpp"
+volatile auto color = Color::None;

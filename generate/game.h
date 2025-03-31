@@ -66,22 +66,22 @@ class Game {
 #line 111 "../src/game.h2"
     private: template<bool verbose, cpp2::i8 Size> auto play(Engine<Size>& engine) & -> void;
 
-#line 167 "../src/game.h2"
+#line 169 "../src/game.h2"
     public: auto playOne() & -> void;
 
-#line 190 "../src/game.h2"
+#line 192 "../src/game.h2"
     private: auto switchPlayerColor() & -> void;
 
-#line 196 "../src/game.h2"
+#line 198 "../src/game.h2"
     public: auto trainBlack() & -> void;
 
-#line 233 "../src/game.h2"
+#line 235 "../src/game.h2"
     public: auto evaluate() & -> void;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 274 "../src/game.h2"
+#line 276 "../src/game.h2"
 };
 
                 CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));
