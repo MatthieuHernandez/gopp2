@@ -33,6 +33,11 @@
     }
 
 #line 18 "../src/human.h2"
+    [[nodiscard]] auto Human::getMove([[maybe_unused]] Engine<13>& unnamed_param_2) -> Move{
+        return CPP2_UFCS(waitForAMove)((*cpp2::impl::assert_not_null(interface)), color); 
+    }
+
+#line 22 "../src/human.h2"
     [[nodiscard]] auto Human::getMove([[maybe_unused]] Engine<19>& unnamed_param_2) -> Move{
         return CPP2_UFCS(waitForAMove)((*cpp2::impl::assert_not_null(interface)), color); 
     }

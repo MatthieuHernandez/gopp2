@@ -38,23 +38,23 @@ std::mt19937 rng {rd()};
         color = c;
     }
 
-#line 34 "../src/player.h2"
+#line 36 "../src/player.h2"
     Player::Player(Player const& that)
         : interface{ that.interface }
         , color{ that.color }
         , hasWon{ that.hasWon }{
 
-#line 37 "../src/player.h2"
+#line 39 "../src/player.h2"
     }
 
-#line 40 "../src/player.h2"
+#line 42 "../src/player.h2"
     Player::~Player() noexcept{
     }
 
-#line 43 "../src/player.h2"
+#line 45 "../src/player.h2"
     auto Player::processStartGame() -> void{}
 
-#line 45 "../src/player.h2"
+#line 47 "../src/player.h2"
     auto Player::processEndGame() -> void{}
 #endif
 

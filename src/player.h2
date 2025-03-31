@@ -28,6 +28,8 @@ Player: type = {
 
     public getMove:(virtual inout this, inout engine: Engine<9>) -> Move;
 
+    public getMove:(virtual inout this, inout engine: Engine<13>) -> Move;
+
     public getMove:(virtual inout this, inout engine: Engine<19>) -> Move;
 
     // CPP2 workaround: Default operator seems not working.

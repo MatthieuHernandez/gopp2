@@ -172,6 +172,10 @@ Game: type = {
             e: Engine<9> = ();
             play<true, 9>(e);
             assert(e&);  // CPP2 workaround: Fix inout.
+        } else if gobanSize == 13 {
+            e: Engine<13> = ();
+            play<true, 13>(e);
+            assert(e&);  // CPP2 workaround: Fix inout.
         } else if gobanSize == 19 {
             e: Engine<19> = ();
             play<true, 19>(e);

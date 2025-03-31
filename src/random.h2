@@ -25,6 +25,10 @@ Random: type = {
         return getMove<9>(engine);
     }
 
+    public getMove:(override inout this, inout engine: Engine<13>) -> Move = {
+        return getMove<13>(engine);
+    }
+
     public getMove:(override inout this, inout engine: Engine<19>) -> Move = {
         return getMove<19>(engine);
     }

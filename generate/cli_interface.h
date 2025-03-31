@@ -38,19 +38,22 @@ class CliInterface: public Interface {
     public: auto refreshGoban(cpp2::impl::in<Goban<9>> goban) -> void override;
 
 #line 24 "../src/cli_interface.h2"
-    public: auto refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void override;
+    public: auto refreshGoban(cpp2::impl::in<Goban<13>> goban) -> void override;
 
 #line 28 "../src/cli_interface.h2"
-    public: auto wait() -> void override;
+    public: auto refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void override;
 
 #line 32 "../src/cli_interface.h2"
+    public: auto wait() -> void override;
+
+#line 36 "../src/cli_interface.h2"
     public: [[nodiscard]] auto waitForAMove(cpp2::impl::in<Color> c) -> Move override;
     public: CliInterface() = default;
     public: CliInterface(CliInterface const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(CliInterface const&) -> void = delete;
 
 
-#line 35 "../src/cli_interface.h2"
+#line 39 "../src/cli_interface.h2"
 };
 
 #endif

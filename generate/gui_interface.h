@@ -35,19 +35,22 @@ class GuiInterface: public Interface {
     public: auto refreshGoban(cpp2::impl::in<Goban<9>> goban) -> void override;
 
 #line 18 "../src/gui_interface.h2"
-    public: auto refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void override;
+    public: auto refreshGoban(cpp2::impl::in<Goban<13>> goban) -> void override;
 
 #line 22 "../src/gui_interface.h2"
+    public: auto refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void override;
+
+#line 26 "../src/gui_interface.h2"
     public: auto wait() -> void override;
 
-#line 25 "../src/gui_interface.h2"
+#line 29 "../src/gui_interface.h2"
     public: [[nodiscard]] auto waitForAMove(cpp2::impl::in<Color> c) -> Move override;
     public: GuiInterface() = default;
     public: GuiInterface(GuiInterface const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(GuiInterface const&) -> void = delete;
 
 
-#line 28 "../src/gui_interface.h2"
+#line 32 "../src/gui_interface.h2"
 };
 
 
@@ -66,19 +69,24 @@ class GuiInterface: public Interface {
 
 #line 14 "../src/gui_interface.h2"
     auto GuiInterface::refreshGoban(cpp2::impl::in<Goban<9>> goban) -> void{
-        CPP2_UFCS(refreshGoban)((*cpp2::impl::assert_not_null(window)));
+        CPP2_UFCS(refreshGoban)((*cpp2::impl::assert_not_null(window)), goban);
     }
 
 #line 18 "../src/gui_interface.h2"
-    auto GuiInterface::refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void{
-        CPP2_UFCS(refreshGoban)((*cpp2::impl::assert_not_null(window)));
+    auto GuiInterface::refreshGoban(cpp2::impl::in<Goban<13>> goban) -> void{
+        CPP2_UFCS(refreshGoban)((*cpp2::impl::assert_not_null(window)), goban);
     }
 
 #line 22 "../src/gui_interface.h2"
+    auto GuiInterface::refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void{
+        CPP2_UFCS(refreshGoban)((*cpp2::impl::assert_not_null(window)), goban);
+    }
+
+#line 26 "../src/gui_interface.h2"
     auto GuiInterface::wait() -> void{
     }
 
-#line 25 "../src/gui_interface.h2"
+#line 29 "../src/gui_interface.h2"
     [[nodiscard]] auto GuiInterface::waitForAMove(cpp2::impl::in<Color> c) -> Move{
         return pass(c); 
     }

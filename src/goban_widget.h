@@ -3,7 +3,7 @@
 #include <QPixmap>
 #include <QGridLayout>
 
-//#include "../generate/goban.h"
+#include "../generate/goban.h"
 
 class GobanWidget : public QWidget {
     //Q_OBJECT
@@ -19,9 +19,22 @@ class GobanWidget : public QWidget {
     QPixmap* conerTopRight = nullptr;
     QPixmap* conerBottomRight = nullptr;
     QPixmap* blackStone = nullptr;
-    QPixmap* WhiteStone = nullptr;
+    QPixmap* whiteStone = nullptr;
 
-    QGridLayout* layout = nullptr;
+    QGridLayout* gridLayout = nullptr;
+
+    void resetLayout() {
+        if (this->gridLayout == nullptr) {
+            return;
+        }
+        while (this->gridLayout->count() > 0) {
+            auto* item = this->gridLayout->takeAt(0);
+            if (item != nullptr && item->widget() != nullptr) {
+                item->widget()->deleteLater();
+                delete item;
+            }
+        }
+    }
 
   public:
     GobanWidget(QWidget *parent = nullptr)
@@ -37,59 +50,66 @@ class GobanWidget : public QWidget {
         this->conerTopRight = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/coner_top_right.png");
         this->conerBottomRight = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/coner_bottom_right.png");
         this->blackStone = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/black_stone.png");
-        this->WhiteStone = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/white_stone.png");
+        this->whiteStone = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/white_stone.png");
 
-        this->layout = new QGridLayout(this);
-        this->layout->setSpacing(0);
+        this->gridLayout = new QGridLayout(this);
+        this->gridLayout->setSpacing(0);
 
-        this->setLayout(layout);
+        this->setLayout(this->gridLayout);
         this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     }
 
-    void refresh9(/*const Goban<9>& goban*/) {
-        const int8_t Size = 9;
+    template<int8_t Size>
+    void refresh(const Goban<Size>* goban) {
+        this->resetLayout();
         std::array<QLabel*, Size*Size> labels = {nullptr};
         int8_t maxIndex = Size - 1;
         QPixmap* img = nullptr;
-        for (int8_t row = 0; row < Size; ++row) {
-            for (int8_t col = 0; col < Size; ++col) {
-                if ((Size == 9 &&
-                    ((row == 2 && (col == 2 || col == 6)) ||
-                    (row ==  6 && (col == 2 || col == 6)))) ||
-                    (Size == 13 &&
-                    ((row == 9 && (col == 3 || col == 6 || col == 9)) ||
-                    (row == 6 && (col == 3 || col == 6 || col == 9)) ||
-                    (row ==  3 && (col == 3 || col == 6 || col == 9)))) ||
-                    (Size == 19 &&
-                    ((row == 15 && (col == 3 || col == 9 || col == 15)) ||
-                    (row == 9 && (col == 3 || col == 9 || col == 15)) ||
-                    (row ==  3 && (col == 3 || col == 9 || col == 15)))) ) {
-                        img = hoshi;
+        for (int8_t col = 0; col < Size; ++col) {
+            for (int8_t row = 0; row < Size; ++row) {
+                if (goban->state[col][row].color == Color::Black) {
+                    img = this->blackStone;
+                } else if (goban->state[col][row].color == Color::White){
+                    img = this->whiteStone;
                 } else {
-                    if (row == maxIndex) {
-                        if (col == 0) {
-                            img = conerBottomLeft;
-                        } 
-                        else if (col == maxIndex) {
-                            img = conerBottomRight;
-                        } else {
-                            img = bottom;
-                        }
-                    } else if (row == 0) {
-                        if (col == 0) {
-                            img = conerTopLeft;
-                        } else if (col == maxIndex) {
-                            img = conerTopRight;
-                        } else {
-                            img = top;
-                        }
+                    if ((Size == 9 &&
+                        ((row == 2 && (col == 2 || col == 6)) ||
+                        (row ==  6 && (col == 2 || col == 6)))) ||
+                        (Size == 13 &&
+                        ((row == 9 && (col == 3 || col == 6 || col == 9)) ||
+                        (row == 6 && (col == 3 || col == 6 || col == 9)) ||
+                        (row ==  3 && (col == 3 || col == 6 || col == 9)))) ||
+                        (Size == 19 &&
+                        ((row == 15 && (col == 3 || col == 9 || col == 15)) ||
+                        (row == 9 && (col == 3 || col == 9 || col == 15)) ||
+                        (row ==  3 && (col == 3 || col == 9 || col == 15)))) ) {
+                            img = hoshi;
                     } else {
-                        if (col == 0) {
-                            img = left;
-                        } else if (col == maxIndex) {
-                            img = right;
+                        if (row == maxIndex) {
+                            if (col == 0) {
+                                img = this->conerBottomLeft;
+                            } 
+                            else if (col == maxIndex) {
+                                img = this->conerBottomRight;
+                            } else {
+                                img = this->bottom;
+                            }
+                        } else if (row == 0) {
+                            if (col == 0) {
+                                img = this->conerTopLeft;
+                            } else if (col == maxIndex) {
+                                img = this->conerTopRight;
+                            } else {
+                                img = this->top;
+                            }
                         } else {
-                            img = middle;
+                            if (col == 0) {
+                                img = this->left;
+                            } else if (col == maxIndex) {
+                                img = this->right;
+                            } else {
+                                img = this->middle;
+                            }
                         }
                     }
                 }
@@ -97,66 +117,8 @@ class GobanWidget : public QWidget {
                 labels[index] = new QLabel(this);
                 labels[index]->setPixmap(*img);
                 labels[index]->setScaledContents(true);
-                this->layout->addWidget(labels[index], row, col);
+                this->gridLayout->addWidget(labels[index], row, col);
             }
         }
     }
-
-    void refresh19(/*const Goban<19>& goban*/) {
-        const int8_t Size = 19;
-        std::array<QLabel*, Size*Size> labels = {nullptr};
-        int8_t maxIndex = Size - 1;
-        QPixmap* img = nullptr;
-        for (int8_t row = 0; row < Size; ++row) {
-            for (int8_t col = 0; col < Size; ++col) {
-                if ((Size == 9 &&
-                    ((row == 2 && (col == 2 || col == 6)) ||
-                    (row ==  6 && (col == 2 || col == 6)))) ||
-                    (Size == 13 &&
-                    ((row == 9 && (col == 3 || col == 6 || col == 9)) ||
-                    (row == 6 && (col == 3 || col == 6 || col == 9)) ||
-                    (row ==  3 && (col == 3 || col == 6 || col == 9)))) ||
-                    (Size == 19 &&
-                    ((row == 15 && (col == 3 || col == 9 || col == 15)) ||
-                    (row == 9 && (col == 3 || col == 9 || col == 15)) ||
-                    (row ==  3 && (col == 3 || col == 9 || col == 15)))) ) {
-                        img = hoshi;
-                } else {
-                    if (row == maxIndex) {
-                        if (col == 0) {
-                            img = conerBottomLeft;
-                        } 
-                        else if (col == maxIndex) {
-                            img = conerBottomRight;
-                        } else {
-                            img = bottom;
-                        }
-                    } else if (row == 0) {
-                        if (col == 0) {
-                            img = conerTopLeft;
-                        } else if (col == maxIndex) {
-                            img = conerTopRight;
-                        } else {
-                            img = top;
-                        }
-                    } else {
-                        if (col == 0) {
-                            img = left;
-                        } else if (col == maxIndex) {
-                            img = right;
-                        } else {
-                            img = middle;
-                        }
-                    }
-                }
-                int8_t index = row * Size + col;
-                labels[index] = new QLabel(this);
-                labels[index]->setPixmap(*img);
-                labels[index]->setScaledContents(true);
-                this->layout->addWidget(labels[index], row, col);
-            }
-        }
-    }
-
-
 };

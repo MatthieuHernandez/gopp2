@@ -197,11 +197,16 @@ cpp2::i16 index2{0};
     }
 
 #line 153 "../src/ai.h2"
+    [[nodiscard]] auto Ai::getMove(Engine<13>& engine) -> Move{
+        return getMove<13>(engine); 
+    }
+
+#line 157 "../src/ai.h2"
     [[nodiscard]] auto Ai::getMove(Engine<19>& engine) -> Move{
         return getMove<19>(engine); 
     }
 
-#line 157 "../src/ai.h2"
+#line 161 "../src/ai.h2"
     [[nodiscard]] auto Ai::computeLearningRate(cpp2::impl::in<cpp2::i16> gameLength) & -> float{
         auto learningRate {defaultLearningRate}; 
         if (cpp2::impl::cmp_greater(calculateWinrate(),0.8)) {
@@ -210,7 +215,7 @@ cpp2::i16 index2{0};
         return learningRate; 
     }
 
-#line 165 "../src/ai.h2"
+#line 169 "../src/ai.h2"
     template<cpp2::i8 Size> auto Ai::train(cpp2::impl::in<Engine<Size>> engine) & -> void{
         if ((cpp2::impl::cmp_greater(CPP2_UFCS(ssize)(engine.moves),291))) {
             return ; 
@@ -231,7 +236,7 @@ cpp2::i16 index2{0};
 {
 cpp2::i16 i{0};
 
-#line 183 "../src/ai.h2"
+#line 187 "../src/ai.h2"
         for( ; cpp2::impl::cmp_less(i,(CPP2_UFCS(ssize)(engine.moves))); 
         ++i ) 
         {
@@ -244,7 +249,7 @@ cpp2::i16 i{0};
 {
 cpp2::i16 j{0};
 
-#line 193 "../src/ai.h2"
+#line 197 "../src/ai.h2"
             for( ; cpp2::impl::cmp_less(j,size); 
             ++j ) 
             {
@@ -254,7 +259,7 @@ cpp2::i16 j{0};
                 }
             }
 }
-#line 201 "../src/ai.h2"
+#line 205 "../src/ai.h2"
             auto expectedIndex {CPP2_UFCS_TEMPLATE(getIndex<Size>)(CPP2_ASSERT_IN_BOUNDS(engine.moves, i).stone)}; 
             if (i % 2 == 0) {
                 CPP2_ASSERT_IN_BOUNDS(expectedOutputs, expectedIndex) = expectedBlack.value();
@@ -264,15 +269,15 @@ cpp2::i16 j{0};
             CPP2_UFCS(trainOnce)((*cpp2::impl::assert_not_null(neuralNetwork)), cpp2::move(inputs), cpp2::move(expectedOutputs), cpp2::move(weighting));
         }
 }
-#line 209 "../src/ai.h2"
+#line 213 "../src/ai.h2"
     }
 
-#line 211 "../src/ai.h2"
+#line 215 "../src/ai.h2"
     auto Ai::save() & -> void{
         CPP2_UFCS(saveAs)((*cpp2::impl::assert_not_null(neuralNetwork)), modelPath);
     }
 
-#line 215 "../src/ai.h2"
+#line 219 "../src/ai.h2"
     auto Ai::saveIfBetter() & -> void{
         if (isBetter) {
             save();
@@ -280,12 +285,12 @@ cpp2::i16 j{0};
         }
     }
 
-#line 222 "../src/ai.h2"
+#line 226 "../src/ai.h2"
     [[nodiscard]] auto Ai::calculateWinrate() const& -> float{
         return sumOfLastGameWon / CPP2_ASSERT_NOT_ZERO(CPP2_TYPEOF(sumOfLastGameWon),(float)(CPP2_UFCS(size)(lastGameWon))); 
     }
 
-#line 226 "../src/ai.h2"
+#line 230 "../src/ai.h2"
     auto Ai::processStartGame() -> void{
         if (CPP2_UFCS(isValid)((*cpp2::impl::assert_not_null(neuralNetwork))) != snn::errorType::noError) {
             std::cout << "INVALID MODEL !" << std::endl;
@@ -300,7 +305,7 @@ cpp2::i16 j{0};
         }
     }
 
-#line 240 "../src/ai.h2"
+#line 244 "../src/ai.h2"
     auto Ai::processEndGame() -> void{
         if (randomness == 1) {// Only process on "accurate" game.
             if (hasWon) {// CPP2 workaround: Conditional operator not yet supported.

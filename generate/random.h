@@ -36,9 +36,12 @@ class Random: public Player {
     public: [[nodiscard]] auto getMove(Engine<9>& engine) -> Move override;
 
 #line 28 "../src/random.h2"
+    public: [[nodiscard]] auto getMove(Engine<13>& engine) -> Move override;
+
+#line 32 "../src/random.h2"
     public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
 
-#line 31 "../src/random.h2"
+#line 35 "../src/random.h2"
 };
 
 #endif

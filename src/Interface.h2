@@ -10,6 +10,8 @@ Interface: type = {
 
     public refreshGoban:(virtual inout this, in goban: Goban<9>);
 
+    public refreshGoban:(virtual inout this, in goban: Goban<13>);
+
     public refreshGoban:(virtual inout this, in goban: Goban<19>);
 
     public wait:(virtual inout this);

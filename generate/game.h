@@ -69,19 +69,19 @@ class Game {
 #line 167 "../src/game.h2"
     public: auto playOne() & -> void;
 
-#line 186 "../src/game.h2"
+#line 190 "../src/game.h2"
     private: auto switchPlayerColor() & -> void;
 
-#line 192 "../src/game.h2"
+#line 196 "../src/game.h2"
     public: auto trainBlack() & -> void;
 
-#line 229 "../src/game.h2"
+#line 233 "../src/game.h2"
     public: auto evaluate() & -> void;
     public: Game(Game const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Game const&) -> void = delete;
 
 
-#line 270 "../src/game.h2"
+#line 274 "../src/game.h2"
 };
 
                 CPP2_UFCS(save)((*cpp2::impl::assert_not_null(player1)));

@@ -34,6 +34,11 @@
     }
 
 #line 22 "../src/itself.h2"
+    [[nodiscard]] auto Itself::getMove(Engine<13>& engine) -> Move{
+        return CPP2_UFCS(getMove)(ai, engine); 
+    }
+
+#line 26 "../src/itself.h2"
     [[nodiscard]] auto Itself::getMove(Engine<19>& engine) -> Move{
         return CPP2_UFCS(getMove)(ai, engine); 
     }

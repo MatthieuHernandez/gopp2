@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 #include <memory>
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -9,12 +10,15 @@
 #include <QPushButton>
 #include <QtConcurrent>
 #include <QTabWidget>
+#include <QThread>
 
 #include "goban_widget.h"
 
 #include "../generate/interface.h"
 #include "../generate/io.h"
 #include "../generate/game.h"
+
+using namespace std::literals::chrono_literals;
 
 inline constexpr int gobanImageSize = 429;
 inline constexpr int RaspberryScreenWidth = 320;
@@ -58,9 +62,9 @@ class Window : public QMainWindow {
     void displayGoban() {
         this->gobanWidget = new GobanWidget(this);
         this->mainLayout->insertWidget(0, this->gobanWidget);
-        this->connect(this, &Window::refreshGobanSignal, this->gobanWidget, &GobanWidget::refresh9);
-        //this->connect(this, &Window::refreshGoban13Signal, this->gobanWidget, &GobanWidget::refresh13);
-        //this->connect(this, &Window::refreshGoban19Signal, this->gobanWidget, &GobanWidget::refresh19);
+        this->connect(this, &Window::refreshGoban9Signal, this->gobanWidget, &GobanWidget::refresh<9>);
+        this->connect(this, &Window::refreshGoban13Signal, this->gobanWidget, &GobanWidget::refresh<13>);
+        this->connect(this, &Window::refreshGoban19Signal, this->gobanWidget, &GobanWidget::refresh<19>);
     }
 
     void displayMainLine2() {
@@ -141,9 +145,11 @@ class Window : public QMainWindow {
         line3Layout->addWidget(playOneButton);
         this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
             qDebug() << "Info: Start a game.";
-            this->tabWidget->setCurrentIndex(1);
             QtConcurrent::run([this]() {
                 this->game->playOne();
+            });
+            QTimer::singleShot(50, this, [=]() {
+                this->tabWidget->setCurrentIndex(1);
             });
         });
     }
@@ -154,7 +160,9 @@ class Window : public QMainWindow {
         auto* trainButton = new QPushButton("Train black player", this);
         line4Layout->addWidget(trainButton);
         this->connect(trainButton, &QPushButton::clicked, this, [=]() {
-            this->tabWidget->setCurrentIndex(1);
+            QTimer::singleShot(50, this, [=]() {
+                this->tabWidget->setCurrentIndex(1);
+            });
         });
     }
 
@@ -164,7 +172,9 @@ class Window : public QMainWindow {
         auto* evaluateButton = new QPushButton("Evaluate players against each other", this);
         line5Layout->addWidget(evaluateButton);
         this->connect(evaluateButton, &QPushButton::clicked, this, [=]() {
-            this->tabWidget->setCurrentIndex(1);
+            QTimer::singleShot(50, this, [=]() {
+                this->tabWidget->setCurrentIndex(1);
+            });
         });
     }
 
@@ -183,14 +193,21 @@ class Window : public QMainWindow {
     }
     virtual ~Window() = default;
 
-    void refreshGoban() {
-        qDebug() << "Info: refreshGoban signal emit";
-        emit refreshGobanSignal();
-        
+    template<int8_t Size>
+    void refreshGoban(const Goban<Size>& goban) {
+        QThread::msleep(10); // Prevents the GUI from being saturated with signals.
+        if constexpr (Size == 9) {
+            emit refreshGoban9Signal(&goban);
+        } else if constexpr (Size == 13) {
+            emit refreshGoban13Signal(&goban);
+        } else if constexpr (Size == 19) {
+            emit refreshGoban19Signal(&goban);
+        }
     }
-    
 
   signals:
-    void refreshGobanSignal();
+    void refreshGoban9Signal(const Goban<9>* goban);
+    void refreshGoban13Signal(const Goban<13>* goban);
+    void refreshGoban19Signal(const Goban<19>* goban);
 
 };

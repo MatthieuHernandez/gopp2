@@ -44,6 +44,11 @@
     }
 
 #line 28 "../src/random.h2"
+    [[nodiscard]] auto Random::getMove(Engine<13>& engine) -> Move{
+        return getMove<13>(engine); 
+    }
+
+#line 32 "../src/random.h2"
     [[nodiscard]] auto Random::getMove(Engine<19>& engine) -> Move{
         return getMove<19>(engine); 
     }

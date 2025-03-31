@@ -31,6 +31,8 @@ class Interface {
 
     public: virtual auto refreshGoban(cpp2::impl::in<Goban<9>> goban) -> void = 0;
 
+    public: virtual auto refreshGoban(cpp2::impl::in<Goban<13>> goban) -> void = 0;
+
     public: virtual auto refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void = 0;
 
     public: virtual auto wait() -> void = 0;
@@ -40,7 +42,7 @@ class Interface {
     public: Interface(Interface const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Interface const&) -> void = delete;
 
-#line 18 "../src/interface.h2"
+#line 20 "../src/interface.h2"
 };
 
 #endif

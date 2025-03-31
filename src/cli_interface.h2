@@ -21,6 +21,10 @@ CliInterface: type = {
         cli::printGoban<9>(goban);
     }
 
+    public refreshGoban:(override inout this, in goban: Goban<13>) = {
+        cli::printGoban<13>(goban);
+    }
+
     public refreshGoban:(override inout this, in goban: Goban<19>) = {
         cli::printGoban<19>(goban);
     }

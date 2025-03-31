@@ -42,16 +42,18 @@ class Player {
 #line 29 "../src/player.h2"
     public: [[nodiscard]] virtual auto getMove(Engine<9>& engine) -> Move = 0;
 
+    public: [[nodiscard]] virtual auto getMove(Engine<13>& engine) -> Move = 0;
+
     public: [[nodiscard]] virtual auto getMove(Engine<19>& engine) -> Move = 0;
 
     // CPP2 workaround: Default operator seems not working.
     public: Player(Player const& that);
 
-#line 39 "../src/player.h2"
+#line 41 "../src/player.h2"
     // CPP2 workaround: Default operator seems not working.
     public: virtual ~Player() noexcept;
 
-#line 43 "../src/player.h2"
+#line 45 "../src/player.h2"
     public: virtual auto processStartGame() -> void;
 
     public: virtual auto processEndGame() -> void;

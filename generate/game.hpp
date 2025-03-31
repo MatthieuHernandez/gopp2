@@ -202,25 +202,29 @@
             Engine<9> e {}; 
             play<true,9>(e);
             if (cpp2::cpp2_default.is_active() && !(&e) ) { cpp2::cpp2_default.report_violation(""); }// CPP2 workaround: Fix inout.
+        }else {if (gobanSize == 13) {
+            Engine<13> e {}; 
+            play<true,13>(e);
+            if (cpp2::cpp2_default.is_active() && !(&e) ) { cpp2::cpp2_default.report_violation(""); }// CPP2 workaround: Fix inout.
         }else {if (gobanSize == 19) {
             Engine<19> e {}; 
             play<true,19>(e);
             if (cpp2::cpp2_default.is_active() && !(&e) ) { cpp2::cpp2_default.report_violation(""); }// CPP2 workaround: Fix inout.
         }else {
             return ; 
-        }}
+        }}}
         CPP2_UFCS(wait)((*cpp2::impl::assert_not_null(interface)));
         CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "Game was played.");
     }
 
-#line 186 "../src/game.h2"
+#line 190 "../src/game.h2"
     auto Game::switchPlayerColor() & -> void{
         CPP2_UFCS(setColor)((*cpp2::impl::assert_not_null(blackPlayer)), Color::White);
         CPP2_UFCS(setColor)((*cpp2::impl::assert_not_null(whitePlayer)), Color::Black);
         std::swap(blackPlayer, whitePlayer);
     }
 
-#line 192 "../src/game.h2"
+#line 196 "../src/game.h2"
     auto Game::trainBlack() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -258,7 +262,7 @@
         CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "AI trained.");
     }
 
-#line 229 "../src/game.h2"
+#line 233 "../src/game.h2"
     auto Game::evaluate() & -> void{
         if (!(hasValidPlayer())) {
             return ; 
@@ -277,7 +281,7 @@
 {
 cpp2::i32 i{0};
 
-#line 245 "../src/game.h2"
+#line 249 "../src/game.h2"
         for( ; cpp2::impl::cmp_less(i,numberOfGame); 
         ++i ) 
         {
@@ -300,7 +304,7 @@ cpp2::i32 i{0};
             }
         }
 }
-#line 266 "../src/game.h2"
+#line 270 "../src/game.h2"
         CPP2_UFCS(printLater)((*cpp2::impl::assert_not_null(interface)), "The first player won " + cpp2::impl::as_<std::string>(cpp2::move(numberOfGameWon)) + 
                     "/" + cpp2::impl::as_<std::string>(cpp2::move(numberOfGame)) + " games againt the 2nd player.");
         switchPlayerColor();

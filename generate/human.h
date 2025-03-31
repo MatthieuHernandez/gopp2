@@ -33,9 +33,12 @@ class Human: public Player {
     public: [[nodiscard]] auto getMove([[maybe_unused]] Engine<9>& unnamed_param_2) -> Move override;
 
 #line 18 "../src/human.h2"
+    public: [[nodiscard]] auto getMove([[maybe_unused]] Engine<13>& unnamed_param_2) -> Move override;
+
+#line 22 "../src/human.h2"
     public: [[nodiscard]] auto getMove([[maybe_unused]] Engine<19>& unnamed_param_2) -> Move override;
 
-#line 21 "../src/human.h2"
+#line 25 "../src/human.h2"
 };
 
 #endif

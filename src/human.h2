@@ -15,6 +15,10 @@ Human: type = {
         return interface*.waitForAMove(color);
     }
 
+    public getMove:(override inout this, inout _: Engine<13>) -> Move = {
+        return interface*.waitForAMove(color);
+    }
+
     public getMove:(override inout this, inout _: Engine<19>) -> Move = {
         return interface*.waitForAMove(color);
     }

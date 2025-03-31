@@ -40,6 +40,11 @@
     }
 
 #line 24 "../src/dumb.h2"
+    [[nodiscard]] auto Dumb::getMove(Engine<13>& engine) -> Move{
+        return getMove<13>(engine); 
+    }
+
+#line 28 "../src/dumb.h2"
     [[nodiscard]] auto Dumb::getMove(Engine<19>& engine) -> Move{
         return getMove<19>(engine); 
     }

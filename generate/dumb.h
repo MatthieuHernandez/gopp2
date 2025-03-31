@@ -36,9 +36,12 @@ class Dumb: public Player {
     public: [[nodiscard]] auto getMove(Engine<9>& engine) -> Move override;
 
 #line 24 "../src/dumb.h2"
+    public: [[nodiscard]] auto getMove(Engine<13>& engine) -> Move override;
+
+#line 28 "../src/dumb.h2"
     public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
 
-#line 27 "../src/dumb.h2"
+#line 31 "../src/dumb.h2"
 };
 
 #endif

@@ -35,12 +35,15 @@ class Itself: public Player {
     public: [[nodiscard]] virtual auto getMove(Engine<9>& engine) -> Move;
 
 #line 22 "../src/itself.h2"
+    public: [[nodiscard]] virtual auto getMove(Engine<13>& engine) -> Move;
+
+#line 26 "../src/itself.h2"
     public: [[nodiscard]] virtual auto getMove(Engine<19>& engine) -> Move;
     public: Itself(Itself const&) = delete; /* No 'that' constructor, suppress copy */
     public: auto operator=(Itself const&) -> void = delete;
 
 
-#line 25 "../src/itself.h2"
+#line 29 "../src/itself.h2"
 };
 
 #endif

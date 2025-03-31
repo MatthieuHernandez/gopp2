@@ -63,30 +63,33 @@ class Ai: public Player {
     public: [[nodiscard]] auto getMove(Engine<9>& engine) -> Move override;
 
 #line 153 "../src/ai.h2"
-    public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
+    public: [[nodiscard]] auto getMove(Engine<13>& engine) -> Move override;
 
 #line 157 "../src/ai.h2"
+    public: [[nodiscard]] auto getMove(Engine<19>& engine) -> Move override;
+
+#line 161 "../src/ai.h2"
     private: [[nodiscard]] auto computeLearningRate(cpp2::impl::in<cpp2::i16> gameLength) & -> float;
 
-#line 165 "../src/ai.h2"
+#line 169 "../src/ai.h2"
     public: template<cpp2::i8 Size> auto train(cpp2::impl::in<Engine<Size>> engine) & -> void;
 
-#line 211 "../src/ai.h2"
+#line 215 "../src/ai.h2"
     public: auto save() & -> void;
 
-#line 215 "../src/ai.h2"
+#line 219 "../src/ai.h2"
     public: auto saveIfBetter() & -> void;
 
-#line 222 "../src/ai.h2"
+#line 226 "../src/ai.h2"
     private: [[nodiscard]] auto calculateWinrate() const& -> float;
 
-#line 226 "../src/ai.h2"
+#line 230 "../src/ai.h2"
     public: auto processStartGame() -> void override;
 
-#line 240 "../src/ai.h2"
+#line 244 "../src/ai.h2"
     public: auto processEndGame() -> void override;
 
-#line 263 "../src/ai.h2"
+#line 267 "../src/ai.h2"
 };
 
 #endif

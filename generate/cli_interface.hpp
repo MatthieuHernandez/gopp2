@@ -36,16 +36,21 @@
     }
 
 #line 24 "../src/cli_interface.h2"
+    auto CliInterface::refreshGoban(cpp2::impl::in<Goban<13>> goban) -> void{
+        cli::printGoban<13>(goban);
+    }
+
+#line 28 "../src/cli_interface.h2"
     auto CliInterface::refreshGoban(cpp2::impl::in<Goban<19>> goban) -> void{
         cli::printGoban<19>(goban);
     }
 
-#line 28 "../src/cli_interface.h2"
+#line 32 "../src/cli_interface.h2"
     auto CliInterface::wait() -> void{
         cli::waitInput();
     }
 
-#line 32 "../src/cli_interface.h2"
+#line 36 "../src/cli_interface.h2"
     [[nodiscard]] auto CliInterface::waitForAMove(cpp2::impl::in<Color> c) -> Move{
         return cli::getInputMove<9>(c); 
     }

@@ -19,6 +19,10 @@ Itself: type = {
         return ai.getMove(engine);
     }
 
+    public getMove:(virtual inout this, inout engine: Engine<13>) -> Move = {
+        return ai.getMove(engine);
+    }
+
     public getMove:(virtual inout this, inout engine: Engine<19>) -> Move = {
         return ai.getMove(engine);
     }
