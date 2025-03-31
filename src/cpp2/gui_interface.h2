@@ -4,12 +4,21 @@
 GuiInterface: type = {
     this: Interface;
     public window: *Window;
+    private wantStop: std::atomic<bool> = false;
 
-    public print:(override inout this, in message: std::string) = {}
+    public print:(override inout this, in message: std::string) = {
+        window*.addLog(message);
+    }
 
-    public printLater:(override inout this, in message: std::string) = {}
+    public printLater:(override inout this, in message: std::string) = {
+        window*.addLog(message);
+    }
 
-    public clear:(override inout this) = {}
+    public softClear:(override inout this) = {}
+
+    public hardClear:(override inout this) = {
+        window*.clearLog();
+    }
 
     public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<9>>) = {
         window*.refreshGoban(engine);
@@ -28,5 +37,13 @@ GuiInterface: type = {
 
     public waitForAMove:(override inout this, in c: Color) -> Move = {
         return pass(c);
+    }
+
+    public stopGame:(override inout this, in stop: bool) = {
+        wantStop.store(stop);
+    }
+
+    public stopRequested:(override inout this) -> bool = {
+        return wantStop.load();
     }
 }

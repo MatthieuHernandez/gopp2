@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
         auto players {CPP2_UFCS(getPlayerNames)((*cpp2::impl::assert_not_null(game)))}; 
         auto selection {cli::printMenuAndSelect(size, cpp2::move(players))}; 
         if (selection == 0) {
-            CPP2_UFCS(clear)(cliInterface);
+            CPP2_UFCS(softClear)(cliInterface);
             CPP2_UFCS(print)(cliInterface, "Bye.");
             exit = true;
         }else {if (selection == 1) {

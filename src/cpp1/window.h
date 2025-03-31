@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QtConcurrent>
 #include <QTabWidget>
+#include <QTextEdit>
 #include <QThread>
 
 #include "goban_widget.h"
@@ -32,7 +33,9 @@ class Window : public QMainWindow {
     QTabWidget* tabWidget = nullptr;
     QVBoxLayout* menuLayout = nullptr;
     QVBoxLayout* mainLayout = nullptr;
+    Interface* interface = nullptr;
     Game* game = nullptr;
+    QTextEdit* logText = nullptr;
 
     std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
 
@@ -69,13 +72,29 @@ class Window : public QMainWindow {
         this->connect(this, &Window::refreshGoban19Signal, this->gobanWidget, &GobanWidget::refresh<19>);
     }
 
-    void displayMainLine2() {
+    void displayMainLine2() { 
         auto* line2Layout = new QHBoxLayout();
         this->mainLayout->addLayout(line2Layout);
         auto* stopButton = new QPushButton("Stop", this);
         line2Layout->addWidget(stopButton, 1);
         this->connect(stopButton, &QPushButton::clicked, this, [=]() {
+            this->interface->stopGame(true);
             this->tabWidget->setCurrentIndex(0);
+            this->logText->clear();
+        });
+    }
+
+    void displayMainLine3() {
+        auto* line3Layout = new QHBoxLayout();
+        this->mainLayout->addLayout(line3Layout);
+        this->logText = new QTextEdit("", this);
+        this->logText->setReadOnly(true);
+        line3Layout->addWidget(this->logText, 1);
+        this->connect(this, &Window::addLogSignal, this, [=](const std::string& message) {
+            this->logText->append(QString::fromStdString(message));
+        });
+        this->connect(this, &Window::clearLogSignal, this, [=]() {
+            this->logText->clear();
         });
     }
 
@@ -146,7 +165,6 @@ class Window : public QMainWindow {
         auto* playOneButton = new QPushButton("Play one game", this);
         line3Layout->addWidget(playOneButton);
         this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
-            qDebug() << "Info: Start a game.";
             QtConcurrent::run([this]() {
                 this->game->playOne();
             });
@@ -162,6 +180,9 @@ class Window : public QMainWindow {
         auto* trainButton = new QPushButton("Train black player", this);
         line4Layout->addWidget(trainButton);
         this->connect(trainButton, &QPushButton::clicked, this, [=]() {
+            QtConcurrent::run([this]() {
+                this->game->trainBlack();
+            });
             QTimer::singleShot(50, this, [=]() {
                 this->tabWidget->setCurrentIndex(1);
             });
@@ -174,6 +195,9 @@ class Window : public QMainWindow {
         auto* evaluateButton = new QPushButton("Evaluate players against each other", this);
         line5Layout->addWidget(evaluateButton);
         this->connect(evaluateButton, &QPushButton::clicked, this, [=]() {
+            QtConcurrent::run([this]() {
+                this->game->evaluate();
+            });
             QTimer::singleShot(50, this, [=]() {
                 this->tabWidget->setCurrentIndex(1);
             });
@@ -181,8 +205,10 @@ class Window : public QMainWindow {
     }
 
   public:
+
     Window::Window(Interface* interface, Game* game, QWidget* parent = nullptr)
         : QMainWindow(parent),
+          interface(interface),
           game(game) {
         this->displayTabLayouts();
         this->displayMenuLine1();
@@ -190,8 +216,9 @@ class Window : public QMainWindow {
         this->displayMenuLine3();
         this->displayMenuLine4();
         this->displayMenuLine5();
-        this->displayMainLine2();
         this->displayGoban();
+        this->displayMainLine2();
+        this->displayMainLine3();
     }
     virtual ~Window() = default;
 
@@ -212,9 +239,20 @@ class Window : public QMainWindow {
         this->last = steady_clock::now();
     }
 
+    void addLog(const std::string& message) {
+        emit addLogSignal(message);
+    }
+
+    void clearLog() {
+        emit clearLogSignal();
+    }
+
   signals:
     void refreshGoban9Signal(std::shared_ptr<Engine<9>> goban);
     void refreshGoban13Signal(std::shared_ptr<Engine<13>> goban);
     void refreshGoban19Signal(std::shared_ptr<Engine<19>> goban);
 
+    void addLogSignal(const std::string& message);
+    void clearLogSignal();
 };
+

@@ -77,7 +77,7 @@ Game: type = {
             player = shared.new<Random>(interface, color);
         } else {
             ai:= shared.new<Ai>(interface, color, 1, selection);
-            interface*.clear();
+            interface*.softClear();
             interface*.print(ai*.summary());
             interface*.wait();
             player = ai;
@@ -110,12 +110,14 @@ Game: type = {
 
     private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>) = {
         start:= std::chrono::high_resolution_clock::now();
+        interface*.stopGame(false);
+        interface*.hardClear();
         blackPlayer*.processStartGame();
         whitePlayer*.processStartGame();
         moveNumber: i16 = 1;
         do {
             if constexpr verbose {
-                interface*.clear();
+                interface*.softClear();
                 interface*.refreshGoban(engine);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_ptr work.
@@ -138,14 +140,25 @@ Game: type = {
             if (moveNumber >= 999 || (moveNumber >= 299 && gobanSize == 9)) { // Only to prevent an eventual triple ko.
                 break;
             }
-        } while !engine*.isFinish();
+        } while !engine*.isFinish() && !interface*.stopRequested();
+        engine*.countScore();
+        interface*.printLater("The game ends after " + moveNumber as std::string + " moves.");
+        if (engine*.blackPoint > engine*.whitePoint) {
+            blackPlayer*.hasWon = true;
+            whitePlayer*.hasWon = false;
+            interface*.printLater("Black win " + engine*.blackPoint as std::string + " to " + engine*.whitePoint as std::string + ".5.");
+        } else {
+            whitePlayer*.hasWon = true;
+            blackPlayer*.hasWon = false;
+            interface*.printLater("White win " + engine*.whitePoint as std::string + ".5 to " + engine*.blackPoint as std::string + ".");
+        }
         stop:= std::chrono::high_resolution_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
         interface*.printLater("The game lasted " + duration as std::string + " ms.");
         interface*.printLater("After " + engine*.goban.iterations as std::string + " iterations.");
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
-        interface*.clear();
+        interface*.softClear();
         interface*.refreshGoban(engine);
     }
 
@@ -166,7 +179,6 @@ Game: type = {
             return;
         }
         interface*.wait();
-        interface*.printLater("Game was played.");
     }
     
     private switchPlayerColor:(inout this) = {
@@ -230,7 +242,7 @@ Game: type = {
         player1:= blackPlayer;
         numberOfGame: i16 = 1000;
         numberOfGameWon: i16 = 0;
-        interface*.clear();
+        interface*.hardClear();
         (copy i: i32 = 0)
         while i < numberOfGame
         next i++

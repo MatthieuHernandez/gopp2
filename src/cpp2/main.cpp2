@@ -49,7 +49,7 @@ cliApp:() -> int = {
         players:= game*.getPlayerNames();
         selection:= cli::printMenuAndSelect(size, players);
         if selection == 0 {
-            cliInterface.clear();
+            cliInterface.softClear();
             cliInterface.print("Bye.");
             exit = true;
         } else if selection == 1 {

@@ -28,7 +28,7 @@ Move: type = {
     }
 
     public name:(in this) -> std::string = {
-        if !pass {
+        if !isPass {
             colName: char = stone.col;
             colName +=  65;
             if stone.col > 7 { // No I column

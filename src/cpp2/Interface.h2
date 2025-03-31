@@ -6,7 +6,9 @@ Interface: type = {
 
     public printLater:(virtual inout this, in message: std::string);
 
-    public clear:(virtual inout this);
+    public softClear:(virtual inout this);
+
+    public hardClear:(virtual inout this);
 
     public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<9>>);
 
@@ -17,4 +19,8 @@ Interface: type = {
     public wait:(virtual inout this);
 
     public waitForAMove:(virtual inout this, in c: Color) -> Move;
+
+    public stopGame:(virtual inout this, in stop: bool);
+
+    public stopRequested:(virtual inout this) -> bool;
 }
