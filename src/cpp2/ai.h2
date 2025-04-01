@@ -135,7 +135,7 @@ Ai: type = {
                 }
             }
         }
-        return pass(color);
+        return Move::pass(color);
     }
 
     private getMove:<Size: i8>(inout this, inout engine: Engine<Size>) -> Move = {

@@ -36,7 +36,7 @@ GuiInterface: type = {
     }
 
     public waitForAMove:(override inout this, in c: Color) -> Move = {
-        return pass(c);
+        return window*.waitClickOnGoban();
     }
 
     public stopGame:(override inout this, in stop: bool) = {

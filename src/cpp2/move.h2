@@ -1,8 +1,5 @@
 #include "stone.h2"
 
-pass:(color: Color) -> Move = {
-    return Move(color, -1, -1, true);
-}
 
 Move: type = {
     public stone: Stone;
@@ -44,5 +41,9 @@ Move: type = {
         stone = that.stone;
         isPass = that.isPass;
         isValid = that.isValid;
+    }
+
+    pass:(color: Color) -> Move = {
+        return Move(color, -1, -1, true);
     }
 }

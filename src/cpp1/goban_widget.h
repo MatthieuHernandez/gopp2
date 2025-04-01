@@ -1,12 +1,14 @@
 #pragma once
 #include <QLabel>
+#include <QObject>
 #include <QPixmap>
 #include <QGridLayout>
+#include <QMouseEvent>
 
 #include "engine.h"
 
 class GobanWidget : public QWidget {
-    //Q_OBJECT
+    Q_OBJECT
   private:
     QPixmap* middle = nullptr;
     QPixmap* hoshi = nullptr;
@@ -22,6 +24,8 @@ class GobanWidget : public QWidget {
     QPixmap* whiteStone = nullptr;
 
     QGridLayout* gridLayout = nullptr;
+
+    std::map<QLabel*, Move> moveMap;
 
     void resetLayout() {
         if (this->gridLayout == nullptr) {
@@ -74,8 +78,8 @@ class GobanWidget : public QWidget {
         this->resetLayout();
         constexpr int8_t maxIndex = Size - 1;
         QPixmap* img = nullptr;
-        for (int8_t col = 0; col < Size; ++col) {
-            for (int8_t row = 0; row < Size; ++row) {
+        for (int8_t col = Size-1; col >= 0; --col) {
+            for (int8_t row = Size-1; row >=0; --row) {
                 if (goban.state[col][row].color == Color::Black) {
                     img = this->blackStone;
                 } else if (goban.state[col][row].color == Color::White){
@@ -130,4 +134,23 @@ class GobanWidget : public QWidget {
             }
         }
     }
+
+    void mousePressEvent(QMouseEvent *event) override {
+        QWidget* child = childAt(event->pos());
+        QLabel* label = qobject_cast<QLabel*>(child);
+        if (label) {
+            for (int i = 0; i < gridLayout->count(); ++i) {
+                const auto* item = gridLayout->itemAt(i);
+                if (item && item->widget() == label) {
+                    int row, col, rowSpan, colSpan;
+                    gridLayout->getItemPosition(i, &row, &col, &rowSpan, &colSpan);
+                    qDebug() << "Clique sur la case (" << col << "," << row << ")";
+                    return;
+                }
+            }
+        }
+    }
+
+  signals:
+    void clicked();
 };

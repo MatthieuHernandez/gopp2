@@ -18,6 +18,7 @@
 #include "interface.h"
 #include "io.h"
 #include "game.h"
+#include "move.h"
 
 using namespace std::literals::chrono_literals;
 
@@ -36,8 +37,29 @@ class Window : public QMainWindow {
     Interface* interface = nullptr;
     Game* game = nullptr;
     QTextEdit* logText = nullptr;
+    QEventLoop* loop = nullptr;
 
+    QFuture<void> future;
     std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
+
+    void stop() {
+        this->interface->stopGame(true);
+        if (this->loop != nullptr) {
+            this->loop->quit();
+            delete this->loop;
+        }
+        while (!this->game->canBeStopped()) {
+            QThread::msleep(100);
+        }
+        this->future.cancel();
+        this->future.waitForFinished();
+    }
+
+    void closeEvent(QCloseEvent *event) override {
+        this->stop();
+        event->accept();
+    }
+
 
     void displayTabLayouts() {
         this->tabWidget = new QTabWidget;
@@ -78,7 +100,7 @@ class Window : public QMainWindow {
         auto* stopButton = new QPushButton("Stop", this);
         line2Layout->addWidget(stopButton, 1);
         this->connect(stopButton, &QPushButton::clicked, this, [=]() {
-            this->interface->stopGame(true);
+            this->stop();
             this->tabWidget->setCurrentIndex(0);
             this->logText->clear();
         });
@@ -165,9 +187,11 @@ class Window : public QMainWindow {
         auto* playOneButton = new QPushButton("Play one game", this);
         line3Layout->addWidget(playOneButton);
         this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
-            QtConcurrent::run([this]() {
-                this->game->playOne();
-            });
+            if (!this->future.isRunning()) {
+                this->future = QtConcurrent::run([this]() {
+                    this->game->playOne();
+                });
+            }
             QTimer::singleShot(50, this, [=]() {
                 this->tabWidget->setCurrentIndex(1);
             });
@@ -180,9 +204,11 @@ class Window : public QMainWindow {
         auto* trainButton = new QPushButton("Train black player", this);
         line4Layout->addWidget(trainButton);
         this->connect(trainButton, &QPushButton::clicked, this, [=]() {
-            QtConcurrent::run([this]() {
-                this->game->trainBlack();
-            });
+            if (!this->future.isRunning()) {
+                this->future = QtConcurrent::run([this]() {
+                    this->game->trainBlack();
+                });
+            }
             QTimer::singleShot(50, this, [=]() {
                 this->tabWidget->setCurrentIndex(1);
             });
@@ -195,9 +221,11 @@ class Window : public QMainWindow {
         auto* evaluateButton = new QPushButton("Evaluate players against each other", this);
         line5Layout->addWidget(evaluateButton);
         this->connect(evaluateButton, &QPushButton::clicked, this, [=]() {
-            QtConcurrent::run([this]() {
-                this->game->evaluate();
-            });
+            if (!this->future.isRunning()) {
+                this->future = QtConcurrent::run([this]() {
+                    this->game->evaluate();
+                });
+            }
             QTimer::singleShot(50, this, [=]() {
                 this->tabWidget->setCurrentIndex(1);
             });
@@ -245,6 +273,13 @@ class Window : public QMainWindow {
 
     void clearLog() {
         emit clearLogSignal();
+    }
+
+    Move waitClickOnGoban() {
+        this->loop = new QEventLoop();
+        QObject::connect(gobanWidget, &GobanWidget::clicked, loop, &QEventLoop::quit);
+        this->loop->exec();
+        return Move::pass(Color::Black);
     }
 
   signals:

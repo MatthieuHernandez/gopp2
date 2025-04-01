@@ -62,7 +62,7 @@ getInputMove:<Size: i8>(color: Color) -> Move = {
     clearInput();
     if(input == "pass") {
         setNextMessage("Player pass.");
-        return pass(color);
+        return Move::pass(color);
     }
     input[0] = std::toupper(input[0]);
     if((Size == 9 &&

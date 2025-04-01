@@ -232,7 +232,7 @@ Engine:<Size: i8> type = {
         assert(processedStones&);  // CPP2 workaround: Fix inout recursion.
         assert(count&);  // CPP2 workaround: Fix inout recursion.
         if !m.isValid {
-            m = pass(m.stone.color);
+            m = Move::pass(m.stone.color);
         }
     }
 }
