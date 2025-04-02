@@ -17,7 +17,7 @@ Goban:<Size: i8> type = {
             while row < state[col].ssize()
             next row++
             {
-                state[col][row] = Stone(Color::None, col, row);
+                state[col][row] = Stone(ColorNone, col, row);
             }
         }
     }
@@ -74,7 +74,7 @@ Goban:<Size: i8> type = {
     }
 
     public removeStone:(inout this, in s: Stone) = {
-        state[s.col][s.row].color = Color::None;
+        state[s.col][s.row].color = ColorNone;
     }
 
     public isLockedPosition:(in this, in s: Stone) -> bool = {
@@ -88,7 +88,7 @@ Goban:<Size: i8> type = {
     }
 
     public unlockPosition:(inout this) = {
-        lockedPosition.color = Color::None;
+        lockedPosition.color = ColorNone;
         lockedPosition.row = -1;
         lockedPosition.col = -1;
     }

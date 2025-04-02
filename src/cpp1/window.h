@@ -43,6 +43,7 @@ class Window : public QMainWindow {
 
     void stop() {
         this->interface->stopGame(true);
+        QThread::msleep(5);
         if (this->loop != nullptr) {
             this->loop->quit();
             delete this->loop;
@@ -56,9 +57,9 @@ class Window : public QMainWindow {
 
     void closeEvent(QCloseEvent *event) override {
         this->stop();
+        QThread::msleep(5);
         event->accept();
     }
-
 
     void displayTabLayouts() {
         this->tabWidget = new QTabWidget;
@@ -170,11 +171,11 @@ class Window : public QMainWindow {
         selectPlayer1->setCurrentIndex(1);
         this->connect(selectPlayer1, &QComboBox::currentIndexChanged, [=](int index) {
             const auto selection = selectPlayer1->itemData(index).toString().toStdString();
-            this->game->selectPlayer(Color::Black, selection);
+            this->game->selectPlayer(ColorBlack, selection);
         });
         this->connect(selectPlayer2, &QComboBox::currentIndexChanged, [=](int index) {
             const auto selection = selectPlayer2->itemData(index).toString().toStdString();
-            this->game->selectPlayer(Color::White, selection);
+            this->game->selectPlayer(ColorWhite, selection);
         });
         selectPlayer1->setCurrentIndex(0);
         selectPlayer2->setCurrentIndex(1);
@@ -276,15 +277,17 @@ class Window : public QMainWindow {
 
     Move waitClickOnGoban() {
         this->loop = new QEventLoop();
-        auto move = Move::pass(Color::None);
+        auto move = Move::pass(ColorNone);
         QObject::connect(gobanWidget, &GobanWidget::clicked, this,
             [&](Move m) {
                 move = m;
                 loop->quit();
             });
+
+        // if quit so move == Pass so button pass just do loop->quit()
         this->loop->exec();
         move.stone.color = interface->colorTurn();
-        return Move::pass(Color::Black);
+        return move;
     }
 
   signals:

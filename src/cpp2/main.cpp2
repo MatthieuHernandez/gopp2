@@ -61,10 +61,10 @@ cliApp:() -> int = {
             game*.setGobanSize(9);
         }
         } else if selection == 2 {
-            selection:= cli::printPlayersAndSelect(size, Color::Black);
-            game*.selectPlayer(Color::Black, selection);
-            selection = cli::printPlayersAndSelect(size, Color::White);
-            game*.selectPlayer(Color::White, selection);
+            selection:= cli::printPlayersAndSelect(size, ColorBlack);
+            game*.selectPlayer(ColorBlack, selection);
+            selection = cli::printPlayersAndSelect(size, ColorWhite);
+            game*.selectPlayer(ColorWhite, selection);
             cliInterface.print("Players selected.");
         } else if selection == 3 {
             game*.playOne();
@@ -91,9 +91,9 @@ int main(int argc, char *argv[]) {
     }
     else {
         auto guiInterface = GuiInterface();
-        auto game = std::make_unique<Game>(&guiInterface);
+        auto game = std::make_unique<Game>(static_cast<Interface*>(&guiInterface));
         auto guiApp = QApplication(argc, argv);
-        auto window = Window(&guiInterface, game.get());
+        auto window = Window(static_cast<Interface*>(&guiInterface), game.get());
         guiInterface.window = &window;
         window.show();
         return guiApp.exec();

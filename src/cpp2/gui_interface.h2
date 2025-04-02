@@ -5,7 +5,7 @@ GuiInterface: type = {
     this: Interface;
     public window: *Window;
     private wantStop: std::atomic<bool> = false;
-    //private requestedColor : std::atomic<Color> = Color::None;
+    private requestedColor: std::atomic<i8>;
 
     public print:(override inout this, in message: std::string) = {
         window*.addLog(message);
@@ -37,12 +37,12 @@ GuiInterface: type = {
     }
 
     public waitMove:(override inout this, in c: Color) -> Move = {
-        //requestedColor.store(c);
+        requestedColor.store(c.value);
         return window*.waitClickOnGoban();
     }
 
     public colorTurn:(override inout this) -> Color = {
-        return Color::Black;//requestedColor.load();
+        return Color(requestedColor.load());
     }
 
     public stopGame:(override inout this, in stop: bool) = {

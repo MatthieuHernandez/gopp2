@@ -66,9 +66,9 @@ int main(int argc, char *argv[]) {
     }
     else {
         auto guiInterface = GuiInterface();
-        auto game = std::make_unique<Game>(&guiInterface);
+        auto game = std::make_unique<Game>(static_cast<Interface*>(&guiInterface));
         auto guiApp = QApplication(argc, argv);
-        auto window = Window(&guiInterface, game.get());
+        auto window = Window(static_cast<Interface*>(&guiInterface), game.get());
         guiInterface.window = &window;
         window.show();
         return guiApp.exec();
@@ -105,10 +105,10 @@ int main(int argc, char *argv[]) {
             CPP2_UFCS(setGobanSize)((*cpp2::impl::assert_not_null(game)), 9);
         }}}
         }else {if (selection == 2) {
-            auto selection {cli::printPlayersAndSelect(size, Color::Black)}; 
-            CPP2_UFCS(selectPlayer)((*cpp2::impl::assert_not_null(game)), Color::Black, selection);
-            selection = cli::printPlayersAndSelect(cpp2::move(size), Color::White);
-            CPP2_UFCS(selectPlayer)((*cpp2::impl::assert_not_null(game)), Color::White, cpp2::move(selection));
+            auto selection {cli::printPlayersAndSelect(size, ColorBlack)}; 
+            CPP2_UFCS(selectPlayer)((*cpp2::impl::assert_not_null(game)), ColorBlack, selection);
+            selection = cli::printPlayersAndSelect(cpp2::move(size), ColorWhite);
+            CPP2_UFCS(selectPlayer)((*cpp2::impl::assert_not_null(game)), ColorWhite, cpp2::move(selection));
             CPP2_UFCS(print)(cliInterface, "Players selected.");
         }else {if (selection == 3) {
             CPP2_UFCS(playOne)((*cpp2::impl::assert_not_null(game)));

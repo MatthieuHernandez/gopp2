@@ -41,7 +41,7 @@ CliInterface: type = {
     }
 
     public colorTurn:(override inout this) -> Color = {
-        return Color::None;  // Method not used.
+        return ColorNone;  // Method not used.
     }
 
 

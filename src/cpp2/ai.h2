@@ -85,7 +85,7 @@ Ai: type = {
                 if state[col][row].color == color {
                     vec.push_back(1.0);
                 }
-                else if state[col][row].color == Color::None {
+                else if state[col][row].color == ColorNone {
                     vec.push_back(0.0);
                 }
                 else {
@@ -175,8 +175,8 @@ Ai: type = {
         size:= Size * Size;
         expectedBlack: float;
         expectedWhite: float;
-        if (hasWon && color == Color::Black) ||
-           (!hasWon && color == Color::White) {  // CPP2 workaround: Conditional operator not yet supported.
+        if (hasWon && color == ColorBlack) ||
+           (!hasWon && color == ColorWhite) {  // CPP2 workaround: Conditional operator not yet supported.
             expectedBlack = 1.0f;
             expectedWhite = -1.0f;
         } else {

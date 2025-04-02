@@ -158,12 +158,12 @@ printGoban:<Size: i8>(goban: Goban<Size>) = {
         while col <= maxIndex
         next col++
         {
-            if goban.state[col][row].color == Color::Black {
+            if goban.state[col][row].color == ColorBlack {
                 std::cout << "⚫";
-            } else if goban.state[col][row].color == Color::White {
+            } else if goban.state[col][row].color == ColorWhite {
                 std::cout << "⚪";
             }
-            else if goban.state[col][row].color == Color::None {
+            else if goban.state[col][row].color == ColorNone {
                 printIntersection<Size>(row, col);
             }
         }
@@ -193,7 +193,7 @@ getSnnModels:(size: i8) -> std::vector<std::array<std::string, 2>> = {
 }
 
 printPlayersAndSelect:(size: i8, color: Color) -> std::string = {
-    add_itself:= color == Color::White;
+    add_itself:= color == ColorWhite;
     clearConsole();
     title:= "*                  " + size as std::string + "x" + size as std::string + " players";
     select:= "* Please select " + colorName(color) + " player:";
@@ -202,7 +202,7 @@ printPlayersAndSelect:(size: i8, color: Color) -> std::string = {
     std::cout << "**************************************************" << std::endl;
     std::cout << std::left << std::setw(49) << std::setfill(' ') << select << "*" << std::endl;
     std::cout << "*                                                *" << std::endl;
-    if(color == Color::White) {
+    if(color == ColorWhite) {
         std::cout << "*    -1. Itself                                  *" << std::endl;
     }
     std::cout << "*     0. Human Player                            *" << std::endl;

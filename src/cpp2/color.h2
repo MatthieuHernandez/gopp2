@@ -1,9 +1,15 @@
 Color: type = {
-    private value: i8;
+    public value: i8;
 
-    operator=:(out this, v: i8) = {
+    public operator=:(out this, v: i8) = {
         value = v;
     }
+
+    public operator=:(out this, that) = {
+        value = that.value;
+    }
+
+    public operator<=>:(this, that) -> std::strong_ordering;
 }
 
 ColorNone: Color = (0);
@@ -11,20 +17,20 @@ ColorBlack: Color = (1);
 ColorWhite: Color = (2);
 
 otherColor:(in c: Color) -> Color = {
-    if c == Color::Black {
-        return Color::White;
+    if c == ColorBlack {
+        return ColorWhite;
     }
-    else if c == Color::White {
-        return Color::Black;
+    else if c == ColorWhite {
+        return ColorBlack;
     }
-    return Color::None;
+    return ColorNone;
 }
 
  colorName:(in c: Color) -> std::string = {
-    if c == Color::Black {
+    if c == ColorBlack {
         return "Black";
     }
-    else if c == Color::White {
+    else if c == ColorWhite {
         return "White";
     }
     return "None";

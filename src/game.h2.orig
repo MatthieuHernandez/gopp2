@@ -62,11 +62,11 @@ Game: type = {
 
     public selectPlayer:(inout this, color: Color, selection: std::string) = {
         player: std::shared_ptr<Player> = nullptr;
-        if(selection == "" || color == ColorNone) {
+        if(selection == "") {
             player = nullptr;
-        } else if (selection == "-1" && color == ColorBlack) {
+        } else if (selection == "-1" && color == Color::Black) {
             player = nullptr;
-        } else if (selection == "-1" && color == ColorWhite) {
+        } else if (selection == "-1" && color == Color::White) {
             ai:= std::dynamic_pointer_cast<Ai>(blackPlayer);
             player = shared.new<Itself>(interface, color, 4, ai*);
         } else if(selection == "0") {
@@ -77,14 +77,14 @@ Game: type = {
             player = shared.new<Random>(interface, color);
         } else {
             ai:= shared.new<Ai>(interface, color, 1, selection);
-            interface*.softClear();
+            interface*.clear();
             interface*.print(ai*.summary());
             interface*.wait();
             player = ai;
         }
-        if (color == ColorBlack) {
+        if (color == Color::Black) {
             blackPlayer = player;
-        } else if(color == ColorWhite) {
+        } else if(color == Color::White) {
             whitePlayer = player;
         }
     }
@@ -108,26 +108,24 @@ Game: type = {
         }
     }
 
-    private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>) = {
+    private play:<verbose: bool, Size: i8>(inout this, inout engine: Engine<Size>) = {
         start:= std::chrono::high_resolution_clock::now();
-        interface*.stopGame(false);
-        interface*.hardClear();
         blackPlayer*.processStartGame();
         whitePlayer*.processStartGame();
         moveNumber: i16 = 1;
         do {
             if constexpr verbose {
-                interface*.softClear();
-                interface*.refreshGoban(engine);
+                interface*.clear();
+                interface*.refreshGoban(engine.goban);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_ptr work.
             if moveNumber % 2 == 1 {
-                m = blackPlayer*.getMove(engine*);
+                m = blackPlayer*.getMove(engine);
             } else {
-                m = whitePlayer*.getMove(engine*);
+                m = whitePlayer*.getMove(engine);
             }
-            if engine*.isValidMove(m) {
-                engine*.playMove(m);
+            if engine.isValidMove(m) {
+                engine.playMove(m);
                 moveNumber++;
                 if constexpr verbose {
                     interface*.printLater(colorName(m.stone.color) + " played " + m.name() + ".");
@@ -140,26 +138,30 @@ Game: type = {
             if (moveNumber >= 999 || (moveNumber >= 299 && gobanSize == 9)) { // Only to prevent an eventual triple ko.
                 break;
             }
-        } while !engine*.isFinish() && !interface*.stopRequested();
-        engine*.countScore();
+        } while !engine.isFinish();
+        engine.countScore();
         interface*.printLater("The game ends after " + moveNumber as std::string + " moves.");
-        if (engine*.blackPoint > engine*.whitePoint) {
+        if (engine.blackPoint > engine.whitePoint) {
             blackPlayer*.hasWon = true;
             whitePlayer*.hasWon = false;
-            interface*.printLater("Black win " + engine*.blackPoint as std::string + " to " + engine*.whitePoint as std::string + ".5.");
+            interface*.printLater("Black win " + engine.blackPoint as std::string + " to " + engine.whitePoint as std::string + ".5.");
         } else {
             whitePlayer*.hasWon = true;
             blackPlayer*.hasWon = false;
-            interface*.printLater("White win " + engine*.whitePoint as std::string + ".5 to " + engine*.blackPoint as std::string + ".");
+            interface*.printLater("White win " + engine.whitePoint as std::string + ".5 to " + engine.blackPoint as std::string + ".");
         }
         stop:= std::chrono::high_resolution_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
         interface*.printLater("The game lasted " + duration as std::string + " ms.");
-        interface*.printLater("After " + engine*.goban.iterations as std::string + " iterations.");
+        interface*.printLater("After " + engine.goban.iterations as std::string + " iterations.");
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
-        interface*.softClear();
-        interface*.refreshGoban(engine);
+        interface*.clear();
+        interface*.refreshGoban(engine.goban);
+        /*if ((engine.blackPoint > 60 && engine.blackPoint < 81)
+            || (engine.whitePoint > 68 && engine.whitePoint < 88)) {
+            waitInput();
+        }*/
     }
 
     public playOne:(inout this) = {
@@ -167,23 +169,23 @@ Game: type = {
             return;
         }
         if gobanSize == 9 {
-            e:= shared.new<Engine<9>>();
+            e: Engine<9> = ();
             play<true, 9>(e);
-        } else if gobanSize == 13 {
-            e:= shared.new<Engine<13>>();
-            play<true, 13>(e);
+            assert(e&);  // CPP2 workaround: Fix inout.
         } else if gobanSize == 19 {
-            e:= shared.new<Engine<19>>();
+            e: Engine<19> = ();
             play<true, 19>(e);
+            assert(e&);  // CPP2 workaround: Fix inout.
         } else {
             return;
         }
         interface*.wait();
+        interface*.printLater("Game was played.");
     }
     
     private switchPlayerColor:(inout this) = {
-        blackPlayer*.setColor(ColorWhite);
-        whitePlayer*.setColor(ColorBlack);
+        blackPlayer*.setColor(Color::White);
+        whitePlayer*.setColor(Color::Black);
         std::swap(blackPlayer, whitePlayer);
     }
 
@@ -200,25 +202,27 @@ Game: type = {
         while true
         {
             if gobanSize == 9 {
-                e:= shared.new<Engine<9>>();
-                play<false, 9>(e);
-                player1*.train<9>(e*);
-            } else if gobanSize == 13 {
-                e:= shared.new<Engine<13>>();
-                play<false, 13>(e);
-                player1*.train<13>(e*);
+                engine: Engine<9> = ();
+                play<false, 9>(engine);
+                player1*.train<9>(engine);
             } else if gobanSize == 19 {
-                e:= shared.new<Engine<19>>();
-                play<false, 19>(e);
-                player1*.train<19>(e*);
+                engine: Engine<19> = ();
+                play<false, 19>(engine);
+                player1*.train<19>(engine);
             } else{
                 return;
             }
             switchPlayerColor();
             if i % 100 == 0 {
-                isSaving = true;
+<<<<<<< HEAD
+                isRunning = true;
                 player1*.saveIfBetter();
+                isRunning = false;
+=======
+                isSaving = true;
+                player1*.save();
                 isSaving = false;
+>>>>>>> 2b980ae (Be able to emit signals)
             }
             i++;
         }
@@ -242,7 +246,7 @@ Game: type = {
         player1:= blackPlayer;
         numberOfGame: i16 = 1000;
         numberOfGameWon: i16 = 0;
-        interface*.hardClear();
+        interface*.clear();
         (copy i: i32 = 0)
         while i < numberOfGame
         next i++
@@ -250,18 +254,15 @@ Game: type = {
             if i == (numberOfGame / 2) {
                 switchPlayerColor();
             }
-            if gobanSize == 9 {
-                e:= shared.new<Engine<9>>();
-                play<false, 9>(e);
-            }
-            else if gobanSize == 13 {
-                e:= shared.new<Engine<13>>();
-                play<false, 13>(e);
-            }
-            else if gobanSize == 19 {
-                e:= shared.new<Engine<19>>();
+            if gobanSize == 19 {
+                e: Engine<19> = ();
                 play<false, 19>(e);
-            } else {
+                assert(e&);  // CPP2 workaround: Fix inout.
+            } else if gobanSize == 9 {
+                e: Engine<9> = ();
+                play<false, 9>(e);
+                assert(e&);  // CPP2 workaround: Fix inout.
+            }else{
                 return;
             }
             if player1*.hasWon {

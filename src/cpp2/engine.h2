@@ -40,7 +40,7 @@ Engine:<Size: i8> type = {
         for nextStones
         do (in nextStone) {
             if !processedStones[nextStone.col][nextStone.row] {
-                if nextStone.color == Color::None {
+                if nextStone.color == ColorNone {
                     processedStones[nextStone.col][nextStone.row] = true;
                     count++;
                     if count > 1 {
@@ -110,7 +110,7 @@ Engine:<Size: i8> type = {
         }
         col:= m.stone.col;
         row:= m.stone.row;
-        if goban.state[col][row].color == Color::None && !goban.isTrueEye(m.stone) {
+        if goban.state[col][row].color == ColorNone && !goban.isTrueEye(m.stone) {
             if !goban.isLockedPosition(m.stone) {
                 captured:= captureStones(m.stone);
                 if captured > 0 || numberOfLiberties(m.stone) > 0 {
@@ -145,18 +145,18 @@ Engine:<Size: i8> type = {
         nextStones:= goban.getAdjacentStone(stone, processedStones2);
         for nextStones
         do (inout nextStone) {
-            if nextStone.color == Color::None {
+            if nextStone.color == ColorNone {
                 if !processedStones2[nextStone.col][nextStone.row] {
                     processedStones1[nextStone.col][nextStone.row] = true;
                     count++;
                     countTerritory(nextStone, count, color, processedStones1, processedStones2);
                 }
             }
-            else if nextStone.color == Color::Black && color != Color::White {
-                color = Color::Black;
+            else if nextStone.color == ColorBlack && color != ColorWhite {
+                color = ColorBlack;
             }
-            else if nextStone.color == Color::White && color != Color::Black {
-                color = Color::White;
+            else if nextStone.color == ColorWhite && color != ColorBlack {
+                color = ColorWhite;
             } else{
                 count = 0;
                 return;
@@ -179,22 +179,22 @@ Engine:<Size: i8> type = {
             {
                 if !processedStones1[col][row] {
                     processedStones1[col][row] = true;
-                    if goban.state[col][row].color == Color::Black {
+                    if goban.state[col][row].color == ColorBlack {
                         blackPoint++;
                     }
-                    else if goban.state[col][row].color == Color::White {
+                    else if goban.state[col][row].color == ColorWhite {
                         whitePoint++;
                     }
                     else {
                         count: i16 = 1;
-                        color:= Color::None;
+                        color:= ColorNone;
                         processedStones2: State<bool, Size> = ();
                         countTerritory(goban.state[col][row], count, color, processedStones1, processedStones2);
                         assert(processedStones2&);  // CPP2 workaround: Fix inout recursion.
-                        if color == Color::Black {
+                        if color == ColorBlack {
                             blackPoint+= count;
                         }
-                        if color == Color::White {
+                        if color == ColorWhite {
                             whitePoint+= count;
                         }
                     }

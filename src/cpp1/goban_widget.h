@@ -70,8 +70,8 @@ class GobanWidget : public QWidget {
         int numberOfLib = 0;
         for (int8_t col = 0; col < Size; ++col) {
             for (int8_t row = 0; row < Size; ++row) {
-                if (goban.state[col][row].color != Color::Black && 
-                    goban.state[col][row].color != Color::White){
+                if (goban.state[col][row].color != ColorBlack && 
+                    goban.state[col][row].color != ColorWhite){
                     numberOfLib++;
                 }
             }
@@ -79,11 +79,13 @@ class GobanWidget : public QWidget {
         this->resetLayout();
         constexpr int8_t maxIndex = Size - 1;
         QPixmap* img = nullptr;
-        for (int8_t col = Size-1; col >= 0; --col) {
-            for (int8_t row = Size-1; row >=0; --row) {
-                if (goban.state[col][row].color == Color::Black) {
+        int8_t row;
+        for (int8_t col = 0; col < Size; col++) {
+            for (int8_t x = 0; x < Size; x++) {
+                row = maxIndex - (x % Size);
+                if (goban.state[col][x].color == ColorBlack) {
                     img = this->blackStone;
-                } else if (goban.state[col][row].color == Color::White){
+                } else if (goban.state[col][x].color == ColorWhite){
                     img = this->whiteStone;
                 } else {
                     if ((Size == 9 &&
@@ -140,13 +142,14 @@ class GobanWidget : public QWidget {
         QWidget* child = childAt(event->pos());
         QLabel* label = qobject_cast<QLabel*>(child);
         if (label) {
-            auto size = static_cast<int8_t>(std::sqrt(static_cast<float>(gridLayout->count())) - 1);
+            auto size = static_cast<int8_t>(std::sqrt(static_cast<float>(gridLayout->count())));
             for (int i = 0; i < gridLayout->count(); ++i) {
                 const auto* item = gridLayout->itemAt(i);
                 if (item && item->widget() == label) {
-                    int row, col, rowSpan, colSpan;
-                    gridLayout->getItemPosition(i, &row, &col, &rowSpan, &colSpan);
-                    auto m = Move(Color::None, col, size - (row % size));
+                    int x, col, rowSpan, colSpan;
+                    gridLayout->getItemPosition(i, &x, &col, &rowSpan, &colSpan);
+                    auto row = (size - 1) - (x % size);
+                    auto m = Move(ColorNone, col, row);
                     emit clicked(m);
                     return;
                 }

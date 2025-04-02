@@ -31,10 +31,10 @@ cppfront -cwd ./src/generated ../cpp2/main.cpp2 -import-std $DebugArg
 # Move files used for debugging to the build folder.
 if ($BuildType -eq "Debug") {
     New-Item -Force -Path "$BuildDir/" -Name "src" -ItemType "directory"
-    Copy-Item -Force -Path "./src/*.h2" -Destination "$BuildDir/src/"
-    Copy-Item -Force -Path "./src/*.cpp2" -Destination "$BuildDir/src/"
-    Move-Item -Force -Path "./src/*.h2-*" -Destination "$BuildDir/src/"
-    Move-Item -Force -Path "./src/*.cpp2-*" -Destination "$BuildDir/src/"
+    Copy-Item -Force -Path "./src/cpp2/*.h2" -Destination "$BuildDir/src/"
+    Copy-Item -Force -Path "./src/cpp2/*.cpp2" -Destination "$BuildDir/src/"
+    Move-Item -Force -Path "./src/cpp2/*.h2-*" -Destination "$BuildDir/src/"
+    Move-Item -Force -Path "./src/cpp2/*.cpp2-*" -Destination "$BuildDir/src/"
 }
 
 if (!$?) { Exit $LASTEXITCODE }
@@ -52,20 +52,30 @@ ninja -C $BuildDir
 
 if (!$?) { Exit $LASTEXITCODE }
 
-if ($Run -eq " ") { Exit 0 }
-
 New-Item -Force -Path "$BuildDir\bin" -Name "images" -ItemType "directory"
 Copy-Item "resources\images\*" -Destination "$BuildDir\bin\images" -Recurse -Force
 New-Item -Force -Path "$BuildDir\bin" -Name "platforms" -ItemType "directory"
-Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\plugins\platforms\qwindows.dll" -Destination "$BuildDir\bin\platforms"
-Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Core.dll" -Destination "$BuildDir\bin"
-Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Gui.dll" -Destination "$BuildDir\bin"
-Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Widgets.dll" -Destination "$BuildDir\bin"
-Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Widgets.dll" -Destination "$BuildDir\bin"
-Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Concurrent.dll" -Destination "$BuildDir\bin"
+if ($BuildType -eq "Debug") {
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\plugins\platforms\qwindowsd.dll" -Destination "$BuildDir\bin\platforms"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Cored.dll" -Destination "$BuildDir\bin"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Guid.dll" -Destination "$BuildDir\bin"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Widgetsd.dll" -Destination "$BuildDir\bin"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Widgetsd.dll" -Destination "$BuildDir\bin"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Concurrentd.dll" -Destination "$BuildDir\bin"
+}
+else {
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\plugins\platforms\qwindows.dll" -Destination "$BuildDir\bin\platforms"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Core.dll" -Destination "$BuildDir\bin"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Gui.dll" -Destination "$BuildDir\bin"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Widgets.dll" -Destination "$BuildDir\bin"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Widgets.dll" -Destination "$BuildDir\bin"
+    Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Concurrent.dll" -Destination "$BuildDir\bin"
+}
 Move-Item -Force "$BuildDir\gopp2.exe" -Destination "$BuildDir\bin"
 
 if (!$?) { Exit $LASTEXITCODE }
+
+if ($Run -eq "norun") { Exit 0 }
 
 $ExecutablePath = "$BuildDir\bin\gopp2.exe"
 & $ExecutablePath $ProgArg

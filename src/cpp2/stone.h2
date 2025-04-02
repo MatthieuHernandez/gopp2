@@ -8,7 +8,7 @@ Stone: type = {
 
 
     operator=:(implicit out this) = {
-        color = Color::None;
+        color = ColorNone;
         col = -1;
         row = -1;
         estimation = 0.0f;
