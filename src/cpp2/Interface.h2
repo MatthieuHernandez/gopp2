@@ -18,7 +18,9 @@ Interface: type = {
 
     public wait:(virtual inout this);
 
-    public waitForAMove:(virtual inout this, in c: Color) -> Move;
+    public waitMove:(virtual inout this, in c: Color) -> Move;
+
+    public colorTurn:(virtual inout this) -> Color;
 
     public stopGame:(virtual inout this, in stop: bool);
 

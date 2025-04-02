@@ -18,7 +18,6 @@
 #include "interface.h"
 #include "io.h"
 #include "game.h"
-#include "move.h"
 
 using namespace std::literals::chrono_literals;
 
@@ -277,8 +276,14 @@ class Window : public QMainWindow {
 
     Move waitClickOnGoban() {
         this->loop = new QEventLoop();
-        QObject::connect(gobanWidget, &GobanWidget::clicked, loop, &QEventLoop::quit);
+        auto move = Move::pass(Color::None);
+        QObject::connect(gobanWidget, &GobanWidget::clicked, this,
+            [&](Move m) {
+                move = m;
+                loop->quit();
+            });
         this->loop->exec();
+        move.stone.color = interface->colorTurn();
         return Move::pass(Color::Black);
     }
 

@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 
 #include "engine.h"
+#include "color.h"
 
 class GobanWidget : public QWidget {
     Q_OBJECT
@@ -139,12 +140,14 @@ class GobanWidget : public QWidget {
         QWidget* child = childAt(event->pos());
         QLabel* label = qobject_cast<QLabel*>(child);
         if (label) {
+            auto size = static_cast<int8_t>(std::sqrt(static_cast<float>(gridLayout->count())) - 1);
             for (int i = 0; i < gridLayout->count(); ++i) {
                 const auto* item = gridLayout->itemAt(i);
                 if (item && item->widget() == label) {
                     int row, col, rowSpan, colSpan;
                     gridLayout->getItemPosition(i, &row, &col, &rowSpan, &colSpan);
-                    qDebug() << "Clique sur la case (" << col << "," << row << ")";
+                    auto m = Move(Color::None, col, size - (row % size));
+                    emit clicked(m);
                     return;
                 }
             }
@@ -152,5 +155,5 @@ class GobanWidget : public QWidget {
     }
 
   signals:
-    void clicked();
+    void clicked(Move move);
 };

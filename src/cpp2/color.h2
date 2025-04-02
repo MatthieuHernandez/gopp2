@@ -1,8 +1,14 @@
-Color: @enum<i8> type = {
-    None := 0;
-    Black := 1;
-    White := 2;
+Color: type = {
+    private value: i8;
+
+    operator=:(out this, v: i8) = {
+        value = v;
+    }
 }
+
+ColorNone: Color = (0);
+ColorBlack: Color = (1);
+ColorWhite: Color = (2);
 
 otherColor:(in c: Color) -> Color = {
     if c == Color::Black {

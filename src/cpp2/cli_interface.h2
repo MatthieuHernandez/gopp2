@@ -36,9 +36,14 @@ CliInterface: type = {
         cli::waitInput();
     }
 
-    public waitForAMove:(override inout this, in c: Color) -> Move = {
+    public waitMove:(override inout this, in c: Color) -> Move = {
         return cli::getInputMove<9>(c);
     }
+
+    public colorTurn:(override inout this) -> Color = {
+        return Color::None;  // Method not used.
+    }
+
 
     public stopGame:(override inout this, in stop: bool) = {}
 
