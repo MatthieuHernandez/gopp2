@@ -58,7 +58,9 @@ class GobanWidget : public QWidget {
         this->whiteStone = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/white_stone.png");
 
         this->gridLayout = new QGridLayout(this);
+        this->gridLayout->setContentsMargins(0, 0, 0, 0);
         this->gridLayout->setSpacing(0);
+        this->gridLayout->setAlignment(Qt::AlignTop);
 
         this->setLayout(this->gridLayout);
         this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

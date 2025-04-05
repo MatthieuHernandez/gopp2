@@ -109,7 +109,7 @@ Game: type = {
     }
 
     private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>) = {
-        start:= std::chrono::high_resolution_clock::now();
+        start:= std::chrono::steady_clock::now();
         interface*.stopGame(false);
         interface*.hardClear();
         blackPlayer*.processStartGame();
@@ -152,8 +152,8 @@ Game: type = {
             blackPlayer*.hasWon = false;
             interface*.printLater("White win " + engine*.whitePoint as std::string + ".5 to " + engine*.blackPoint as std::string + ".");
         }
-        stop:= std::chrono::high_resolution_clock::now();
-        duration:= std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
+        end:= std::chrono::steady_clock::now();
+        duration:= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         interface*.printLater("The game lasted " + duration as std::string + " ms.");
         interface*.printLater("After " + engine*.goban.iterations as std::string + " iterations.");
         blackPlayer*.processEndGame();
@@ -229,6 +229,7 @@ Game: type = {
     }
 
     public evaluate:(inout this) = {
+        start:= std::chrono::steady_clock::now();
         if !hasValidPlayer() {
             return;
         }
@@ -271,5 +272,8 @@ Game: type = {
         interface*.printLater("The first player won " + numberOfGameWon as std::string +
                     "/" + numberOfGame as std::string + " games againt the 2nd player.");
         switchPlayerColor();
+        end:= std::chrono::steady_clock::now();
+        duration:= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        interface*.printLater("The evaluation lasted " + duration as std::string + " ms.");
     }
 }

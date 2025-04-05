@@ -8,6 +8,7 @@
 #include <QMainWindow>
 #include <QPixmap>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QtConcurrent>
 #include <QTabWidget>
 #include <QTextEdit>
@@ -44,15 +45,19 @@ class Window : public QMainWindow {
     void stop() {
         this->interface->stopGame(true);
         QThread::msleep(5);
-        if (this->loop != nullptr) {
+        if (this->loop != nullptr && this->loop->isRunning()) {
             this->loop->quit();
             delete this->loop;
+            this->loop = nullptr;
         }
         while (!this->game->canBeStopped()) {
-            QThread::msleep(100);
+            QCoreApplication::processEvents();
+            QThread::msleep(10);
         }
-        this->future.cancel();
-        this->future.waitForFinished();
+        if(this->future.isRunning()) {
+            this->future.cancel();
+            this->future.waitForFinished();
+        }
     }
 
     void closeEvent(QCloseEvent *event) override {
@@ -70,7 +75,7 @@ class Window : public QMainWindow {
 
         QWidget* menuTab = new QWidget(this);
         this->menuLayout = new QVBoxLayout(menuTab);
-        this->menuLayout->setContentsMargins(8, 8, 8, 8);
+        this->menuLayout->setContentsMargins(6, 8, 6, 8);
         this->menuLayout->setSpacing(8);
         this->menuLayout->setAlignment(Qt::AlignTop);
         menuTab->setLayout(this->menuLayout);
@@ -78,8 +83,8 @@ class Window : public QMainWindow {
 
         QWidget *mainTab = new QWidget(this);
         this->mainLayout = new QVBoxLayout(mainTab);
-        this->mainLayout->setContentsMargins(0, 0, 0, 0);
-        this->mainLayout->setSpacing(0);
+        this->mainLayout->setContentsMargins(6, 0, 6, 0);
+        this->mainLayout->setSpacing(8);
         this->mainLayout->setAlignment(Qt::AlignTop);
         mainTab->setLayout(mainLayout);
         this->tabWidget->addTab(mainTab, "Game");
@@ -94,7 +99,19 @@ class Window : public QMainWindow {
         this->connect(this, &Window::refreshGoban19Signal, this->gobanWidget, &GobanWidget::refresh<19>);
     }
 
-    void displayMainLine2() { 
+    void displayMainLine2() {
+        auto* line2Layout = new QHBoxLayout();
+        this->mainLayout->addLayout(line2Layout);
+        auto* passButton = new QPushButton("Pass", this);
+        line2Layout->addWidget(passButton, 1);
+        this->connect(passButton, &QPushButton::clicked, this, [=]() {
+            if (this->loop != nullptr) {
+                this->loop->quit();
+            }
+        });
+    }
+
+    void displayMainLine3() {
         auto* line2Layout = new QHBoxLayout();
         this->mainLayout->addLayout(line2Layout);
         auto* stopButton = new QPushButton("Stop", this);
@@ -106,14 +123,19 @@ class Window : public QMainWindow {
         });
     }
 
-    void displayMainLine3() {
+    void displayMainLine4() {
         auto* line3Layout = new QHBoxLayout();
         this->mainLayout->addLayout(line3Layout);
-        this->logText = new QTextEdit("", this);
+        this->logText = new QTextEdit(this);
         this->logText->setReadOnly(true);
         line3Layout->addWidget(this->logText, 1);
+        this->logText->verticalScrollBar();
         this->connect(this, &Window::addLogSignal, this, [=](const std::string& message) {
             this->logText->append(QString::fromStdString(message));
+            QTimer::singleShot(5, this, [=]() {
+                QScrollBar* bar = this->logText->verticalScrollBar();
+                bar->setValue(bar->maximum());
+            });
         });
         this->connect(this, &Window::clearLogSignal, this, [=]() {
             this->logText->clear();
@@ -247,6 +269,7 @@ class Window : public QMainWindow {
         this->displayGoban();
         this->displayMainLine2();
         this->displayMainLine3();
+        this->displayMainLine4();
     }
     virtual ~Window() = default;
 
@@ -281,10 +304,8 @@ class Window : public QMainWindow {
         QObject::connect(gobanWidget, &GobanWidget::clicked, this,
             [&](Move m) {
                 move = m;
-                loop->quit();
+                this->loop->quit();
             });
-
-        // if quit so move == Pass so button pass just do loop->quit()
         this->loop->exec();
         move.stone.color = interface->colorTurn();
         return move;
