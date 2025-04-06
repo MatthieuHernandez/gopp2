@@ -2,15 +2,10 @@
 #include <chrono>
 #include <memory>
 #include <QComboBox>
-#include <QHBoxLayout>
-#include <QLabel>
 #include <QObject>
 #include <QMainWindow>
-#include <QPixmap>
 #include <QPushButton>
-#include <QScrollBar>
 #include <QtConcurrent>
-#include <QTabWidget>
 #include <QTextEdit>
 #include <QThread>
 
@@ -34,6 +29,9 @@ class Window : public QMainWindow {
     QTabWidget* tabWidget = nullptr;
     QVBoxLayout* menuLayout = nullptr;
     QVBoxLayout* mainLayout = nullptr;
+    QComboBox* selectPlayer1 = nullptr;
+    QComboBox* selectPlayer2 = nullptr;
+    QPushButton* trainButton = nullptr;
     Interface* interface = nullptr;
     Game* game = nullptr;
     QTextEdit* logText = nullptr;
@@ -66,193 +64,29 @@ class Window : public QMainWindow {
         event->accept();
     }
 
-    void displayTabLayouts() {
-        this->tabWidget = new QTabWidget;
-        this->setCentralWidget(tabWidget);
+    void refreshPlayer1List();
 
-        this->setFixedSize(RaspberryScreenWidth, RaspberryScreenHeight);
-        this->centralWidget()->setFixedSize(this->size());
+    void refreshPlayer2List();
 
-        QWidget* menuTab = new QWidget(this);
-        this->menuLayout = new QVBoxLayout(menuTab);
-        this->menuLayout->setContentsMargins(6, 8, 6, 8);
-        this->menuLayout->setSpacing(8);
-        this->menuLayout->setAlignment(Qt::AlignTop);
-        menuTab->setLayout(this->menuLayout);
-        this->tabWidget->addTab(menuTab, "Menu");
+    void displayTabLayouts();
 
-        QWidget *mainTab = new QWidget(this);
-        this->mainLayout = new QVBoxLayout(mainTab);
-        this->mainLayout->setContentsMargins(6, 0, 6, 0);
-        this->mainLayout->setSpacing(8);
-        this->mainLayout->setAlignment(Qt::AlignTop);
-        mainTab->setLayout(mainLayout);
-        this->tabWidget->addTab(mainTab, "Game");
-        this->tabWidget->tabBar()->hide();
-    }
+    void displayGoban();
 
-    void displayGoban() {
-        this->gobanWidget = new GobanWidget(this);
-        this->mainLayout->insertWidget(0, this->gobanWidget);
-        this->connect(this, &Window::refreshGoban9Signal, this->gobanWidget, &GobanWidget::refresh<9>);
-        this->connect(this, &Window::refreshGoban13Signal, this->gobanWidget, &GobanWidget::refresh<13>);
-        this->connect(this, &Window::refreshGoban19Signal, this->gobanWidget, &GobanWidget::refresh<19>);
-    }
+    void displayPassButton();
 
-    void displayMainLine2() {
-        auto* line2Layout = new QHBoxLayout();
-        this->mainLayout->addLayout(line2Layout);
-        auto* passButton = new QPushButton("Pass", this);
-        line2Layout->addWidget(passButton, 1);
-        this->connect(passButton, &QPushButton::clicked, this, [=]() {
-            if (this->loop != nullptr) {
-                this->loop->quit();
-            }
-        });
-    }
+    void displayStopButton();
 
-    void displayMainLine3() {
-        auto* line2Layout = new QHBoxLayout();
-        this->mainLayout->addLayout(line2Layout);
-        auto* stopButton = new QPushButton("Stop", this);
-        line2Layout->addWidget(stopButton, 1);
-        this->connect(stopButton, &QPushButton::clicked, this, [=]() {
-            this->stop();
-            this->tabWidget->setCurrentIndex(0);
-            this->logText->clear();
-        });
-    }
+    void displayLogText();
 
-    void displayMainLine4() {
-        auto* line3Layout = new QHBoxLayout();
-        this->mainLayout->addLayout(line3Layout);
-        this->logText = new QTextEdit(this);
-        this->logText->setReadOnly(true);
-        line3Layout->addWidget(this->logText, 1);
-        this->logText->verticalScrollBar();
-        this->connect(this, &Window::addLogSignal, this, [=](const std::string& message) {
-            this->logText->append(QString::fromStdString(message));
-            QTimer::singleShot(5, this, [=]() {
-                QScrollBar* bar = this->logText->verticalScrollBar();
-                bar->setValue(bar->maximum());
-            });
-        });
-        this->connect(this, &Window::clearLogSignal, this, [=]() {
-            this->logText->clear();
-        });
-    }
+    void displayGobanButton();
 
-    void displayMenuLine1() {
-        auto* line1Layout = new QHBoxLayout();
-        this->menuLayout->addLayout(line1Layout);
-        QLabel* selectGobanText = new QLabel("Goban size:", this);
-        QComboBox* selectGoban = new QComboBox(this);
-        selectGoban->insertItem(0, "9x9", 9);
-        selectGoban->insertItem(1, "13x13", 13);
-        selectGoban->insertItem(2, "19x19", 19);
-        line1Layout->addWidget(selectGobanText);
-        line1Layout->addWidget(selectGoban);
-        line1Layout->addItem(new QSpacerItem(100, 0));
-        this->connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
-            const auto selection = selectGoban->itemData(index).toInt();
-            this->game->setGobanSize(selection);
-        });
-    }
+    void displayPlayerSelection();
 
-    void displayMenuLine2() {
-        auto* line2Layout = new QHBoxLayout();
-        this->menuLayout->addLayout(line2Layout);
-        QLabel* selectPlayersText = new QLabel("Players:", this);
-        QComboBox* selectPlayer1 = new QComboBox(this);
-        QLabel* vsText = new QLabel("vs", this);
-        vsText->adjustSize();
-        vsText->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-        vsText->setMaximumWidth(vsText->sizeHint().width());
-        QComboBox* selectPlayer2 = new QComboBox(this);
-        line2Layout->addWidget(selectPlayersText);
-        line2Layout->addWidget(selectPlayer1);
-        line2Layout->addWidget(vsText);
-        line2Layout->addWidget(selectPlayer2);
-        auto models = io::getSnnModels(this->game->getGobanSize());
+    void displayPlayButton();
 
-        selectPlayer2->insertItem(0, "Itself", "-1");
-        selectPlayer1->insertItem(0, "Human", "0");
-        selectPlayer2->insertItem(1, "Human", "0");
-        selectPlayer1->insertItem(1, "Dumb", "1");
-        selectPlayer2->insertItem(2, "Dumb", "1");
-        selectPlayer1->insertItem(2, "Random", "2");
-        selectPlayer2->insertItem(3, "Random", "2");
-        int i = 3;
-        for (const auto& model : models) {
-            QString name = QString::fromStdString(model[0]);
-            QString path = QString::fromStdString(model[1]);
-            selectPlayer1->insertItem(i, name, path);
-            selectPlayer2->insertItem(i+1, name, path);
-            i++;
-        }
-        selectPlayer1->setCurrentIndex(1);
-        this->connect(selectPlayer1, &QComboBox::currentIndexChanged, [=](int index) {
-            const auto selection = selectPlayer1->itemData(index).toString().toStdString();
-            this->game->selectPlayer(ColorBlack, selection);
-        });
-        this->connect(selectPlayer2, &QComboBox::currentIndexChanged, [=](int index) {
-            const auto selection = selectPlayer2->itemData(index).toString().toStdString();
-            this->game->selectPlayer(ColorWhite, selection);
-        });
-        selectPlayer1->setCurrentIndex(0);
-        selectPlayer2->setCurrentIndex(1);
-    }
+    void displayTrainButton();
 
-    void displayMenuLine3() {
-        auto* line3Layout = new QHBoxLayout();
-        this->menuLayout->addLayout(line3Layout);
-        auto* playOneButton = new QPushButton("Play one game", this);
-        line3Layout->addWidget(playOneButton);
-        this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
-            if (!this->future.isRunning()) {
-                this->future = QtConcurrent::run([this]() {
-                    this->game->playOne();
-                });
-            }
-            QTimer::singleShot(50, this, [=]() {
-                this->tabWidget->setCurrentIndex(1);
-            });
-        });
-    }
-
-    void displayMenuLine4() {
-        auto* line4Layout = new QHBoxLayout();
-        this->menuLayout->addLayout(line4Layout);
-        auto* trainButton = new QPushButton("Train black player", this);
-        line4Layout->addWidget(trainButton);
-        this->connect(trainButton, &QPushButton::clicked, this, [=]() {
-            if (!this->future.isRunning()) {
-                this->future = QtConcurrent::run([this]() {
-                    this->game->trainBlack();
-                });
-            }
-            QTimer::singleShot(50, this, [=]() {
-                this->tabWidget->setCurrentIndex(1);
-            });
-        });
-    }
-
-    void displayMenuLine5() {
-        auto* line5Layout = new QHBoxLayout();
-        this->menuLayout->addLayout(line5Layout);
-        auto* evaluateButton = new QPushButton("Evaluate players against each other", this);
-        line5Layout->addWidget(evaluateButton);
-        this->connect(evaluateButton, &QPushButton::clicked, this, [=]() {
-            if (!this->future.isRunning()) {
-                this->future = QtConcurrent::run([this]() {
-                    this->game->evaluate();
-                });
-            }
-            QTimer::singleShot(50, this, [=]() {
-                this->tabWidget->setCurrentIndex(1);
-            });
-        });
-    }
+    void displayEvaluateButton();
 
   public:
 
@@ -261,15 +95,15 @@ class Window : public QMainWindow {
           interface(interface),
           game(game) {
         this->displayTabLayouts();
-        this->displayMenuLine1();
-        this->displayMenuLine2();
-        this->displayMenuLine3();
-        this->displayMenuLine4();
-        this->displayMenuLine5();
+        this->displayGobanButton();
+        this->displayPlayerSelection();
+        this->displayPlayButton();
+        this->displayTrainButton();
+        this->displayEvaluateButton();
         this->displayGoban();
-        this->displayMainLine2();
-        this->displayMainLine3();
-        this->displayMainLine4();
+        this->displayPassButton();
+        this->displayStopButton();
+        this->displayLogText();
     }
     virtual ~Window() = default;
 

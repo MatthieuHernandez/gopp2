@@ -138,6 +138,7 @@ class GobanWidget : public QWidget {
                 this->gridLayout->addWidget(label, row, col);
             }
         }
+        QCoreApplication::processEvents();
     }
 
     void mousePressEvent(QMouseEvent *event) override {

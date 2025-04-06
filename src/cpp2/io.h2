@@ -5,6 +5,8 @@ getSnnModels:(size: i8) -> std::vector<std::array<std::string, 2>> = {
     path: std::string = "";
     if size == 9 {
         path = "./snn_models/9x9";
+    } else if size == 13 {
+        path = "./snn_models/13x13";
     } else if size == 19 {
         path = "./snn_models/19x19";
     }
