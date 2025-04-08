@@ -53,11 +53,11 @@ cliApp:() -> int = {
             cliInterface.print("Bye.");
             exit = true;
         } else if selection == 1 {
-        if(game*.getGobanSize() == 9) {
+        if (game*.getGobanSize() == 9) {
             game*.setGobanSize(13);
-        } else if(game*.getGobanSize() == 13) {
+        } else if (game*.getGobanSize() == 13) {
             game*.setGobanSize(19);
-        } else if(game*.getGobanSize() == 19) {
+        } else if (game*.getGobanSize() == 19) {
             game*.setGobanSize(9);
         }
         } else if selection == 2 {

@@ -31,7 +31,9 @@ class Window : public QMainWindow {
     QVBoxLayout* mainLayout = nullptr;
     QComboBox* selectPlayer1 = nullptr;
     QComboBox* selectPlayer2 = nullptr;
+    QComboBox* selectTime = nullptr;
     QPushButton* trainButton = nullptr;
+    QPushButton* evaluateButton = nullptr;
     Interface* interface = nullptr;
     Game* game = nullptr;
     QTextEdit* logText = nullptr;
@@ -52,7 +54,7 @@ class Window : public QMainWindow {
             QCoreApplication::processEvents();
             QThread::msleep(10);
         }
-        if(this->future.isRunning()) {
+        if (this->future.isRunning()) {
             this->future.cancel();
             this->future.waitForFinished();
         }
@@ -63,6 +65,8 @@ class Window : public QMainWindow {
         QThread::msleep(5);
         event->accept();
     }
+
+    void refreshButtons();
 
     void refreshPlayer1List();
 
@@ -82,6 +86,8 @@ class Window : public QMainWindow {
 
     void displayPlayerSelection();
 
+    void displayMoveTime();
+
     void displayPlayButton();
 
     void displayTrainButton();
@@ -97,6 +103,7 @@ class Window : public QMainWindow {
         this->displayTabLayouts();
         this->displayGobanButton();
         this->displayPlayerSelection();
+        this->displayMoveTime();
         this->displayPlayButton();
         this->displayTrainButton();
         this->displayEvaluateButton();
@@ -104,7 +111,9 @@ class Window : public QMainWindow {
         this->displayPassButton();
         this->displayStopButton();
         this->displayLogText();
+        this->refreshButtons();
     }
+
     virtual ~Window() = default;
 
     template<int8_t Size>
@@ -122,6 +131,7 @@ class Window : public QMainWindow {
             emit refreshGoban19Signal(engine);
         }
         this->last = steady_clock::now();
+        QThread::msleep(this->selectTime->currentData().toInt());
     }
 
     void addLog(const std::string& message) {
@@ -141,6 +151,7 @@ class Window : public QMainWindow {
                 this->loop->quit();
             });
         this->loop->exec();
+        QThread::msleep(5);
         move.stone.color = interface->colorTurn();
         return move;
     }

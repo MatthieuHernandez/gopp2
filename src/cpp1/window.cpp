@@ -5,8 +5,26 @@
 #include <QScrollBar>
 #include <QTabWidget>
 
+void Window::refreshButtons() {
+    if (this->trainButton != nullptr && this->evaluateButton != nullptr) {
+        if (this->selectPlayer1->currentIndex() == 0 || this->selectPlayer2->currentData().toString() == "0") {
+            this->trainButton->setEnabled(false);
+            this->evaluateButton->setEnabled(false);
+            this->selectTime->setCurrentIndex(0);
+            this->selectTime->setEnabled(false);
+        } else if (this->selectPlayer1->currentIndex() <= 2) {
+            this->trainButton->setEnabled(false);
+            this->evaluateButton->setEnabled(true);
+            this->selectTime->setEnabled(true);
+        } else {
+            this->trainButton->setEnabled(true);
+            this->evaluateButton->setEnabled(true);
+            this->selectTime->setEnabled(true);
+        }
+    }
+}
+
 void Window::refreshPlayer1List() {
-    qDebug() << "refresh 1";
     const auto player1Index = this->selectPlayer1->currentIndex();
     this->selectPlayer1->clear();
     this->selectPlayer1->insertItem(0, "Human", "0");
@@ -26,8 +44,7 @@ void Window::refreshPlayer1List() {
 }
 
 void Window::refreshPlayer2List() {
-    if (this->selectPlayer1->count() > 0) {
-        qDebug() << "refresh 2";
+    if (this->selectPlayer1->count() > 2) {
         const auto player2Index = this->selectPlayer2->currentIndex();
         this->selectPlayer2->clear();
         if (this->selectPlayer1->currentIndex() > 2) {
@@ -85,10 +102,10 @@ void Window::displayGoban() {
 }
 
 void Window::displayPassButton() {
-    auto* line2Layout = new QHBoxLayout();
-    this->mainLayout->addLayout(line2Layout);
+    auto* lineLayout = new QHBoxLayout();
+    this->mainLayout->addLayout(lineLayout);
     auto* passButton = new QPushButton("Pass", this);
-    line2Layout->addWidget(passButton, 1);
+    lineLayout->addWidget(passButton, 1);
     this->connect(passButton, &QPushButton::clicked, this, [=]() {
         if (this->loop != nullptr) {
             this->loop->quit();
@@ -97,10 +114,10 @@ void Window::displayPassButton() {
 }
 
 void Window::displayStopButton() {
-    auto* line2Layout = new QHBoxLayout();
-    this->mainLayout->addLayout(line2Layout);
+    auto* lineLayout = new QHBoxLayout();
+    this->mainLayout->addLayout(lineLayout);
     auto* stopButton = new QPushButton("Stop", this);
-    line2Layout->addWidget(stopButton, 1);
+    lineLayout->addWidget(stopButton, 1);
     this->connect(stopButton, &QPushButton::clicked, this, [=]() {
         this->stop();
         this->tabWidget->setCurrentIndex(0);
@@ -109,11 +126,11 @@ void Window::displayStopButton() {
 }
 
 void Window::displayLogText() {
-    auto* line3Layout = new QHBoxLayout();
-    this->mainLayout->addLayout(line3Layout);
+    auto* lineLayout = new QHBoxLayout();
+    this->mainLayout->addLayout(lineLayout);
     this->logText = new QTextEdit(this);
     this->logText->setReadOnly(true);
-    line3Layout->addWidget(this->logText, 1);
+    lineLayout->addWidget(this->logText, 1);
     this->logText->verticalScrollBar();
     this->connect(this, &Window::addLogSignal, this, [=](const std::string& message) {
         this->logText->append(QString::fromStdString(message));
@@ -128,16 +145,16 @@ void Window::displayLogText() {
 }
 
 void Window::displayGobanButton() {
-    auto* line1Layout = new QHBoxLayout();
-    this->menuLayout->addLayout(line1Layout);
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
     QLabel* selectGobanText = new QLabel("Goban size:", this);
     QComboBox* selectGoban = new QComboBox(this);
     selectGoban->insertItem(0, "9x9", 9);
     selectGoban->insertItem(1, "13x13", 13);
     selectGoban->insertItem(2, "19x19", 19);
-    line1Layout->addWidget(selectGobanText);
-    line1Layout->addWidget(selectGoban);
-    line1Layout->addItem(new QSpacerItem(100, 0));
+    lineLayout->addWidget(selectGobanText);
+    lineLayout->addWidget(selectGoban);
+    lineLayout->addItem(new QSpacerItem(100, 0));
     this->connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
         const auto selection = selectGoban->itemData(index).toInt();
         this->game->setGobanSize(selection);
@@ -146,8 +163,8 @@ void Window::displayGobanButton() {
 }
 
 void Window::displayPlayerSelection() {
-    auto* line2Layout = new QHBoxLayout();
-    this->menuLayout->addLayout(line2Layout);
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
     QLabel* selectPlayersText = new QLabel("Players:", this);
     this->selectPlayer1 = new QComboBox(this);
     QLabel* vsText = new QLabel("vs", this);
@@ -155,43 +172,45 @@ void Window::displayPlayerSelection() {
     vsText->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     vsText->setMaximumWidth(vsText->sizeHint().width());
     this->selectPlayer2 = new QComboBox(this);
-    line2Layout->addWidget(selectPlayersText);
-    line2Layout->addWidget(this->selectPlayer1);
-    line2Layout->addWidget(vsText);
-    line2Layout->addWidget(selectPlayer2);
+    lineLayout->addWidget(selectPlayersText);
+    lineLayout->addWidget(this->selectPlayer1);
+    lineLayout->addWidget(vsText);
+    lineLayout->addWidget(selectPlayer2);
     this->refreshPlayer1List();
     this->connect(this->selectPlayer1, &QComboBox::currentIndexChanged, [=](int index) {
         const auto selection = this->selectPlayer1->itemData(index).toString().toStdString();
         this->game->selectPlayer(ColorBlack, selection);
         this->refreshPlayer2List();
-        if(this->trainButton != nullptr) {
-            if(selection == "0") {
-                this->trainButton->setEnabled(false);
-            } else {
-                this->trainButton->setEnabled(true);
-            }
-        }
     });
     this->connect(this->selectPlayer2, &QComboBox::currentIndexChanged, [=](int index) {
         const auto selection = this->selectPlayer2->itemData(index).toString().toStdString();
         this->game->selectPlayer(ColorWhite, selection);
-        if(this->trainButton != nullptr) {
-            if(selection == "0") {
-                this->trainButton->setEnabled(false);
-            } else {
-                this->trainButton->setEnabled(true);
-            }
-        }
+        this->refreshButtons();
     });
     this->selectPlayer1->setCurrentIndex(0);
     this->selectPlayer2->setCurrentIndex(0);
 }
 
+void Window::displayMoveTime() {
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
+    QLabel* selectTimeText = new QLabel("Move time:", this);
+    this->selectTime = new QComboBox(this);
+    this->selectTime->insertItem(0, "0 ms", 0);
+    this->selectTime->insertItem(1, "100 ms", 100);
+    this->selectTime->insertItem(2, "300 ms", 300);
+    this->selectTime->insertItem(3, "500 ms", 500);
+    this->selectTime->insertItem(4, "1000 ms", 1000);
+    lineLayout->addWidget(selectTimeText);
+    lineLayout->addWidget(selectTime);
+    lineLayout->addItem(new QSpacerItem(100, 0));
+}
+
 void Window::displayPlayButton() {
-    auto* line3Layout = new QHBoxLayout();
-    this->menuLayout->addLayout(line3Layout);
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
     auto* playOneButton = new QPushButton("Play one game", this);
-    line3Layout->addWidget(playOneButton);
+    lineLayout->addWidget(playOneButton);
     this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
         if (!this->future.isRunning()) {
             this->future = QtConcurrent::run([this]() {
@@ -205,10 +224,10 @@ void Window::displayPlayButton() {
 }
 
 void Window::displayTrainButton() {
-    auto* line4Layout = new QHBoxLayout();
-    this->menuLayout->addLayout(line4Layout);
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
     this->trainButton = new QPushButton("Train black player", this);
-    line4Layout->addWidget(this->trainButton);
+    lineLayout->addWidget(this->trainButton);
     this->connect(this->trainButton, &QPushButton::clicked, this, [=]() {
         if (!this->future.isRunning()) {
             this->future = QtConcurrent::run([this]() {
@@ -222,11 +241,11 @@ void Window::displayTrainButton() {
 }
 
 void Window::displayEvaluateButton() {
-    auto* line5Layout = new QHBoxLayout();
-    this->menuLayout->addLayout(line5Layout);
-    auto* evaluateButton = new QPushButton("Evaluate players against each other", this);
-    line5Layout->addWidget(evaluateButton);
-    this->connect(evaluateButton, &QPushButton::clicked, this, [=]() {
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
+    this->evaluateButton = new QPushButton("Evaluate players against each other", this);
+    lineLayout->addWidget(this->evaluateButton);
+    this->connect(this->evaluateButton, &QPushButton::clicked, this, [=]() {
         if (!this->future.isRunning()) {
             this->future = QtConcurrent::run([this]() {
                 this->game->evaluate();

@@ -167,7 +167,7 @@ Ai: type = {
     }
 
     public train:<Size: i8>(inout this, in engine: Engine<Size>) = {
-        if(engine.moves.ssize() > 291) {
+        if (engine.moves.ssize() > 291) {
             return;
         }
         gameLength: i16 = unchecked_narrow<i16>(engine.moves.size());
@@ -187,7 +187,7 @@ Ai: type = {
         while i < (engine.moves.ssize())
         next i++
         {
-            if(engine.moves[i].isPass == true) {
+            if (engine.moves[i].isPass == true) {
                 return;
             }
             inputs:= getGobanState<Size>(engine.states[i]);
