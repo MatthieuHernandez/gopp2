@@ -30,9 +30,5 @@ Stone: type = {
         return (col as i16) * (Size) + (row as i16);
     }
 
-    public lockPosition:(inout this, in s: Stone) = {
-        lockedPosition = otherColor(stone.color);
-    }
-
     public operator<=>: (this, that) -> std::strong_ordering;
 }

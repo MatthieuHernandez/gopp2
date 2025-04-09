@@ -5,7 +5,6 @@ State: <T: type, Size: i8> type == std::array<std::array<T, Size>, Size>;
 Goban:<Size: i8> type = {
     public state: State<Stone, Size> = ();
     public lockedPosition: Stone = ();
-    public iterations: i32 = 0;
     private maxIndex: i8 = Size - 1;
 
     // On lock et unlock la pos du Move puis ensuite la lockedPosition du goban = celle du Move jouer.
@@ -27,7 +26,7 @@ Goban:<Size: i8> type = {
         }
     }
 
-    public getAdjacentStone:(inout this, in s: Stone, in processedStones: State<bool, Size>, count: bool = true) -> std::vector<Stone>  = {
+    public getAdjacentStone:(in this, in s: Stone, in processedStones: State<bool, Size>, count: bool = true) -> std::vector<Stone>  = {
         adjacentStones: std::vector<Stone> = ();
         if s.col > 0 && !processedStones[s.col-1][s.row] {
             adjacentStones.push_back(state[s.col-1][s.row]);
@@ -40,9 +39,6 @@ Goban:<Size: i8> type = {
         }
         if s.row < maxIndex && !processedStones[s.col][s.row+1] {
                 adjacentStones.push_back(state[s.col][s.row+1]);
-        }
-        if count {
-            iterations += adjacentStones.ssize();
         }
         return adjacentStones;
     }
@@ -93,8 +89,8 @@ Goban:<Size: i8> type = {
     }
 
     public unlockPosition:(inout this) = {
-        prelockedPosition.color = ColorNone;
-        prelockedPosition.row = -1;
-        prelockedPosition.col = -1;
+        lockedPosition.color = ColorNone;
+        lockedPosition.row = -1;
+        lockedPosition.col = -1;
     }
 }

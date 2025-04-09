@@ -137,9 +137,6 @@ Game: type = {
                     interface*.printLater(colorName(m.stone.color) + " cannot play " + m.name() + ".");
                 }
             }
-            /*if (moveNumber >= 999 || (moveNumber >= 299 && gobanSize == 9)) { // Only to prevent an eventual triple ko.
-                break;
-            }*/
         } while !engine*.isFinish() && !interface*.stopRequested();
         engine*.countScore();
         interface*.printLater("The game ends after " + moveNumber as std::string + " moves.");
@@ -155,7 +152,7 @@ Game: type = {
         end:= std::chrono::steady_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         interface*.printLater("The game lasted " + duration as std::string + " ms.");
-        interface*.printLater("After " + engine*.goban.iterations as std::string + " iterations.");
+        interface*.printLater("After " + iterations as std::string + " iterations.");
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
         interface*.softClear();

@@ -32,8 +32,6 @@ cppfront -cwd ./src/generated ../cpp2/main.cpp2 -import-std $DebugArg
 if ($BuildType -eq "Debug") {
     New-Item -Force -Path "$BuildDir/" -Name "src" -ItemType "directory"
     New-Item -Force -Path "$BuildDir/src/" -Name "cpp2" -ItemType "directory"
-    Copy-Item -Force -Path "./src/cpp2/*.h2" -Destination "$BuildDir/src/cpp2/"
-    Copy-Item -Force -Path "./src/cpp2/*.cpp2" -Destination "$BuildDir/src/cpp2/"
     Move-Item -Force -Path "./src/cpp2/*.h2-*" -Destination "$BuildDir/src/cpp2/"
     Move-Item -Force -Path "./src/cpp2/*.cpp2-*" -Destination "$BuildDir/src/cpp2/"
 }

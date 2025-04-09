@@ -5,24 +5,28 @@ Move: type = {
     public stone: Stone;
     public isPass: bool;
     public isValid: bool;
+    public captureStones: bool;
     public lockedPosition: Stone = ();
 
     public operator=:(out this) = {
         stone = ();
         isPass = false;
         isValid = false;
+        captureStones = false;
     }
 
     public operator=:(out this, color: Color, col: i8, row: i8, pas: bool = false) = {
         stone = (color, col, row);
         isPass = pas;
         isValid = false;
+        captureStones = false;
     }
 
     public operator=:(out this, in s: Stone) = {
         stone = s;
         isPass = false;
         isValid = false;
+        captureStones = false;
     }
 
     public name:(in this) -> std::string = {
@@ -42,6 +46,7 @@ Move: type = {
         stone = that.stone;
         isPass = that.isPass;
         isValid = that.isValid;
+        captureStones = that.captureStones;
     }
 
     public pass:(color: Color) -> Move = {
