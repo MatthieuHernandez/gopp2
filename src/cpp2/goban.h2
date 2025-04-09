@@ -8,6 +8,11 @@ Goban:<Size: i8> type = {
     public iterations: i32 = 0;
     private maxIndex: i8 = Size - 1;
 
+    // On lock et unlock la pos du Move puis ensuite la lockedPosition du goban = celle du Move jouer.
+    // On ne peut fait que un lock et unlock sur le Move.
+    // Et selement confirm et isLockedPosition sur le goban.
+    // Enfin on test que ça fonctionne.
+
     operator=:(out this) = {
         (copy col: i8 = 0)
         while col < state.ssize()
@@ -88,8 +93,8 @@ Goban:<Size: i8> type = {
     }
 
     public unlockPosition:(inout this) = {
-        lockedPosition.color = ColorNone;
-        lockedPosition.row = -1;
-        lockedPosition.col = -1;
+        prelockedPosition.color = ColorNone;
+        prelockedPosition.row = -1;
+        prelockedPosition.col = -1;
     }
 }

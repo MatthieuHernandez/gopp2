@@ -5,6 +5,7 @@ Move: type = {
     public stone: Stone;
     public isPass: bool;
     public isValid: bool;
+    public lockedPosition: Stone = ();
 
     public operator=:(out this) = {
         stone = ();
@@ -43,7 +44,7 @@ Move: type = {
         isValid = that.isValid;
     }
 
-    pass:(color: Color) -> Move = {
+    public pass:(color: Color) -> Move = {
         return Move(color, -1, -1, true);
     }
 }

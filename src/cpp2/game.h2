@@ -137,9 +137,9 @@ Game: type = {
                     interface*.printLater(colorName(m.stone.color) + " cannot play " + m.name() + ".");
                 }
             }
-            if (moveNumber >= 999 || (moveNumber >= 299 && gobanSize == 9)) { // Only to prevent an eventual triple ko.
+            /*if (moveNumber >= 999 || (moveNumber >= 299 && gobanSize == 9)) { // Only to prevent an eventual triple ko.
                 break;
-            }
+            }*/
         } while !engine*.isFinish() && !interface*.stopRequested();
         engine*.countScore();
         interface*.printLater("The game ends after " + moveNumber as std::string + " moves.");

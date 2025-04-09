@@ -6,30 +6,33 @@ Stone: type = {
     public row: i8;
     public estimation: float;
 
-
-    operator=:(implicit out this) = {
+    public operator=:(implicit out this) = {
         color = ColorNone;
         col = -1;
         row = -1;
         estimation = 0.0f;
     }
 
-    operator=:(out this, p: Color, c: i8, r: i8, e: float = 0.0f) = {
+    public operator=:(out this, p: Color, c: i8, r: i8, e: float = 0.0f) = {
         color = p;
         col = c;
         row = r;
         estimation = e;
     }
 
-    operator=:(out this, that) = {
+    public operator=:(out this, that) = {
         color = that.color;
         col = that.col;
         row = that.row;
     }
 
-    getIndex:<Size: i8>(in this) -> i16 = {
+    public getIndex:<Size: i8>(in this) -> i16 = {
         return (col as i16) * (Size) + (row as i16);
     }
 
-    operator<=>: (this, that) -> std::strong_ordering;
+    public lockPosition:(inout this, in s: Stone) = {
+        lockedPosition = otherColor(stone.color);
+    }
+
+    public operator<=>: (this, that) -> std::strong_ordering;
 }
