@@ -29,14 +29,18 @@ class Window : public QMainWindow {
     QTabWidget* tabWidget = nullptr;
     QVBoxLayout* menuLayout = nullptr;
     QVBoxLayout* mainLayout = nullptr;
+    QVBoxLayout* summaryLayout = nullptr;
     QComboBox* selectPlayer1 = nullptr;
     QComboBox* selectPlayer2 = nullptr;
+    QPushButton* player1Button = nullptr;
+    QPushButton* player2Button = nullptr;
     QComboBox* selectTime = nullptr;
     QPushButton* trainButton = nullptr;
     QPushButton* evaluateButton = nullptr;
     Interface* interface = nullptr;
     Game* game = nullptr;
     QTextEdit* logText = nullptr;
+    QTextEdit* summaryText = nullptr;
     QEventLoop* loop = nullptr;
 
     QFuture<void> future;
@@ -79,12 +83,14 @@ class Window : public QMainWindow {
     void displayPassButton();
 
     void displayStopButton();
-
+ 
     void displayLogText();
 
     void displayGobanButton();
 
     void displayPlayerSelection();
+
+    void displayPlayerSummay();
 
     void displayMoveTime();
 
@@ -93,6 +99,10 @@ class Window : public QMainWindow {
     void displayTrainButton();
 
     void displayEvaluateButton();
+
+    void displaySummaryText();
+
+    void displayReturnButton();
 
   public:
 
@@ -103,6 +113,7 @@ class Window : public QMainWindow {
         this->displayTabLayouts();
         this->displayGobanButton();
         this->displayPlayerSelection();
+        this->displayPlayerSummay();
         this->displayMoveTime();
         this->displayPlayButton();
         this->displayTrainButton();
@@ -112,6 +123,8 @@ class Window : public QMainWindow {
         this->displayStopButton();
         this->displayLogText();
         this->refreshButtons();
+        this->displaySummaryText();
+        this->displayReturnButton();
     }
 
     virtual ~Window() = default;
