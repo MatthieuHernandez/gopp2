@@ -10,9 +10,10 @@
 Game: type = {
     private isSaving: bool = false;
     private interface: *Interface;
-    private blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_ptr work.
-    private whitePlayer: std::shared_ptr<Player> = nullptr;
     private gobanSize: i8 = 9;
+
+    public blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_ptr work.
+    public whitePlayer: std::shared_ptr<Player> = nullptr;
 
     public operator=:(out this, i: *Interface) = {
         interface = i;

@@ -1,10 +1,14 @@
 #include "window.h"
 
+#include <memory>
+#include <QFont>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListView>
 #include <QScrollBar>
 #include <QTabWidget>
+
+#include "ai.h"
 
 void Window::refreshButtons() {
     if (this->trainButton != nullptr && this->evaluateButton != nullptr) {
@@ -109,7 +113,7 @@ void Window::displayTabLayouts() {
     this->tabWidget->addTab(mainTab, "Game");
      
     auto *summaryTab = new QWidget(this);
-    this->summaryLayout = new QVBoxLayout(mainTab);
+    this->summaryLayout = new QVBoxLayout(summaryTab);
     this->summaryLayout->setContentsMargins(6, 8, 6, 8);
     this->summaryLayout->setSpacing(8);
     this->summaryLayout->setAlignment(Qt::AlignTop);
@@ -156,7 +160,6 @@ void Window::displayLogText() {
     this->logText = new QTextEdit(this);
     this->logText->setReadOnly(true);
     lineLayout->addWidget(this->logText, 1);
-    this->logText->verticalScrollBar();
     this->connect(this, &Window::addLogSignal, this, [=](const std::string& message) {
         this->logText->append(QString::fromStdString(message));
         QTimer::singleShot(5, this, [=]() {
@@ -183,6 +186,7 @@ void Window::displayGobanButton() {
     this->connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
         const auto selection = selectGoban->itemData(index).toInt();
         this->game->setGobanSize(selection);
+        this->refreshPlayer2List();
         this->refreshPlayer1List();
     });
 }
@@ -229,11 +233,17 @@ void Window::displayPlayerSummay() {
     lineLayout->addItem(new QSpacerItem(40, 0));
     lineLayout->addWidget(this->player2Button);
     this->connect(this->player1Button, &QPushButton::clicked, this, [=]() {
+        const auto ai1 = dynamic_cast<Ai*>(this->game->blackPlayer.get());
+        this->summaryText->append(QString::fromStdString(ai1->summary()));
+        this->summaryText->moveCursor(QTextCursor::Start);
         QTimer::singleShot(50, this, [=]() {
             this->tabWidget->setCurrentIndex(2);
         });
     });
     this->connect(this->player2Button, &QPushButton::clicked, this, [=]() {
+        const auto ai2 = dynamic_cast<Ai*>(this->game->whitePlayer.get());
+        this->summaryText->append(QString::fromStdString(ai2->summary()));
+        this->summaryText->moveCursor(QTextCursor::Start);
         QTimer::singleShot(50, this, [=]() {
             this->tabWidget->setCurrentIndex(2);
         });
@@ -312,7 +322,10 @@ void Window::displaySummaryText() {
     this->summaryText = new QTextEdit(this);
     this->summaryText->setReadOnly(true);
     lineLayout->addWidget(this->summaryText, 1);
-    this->summaryText->verticalScrollBar();
+    this->summaryText->setLineWrapMode(QTextEdit::NoWrap);
+    this->summaryText->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    QFont font("Courier New", 8);
+    this->summaryText->setFont(font);
 }
 
 void Window::displayReturnButton() {
@@ -322,6 +335,6 @@ void Window::displayReturnButton() {
     lineLayout->addWidget(returnButton, 1);
     this->connect(returnButton, &QPushButton::clicked, this, [=]() {
         this->tabWidget->setCurrentIndex(0);
-        this->logText->clear();
+        this->summaryText->clear();
     });
 }
