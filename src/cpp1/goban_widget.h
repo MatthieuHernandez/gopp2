@@ -1,4 +1,6 @@
 #pragma once
+#define QT_NO_KEYWORDS
+#include <QCoreApplication>
 #include <QLabel>
 #include <QObject>
 #include <QPixmap>
@@ -44,18 +46,18 @@ class GobanWidget : public QWidget {
   public:
     GobanWidget(QWidget *parent = nullptr)
         : QWidget(parent) {
-        this->middle = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/middle.png");
-        this->hoshi = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/hoshi.png");
-        this->left = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/left.png");
-        this->right = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/right.png");
-        this->top = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/top.png");
-        this->bottom = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/bottom.png");
-        this->conerTopLeft = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/coner_top_left.png");
-        this->conerBottomLeft = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/coner_bottom_left.png");
-        this->conerTopRight = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/coner_top_right.png");
-        this->conerBottomRight = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/coner_bottom_right.png");
-        this->blackStone = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/black_stone.png");
-        this->whiteStone = new QPixmap("C:/Programming/Git/gopp2/build/Release/bin/images/white_stone.png");
+        this->middle = new QPixmap("./images/middle.png");
+        this->hoshi = new QPixmap("./images/hoshi.png");
+        this->left = new QPixmap("./images/left.png");
+        this->right = new QPixmap("./images/right.png");
+        this->top = new QPixmap("./images/top.png");
+        this->bottom = new QPixmap("./images/bottom.png");
+        this->conerTopLeft = new QPixmap("./images/coner_top_left.png");
+        this->conerBottomLeft = new QPixmap("./images/coner_bottom_left.png");
+        this->conerTopRight = new QPixmap("./images/coner_top_right.png");
+        this->conerBottomRight = new QPixmap("./images/coner_bottom_right.png");
+        this->blackStone = new QPixmap("./images/black_stone.png");
+        this->whiteStone = new QPixmap("./images/white_stone.png");
 
         this->gridLayout = new QGridLayout(this);
         this->gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -153,13 +155,13 @@ class GobanWidget : public QWidget {
                     gridLayout->getItemPosition(i, &x, &col, &rowSpan, &colSpan);
                     auto row = (size - 1) - (x % size);
                     auto m = Move(ColorNone, col, row);
-                    emit clicked(m);
+                    Q_EMIT  clicked(m);
                     return;
                 }
             }
         }
     }
 
-  signals:
-    void clicked(Move move);
+  /*signals:*/
+    Q_SIGNAL void clicked(Move move);
 };

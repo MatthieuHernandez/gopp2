@@ -53,6 +53,10 @@ if (!$?) { Exit $LASTEXITCODE }
 
 New-Item -Force -Path "$BuildDir\bin" -Name "images" -ItemType "directory"
 Copy-Item "resources\images\*" -Destination "$BuildDir\bin\images" -Recurse -Force
+
+New-Item -Force -Path "$BuildDir\snn_models" -Name "images" -ItemType "directory"
+Copy-Item "snn_models\*" -Destination "$BuildDir\bin\snn_models" -Recurse -Force
+
 New-Item -Force -Path "$BuildDir\bin" -Name "platforms" -ItemType "directory"
 if ($BuildType -eq "Debug") {
     Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\plugins\platforms\qwindowsd.dll" -Destination "$BuildDir\bin\platforms"
@@ -76,5 +80,6 @@ if (!$?) { Exit $LASTEXITCODE }
 
 if ($Run -eq "norun") { Exit 0 }
 
-$ExecutablePath = "$BuildDir\bin\gopp2.exe"
-& $ExecutablePath $ProgArg
+Push-Location "$BuildDir\bin\"
+& .\gopp2.exe $ProgArg
+Pop-Location

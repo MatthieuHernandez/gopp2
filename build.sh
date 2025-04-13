@@ -4,6 +4,7 @@ set -e  # Arrêter l'exécution en cas d'erreur
 
 BUILD_TYPE="Debug"
 RUN="run"
+PROG_ARG=""
 
 # Vérifier les arguments
 if [[ "$1" == "Release" ]]; then
@@ -12,6 +13,11 @@ fi
 if [[ "$2" == "norun" ]]; then
     RUN="norun"
 fi
+ 
+if [[ "$3" == "nogui" ]]; then
+    PROG_ARG="nogui"
+fi
+
 
 BUILD_DIR="./build/$BUILD_TYPE"
 DEBUG_ARG=""
@@ -48,6 +54,12 @@ if [[ "$BUILD_TYPE" == "Debug" ]]; then
     mv -f ./src/cpp2/*.cpp2-* "$BUILD_DIR/src/cpp2/" 2>/dev/null || true
 fi
 
+mkdir -p "$BUILD_DIR/bin/images"
+cp -f ./resources/images/*  "$BUILD_DIR/bin/images"
+
+mkdir -p "$BUILD_DIR/bin/snn_models"
+cp -f ./snn_models/*  "$BUILD_DIR/bin/snn_models"
+
 # Configurer et compiler avec CMake et Ninja
 cmake -S . -B $BUILD_DIR -G"Unix Makefiles" \
     -DCMAKE_CXX_COMPILER=g++-14 \
@@ -55,7 +67,9 @@ cmake -S . -B $BUILD_DIR -G"Unix Makefiles" \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 make -C $BUILD_DIR
 
+mv -f "$BUILD_DIR/gopp2" "$BUILD_DIR/bin/" 2>/dev/null || true
+
 # Exécuter le binaire si demandé
 if [[ "$RUN" != "norun" ]]; then
-    "$BUILD_DIR/gopp2"
+    "$BUILD_DIR/gopp2" "$PROG_ARG"
 fi

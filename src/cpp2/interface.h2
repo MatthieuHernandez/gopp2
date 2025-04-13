@@ -1,6 +1,7 @@
 #include "engine.h2"
 #include "move.h2"
 
+
 Interface: type = {
     public print:(virtual inout this, in message: std::string);
 

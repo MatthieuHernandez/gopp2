@@ -13,6 +13,7 @@
 
 #line 1 "../cpp2/main.cpp2"
 
+#define QT_NO_KEYWORDS
 #include <QApplication>
 #include "window.h"
 #include "game.h"
@@ -52,9 +53,9 @@ void signalHandler(int signal) {
     }
 }
 
-#line 41 "../cpp2/main.cpp2"
+#line 42 "../cpp2/main.cpp2"
 [[nodiscard]] auto cliApp() -> int;
-#line 83 "../cpp2/main.cpp2"
+#line 84 "../cpp2/main.cpp2"
 
 int main(int argc, char *argv[]) {
     if (argc > 1 && static_cast<std::string>(argv[1]) == "nogui") {
@@ -81,7 +82,7 @@ int main(int argc, char *argv[]) {
 
 #line 1 "../cpp2/main.cpp2"
 
-#line 41 "../cpp2/main.cpp2"
+#line 42 "../cpp2/main.cpp2"
 [[nodiscard]] auto cliApp() -> int{
     windowsConfig();
     bool exit {false}; 

@@ -1,7 +1,9 @@
 #pragma once
+#define QT_NO_KEYWORDS
 #include <chrono>
 #include <memory>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QObject>
 #include <QMainWindow>
 #include <QPushButton>
@@ -106,7 +108,7 @@ class Window : public QMainWindow {
 
   public:
 
-    Window::Window(Interface* interface, Game* game, QWidget* parent = nullptr)
+    Window(Interface* interface, Game* game, QWidget* parent = nullptr)
         : QMainWindow(parent),
           interface(interface),
           game(game) {
@@ -137,22 +139,22 @@ class Window : public QMainWindow {
             return; // Prevents the GUI from being saturated with signals.
         }
         if constexpr (Size == 9) {
-            emit refreshGoban9Signal(engine);
+            Q_EMIT  refreshGoban9Signal(engine);
         } else if constexpr (Size == 13) {
-            emit refreshGoban13Signal(engine);
+            Q_EMIT  refreshGoban13Signal(engine);
         } else if constexpr (Size == 19) {
-            emit refreshGoban19Signal(engine);
+            Q_EMIT  refreshGoban19Signal(engine);
         }
         this->last = steady_clock::now();
         QThread::msleep(this->selectTime->currentData().toInt());
     }
 
     void addLog(const std::string& message) {
-        emit addLogSignal(message);
+        Q_EMIT  addLogSignal(message);
     }
 
     void clearLog() {
-        emit clearLogSignal();
+        Q_EMIT  clearLogSignal();
     }
 
     Move waitClickOnGoban() {
@@ -169,12 +171,12 @@ class Window : public QMainWindow {
         return move;
     }
 
-  signals:
-    void refreshGoban9Signal(std::shared_ptr<Engine<9>> goban);
-    void refreshGoban13Signal(std::shared_ptr<Engine<13>> goban);
-    void refreshGoban19Signal(std::shared_ptr<Engine<19>> goban);
+  /*signals:*/
+    Q_SIGNAL void refreshGoban9Signal(std::shared_ptr<Engine<9>> goban);
+    Q_SIGNAL void refreshGoban13Signal(std::shared_ptr<Engine<13>> goban);
+    Q_SIGNAL void refreshGoban19Signal(std::shared_ptr<Engine<19>> goban);
 
-    void addLogSignal(const std::string& message);
-    void clearLogSignal();
+    Q_SIGNAL void addLogSignal(const std::string& message);
+    Q_SIGNAL void clearLogSignal();
 };
 
