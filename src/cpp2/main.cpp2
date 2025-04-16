@@ -96,7 +96,11 @@ int main(int argc, char *argv[]) {
         auto guiApp = QApplication(argc, argv);
         auto window = Window(static_cast<Interface*>(&guiInterface), game.get());
         guiInterface.window = &window;
-        window.show();
+        if (argc > 1 && static_cast<std::string>(argv[1]) == "fullscreen") {
+            window.showFullScreen();
+        } else {
+            window.show();
+        }
         return guiApp.exec();
     }
     return 0;

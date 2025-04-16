@@ -58,7 +58,7 @@ mkdir -p "$BUILD_DIR/bin/images"
 cp -f ./resources/images/*  "$BUILD_DIR/bin/images"
 
 mkdir -p "$BUILD_DIR/bin/snn_models"
-cp -f ./snn_models/*  "$BUILD_DIR/bin/snn_models"
+cp -rf ./snn_models/*  "$BUILD_DIR/bin/snn_models"
 
 # Configurer et compiler avec CMake et Ninja
 cmake -S . -B $BUILD_DIR -G"Unix Makefiles" \
@@ -69,7 +69,8 @@ make -C $BUILD_DIR
 
 mv -f "$BUILD_DIR/gopp2" "$BUILD_DIR/bin/" 2>/dev/null || true
 
-# Exécuter le binaire si demandé
 if [[ "$RUN" != "norun" ]]; then
+    cd "$BUILD_DIR/bin"
     "$BUILD_DIR/gopp2" "$PROG_ARG"
+    cd ../../..
 fi
