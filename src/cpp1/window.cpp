@@ -10,6 +10,18 @@
 
 #include "ai.h"
 
+void Window::loadAiParameters() {
+    const auto ai1 = dynamic_cast<Ai*>(this->game->blackPlayer.get());
+    if (ai1 != nullptr) {
+        ai1->topK = static_cast<int16_t>(player1TopKBox->value());
+    }
+    const auto ai2 = dynamic_cast<Ai*>(this->game->whitePlayer.get());
+    if (ai2 != nullptr) {
+        ai2->topK = static_cast<int16_t>(player2TopKBox->value());
+    }
+    this->game->saveOnlyIfBetter = this->saveBox->checkState() == Qt::Checked ? true : false;
+}
+
 void Window::refreshButtons() {
     if (this->trainButton != nullptr && this->evaluateButton != nullptr) {
         if (this->selectPlayer1->currentIndex() == 0 || this->selectPlayer2->currentIndex() == 0 ) {
@@ -28,13 +40,17 @@ void Window::refreshButtons() {
         }
         if (this->selectPlayer1->currentIndex() < 3) {
             this->player1Button->setEnabled(false);
+            this->player1TopKBox->setEnabled(false);
         } else {
             this->player1Button->setEnabled(true);
+            this->player1TopKBox->setEnabled(true);
         }
         if (this->selectPlayer2->currentIndex() < 4) {
             this->player2Button->setEnabled(false);
+            this->player2TopKBox->setEnabled(false);
         } else {
             this->player2Button->setEnabled(true);
+            this->player2TopKBox->setEnabled(true);
         }
         
 
@@ -250,6 +266,38 @@ void Window::displayPlayerSummay() {
     });
 }
 
+
+void Window::displayTopK() {
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
+    auto* topKText = new QLabel("Top-k:", this);
+    this->player1TopKBox = new QSpinBox(this);
+    this->player2TopKBox = new QSpinBox(this);
+    this->player1TopKBox->setEnabled(false);
+    this->player2TopKBox->setEnabled(false);
+    this->player1TopKBox->setRange(1, 360);
+    this->player2TopKBox->setRange(1, 360);
+    lineLayout->addWidget(topKText);
+    lineLayout->addWidget(this->player1TopKBox);
+    lineLayout->addItem(new QSpacerItem(40, 0));
+    lineLayout->addWidget(this->player2TopKBox);
+}
+
+void Window::displayMargin() {
+
+}
+
+void Window::displaySaveButton() {
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
+    auto* saveText = new QLabel("Save model:", this);
+    this->saveBox = new QCheckBox("Only if better", this);
+    lineLayout->addWidget(saveText);
+    lineLayout->addWidget(this->saveBox);
+    lineLayout->addItem(new QSpacerItem(120, 0));
+}
+
+
 void Window::displayMoveTime() {
     auto* lineLayout = new QHBoxLayout();
     this->menuLayout->addLayout(lineLayout);
@@ -273,6 +321,7 @@ void Window::displayPlayButton() {
     this->connect(playOneButton, &QPushButton::clicked, this, [=]() {
         if (!this->future.isRunning()) {
             this->future = QtConcurrent::run([this]() {
+                this->loadAiParameters();
                 this->game->playOne();
             });
         }
@@ -290,6 +339,7 @@ void Window::displayTrainButton() {
     this->connect(this->trainButton, &QPushButton::clicked, this, [=]() {
         if (!this->future.isRunning()) {
             this->future = QtConcurrent::run([this]() {
+                this->loadAiParameters();
                 this->game->trainBlack();
             });
         }
@@ -307,6 +357,7 @@ void Window::displayEvaluateButton() {
     this->connect(this->evaluateButton, &QPushButton::clicked, this, [=]() {
         if (!this->future.isRunning()) {
             this->future = QtConcurrent::run([this]() {
+                this->loadAiParameters();
                 this->game->evaluate();
             });
         }
@@ -314,6 +365,16 @@ void Window::displayEvaluateButton() {
             this->tabWidget->setCurrentIndex(1);
         });
     });
+}
+
+void Window::displayCloseButton() {
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addStretch();
+    this->menuLayout->addLayout(lineLayout);
+    auto* closeButton = new QPushButton("Close", this);
+    lineLayout->addStretch();
+    lineLayout->addWidget(closeButton);
+    this->connect(closeButton, &QPushButton::clicked, this, &QWidget::close);
 }
 
 void Window::displaySummaryText() {

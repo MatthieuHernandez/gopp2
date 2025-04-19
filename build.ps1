@@ -4,7 +4,7 @@ param (
     [string]$Run = "run",
     [string]$ProgArg = ""
 )
-$BuildDir = "./build/$BuildType"
+$BuildDir = ".\build\$BuildType"
 $DebugArg = ""
 
 if ($BuildType -eq "Debug") { $DebugArg = "-d" }
@@ -30,10 +30,10 @@ cppfront -cwd ./src/generated ../cpp2/main.cpp2 -import-std $DebugArg
 
 # Move files used for debugging to the build folder.
 if ($BuildType -eq "Debug") {
-    New-Item -Force -Path "$BuildDir/" -Name "src" -ItemType "directory"
-    New-Item -Force -Path "$BuildDir/src/" -Name "cpp2" -ItemType "directory"
-    Move-Item -Force -Path "./src/cpp2/*.h2-*" -Destination "$BuildDir/src/cpp2/"
-    Move-Item -Force -Path "./src/cpp2/*.cpp2-*" -Destination "$BuildDir/src/cpp2/"
+    New-Item -Force -Path "$BuildDir" -Name "src" -ItemType "directory"
+    New-Item -Force -Path "$BuildDir\src" -Name "cpp2" -ItemType "directory"
+    Move-Item -Force -Path ".\src\cpp2\*.h2-*" -Destination "$BuildDir\src\cpp2"
+    Move-Item -Force -Path ".\src\cpp2\*.cpp2-*" -Destination "$BuildDir\src\cpp2"
 }
 
 if (!$?) { Exit $LASTEXITCODE }
@@ -54,8 +54,7 @@ if (!$?) { Exit $LASTEXITCODE }
 New-Item -Force -Path "$BuildDir\bin" -Name "images" -ItemType "directory"
 Copy-Item "resources\images\*" -Destination "$BuildDir\bin\images" -Recurse -Force
 
-New-Item -Force -Path "$BuildDir\snn_models" -Name "images" -ItemType "directory"
-Copy-Item "snn_models\*" -Destination "$BuildDir\bin\snn_models" -Recurse -Force
+cmd /c mklink /d "$BuildDir\bin\snn_models" "..\..\..\snn_models"
 
 New-Item -Force -Path "$BuildDir\bin" -Name "platforms" -ItemType "directory"
 if ($BuildType -eq "Debug") {

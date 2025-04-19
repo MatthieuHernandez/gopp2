@@ -2,11 +2,13 @@
 #define QT_NO_KEYWORDS
 #include <chrono>
 #include <memory>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QObject>
 #include <QMainWindow>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QtConcurrent>
 #include <QTextEdit>
 #include <QThread>
@@ -36,6 +38,9 @@ class Window : public QMainWindow {
     QComboBox* selectPlayer2 = nullptr;
     QPushButton* player1Button = nullptr;
     QPushButton* player2Button = nullptr;
+    QSpinBox* player1TopKBox = nullptr;
+    QSpinBox* player2TopKBox = nullptr;
+    QCheckBox* saveBox = nullptr;
     QComboBox* selectTime = nullptr;
     QPushButton* trainButton = nullptr;
     QPushButton* evaluateButton = nullptr;
@@ -72,6 +77,8 @@ class Window : public QMainWindow {
         event->accept();
     }
 
+    void loadAiParameters();
+
     void refreshButtons();
 
     void refreshPlayer1List();
@@ -94,6 +101,12 @@ class Window : public QMainWindow {
 
     void displayPlayerSummay();
 
+    void displayTopK();
+
+    void displayMargin();
+
+    void displaySaveButton();
+
     void displayMoveTime();
 
     void displayPlayButton();
@@ -101,6 +114,8 @@ class Window : public QMainWindow {
     void displayTrainButton();
 
     void displayEvaluateButton();
+
+    void displayCloseButton();
 
     void displaySummaryText();
 
@@ -116,6 +131,9 @@ class Window : public QMainWindow {
         this->displayGobanButton();
         this->displayPlayerSelection();
         this->displayPlayerSummay();
+        this->displayTopK();
+        this->displayMargin();
+        this->displaySaveButton();
         this->displayMoveTime();
         this->displayPlayButton();
         this->displayTrainButton();
@@ -127,6 +145,7 @@ class Window : public QMainWindow {
         this->refreshButtons();
         this->displaySummaryText();
         this->displayReturnButton();
+        this->displayCloseButton();
     }
 
     virtual ~Window() = default;

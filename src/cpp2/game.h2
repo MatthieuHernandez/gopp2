@@ -12,6 +12,7 @@ Game: type = {
     private interface: *Interface;
     private gobanSize: i8 = 9;
 
+    public saveOnlyIfBetter: bool = false;
     public blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_ptr work.
     public whitePlayer: std::shared_ptr<Player> = nullptr;
 
@@ -98,14 +99,14 @@ Game: type = {
         return true;
     }
 
-    private setAiRandomness:(inout this, r: i16) = {
+    private setAiTopK:(inout this, r: i16) = {
         ai1:= std::dynamic_pointer_cast<Ai>(blackPlayer);  // CPP2 workaround: keyword "as" not working.
         if ai1 != nullptr {
-            ai1*.randomness = r;
+            ai1*.topK = r;
         }
         ai2:= std::dynamic_pointer_cast<Ai>(whitePlayer);  // CPP2 workaround: keyword "as" not working.
         if ai2 != nullptr {
-            ai2*.randomness = r;
+            ai2*.topK = r;
         }
     }
 
@@ -214,7 +215,7 @@ Game: type = {
             switchPlayerColor();
             if i % 100 == 0 {
                 isSaving = true;
-                player1*.saveIfBetter();
+                player1*.save(saveOnlyIfBetter);
                 isSaving = false;
             }
             i++;
@@ -236,7 +237,6 @@ Game: type = {
             interface*.printLater("Cannot evaluated with human players.");
             return;
         }
-        setAiRandomness(1);
         player1:= blackPlayer;
         numberOfGame: i16 = 1000;
         numberOfGameWon: i16 = 0;

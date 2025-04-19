@@ -23,7 +23,7 @@ createAi:() = {
 
 Ai: type = {
     this: Player;
-    public randomness: i16; // Randomly select a move from the N best moves.
+    public topK: i16; // Randomly select a move from the K best moves.
 
     private modelPath: std::string;
     private neuralNetwork: std::shared_ptr<snn::StraightforwardNeuralNetwork>;
@@ -37,7 +37,7 @@ Ai: type = {
 
     public operator=:(out this, i: *Interface, c: Color, r: i16, path: std::string) = {
         Player = (i, c);
-        randomness = r;
+        topK = r;
         modelPath = path;
         neuralNetwork = shared.new<snn::StraightforwardNeuralNetwork>(snn::StraightforwardNeuralNetwork::loadFrom(modelPath));
         optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
@@ -46,7 +46,7 @@ Ai: type = {
 
     public operator=:(out this, i: *Interface, c: Color, r: i16, in ai: Ai) = {
         Player = (i, c);
-        randomness = r;
+        topK = r;
         modelPath = "";
         neuralNetwork = ai.neuralNetwork;
         optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
@@ -55,7 +55,7 @@ Ai: type = {
 
     public operator=:(out this, that) = {
         Player = (that);
-        randomness = that.randomness;
+        topK = that.topK;
         neuralNetwork = that.neuralNetwork;
         optimizer = that.optimizer;
         modelPath = that.modelPath;
@@ -116,7 +116,7 @@ Ai: type = {
             }
         }
         std::ranges::sort(estimatedPositions, std::ranges::greater(), Stone::estimation&);
-        dist: std::uniform_int_distribution<i64> = (0, randomness-1);
+        dist: std::uniform_int_distribution<i64> = (0, topK-1);
         pickedIndex:= dist(rng);
         s:= estimatedPositions[pickedIndex];
         m:= Move(s);
@@ -212,13 +212,9 @@ Ai: type = {
         }
     }
 
-    public save:(inout this) = {
-        neuralNetwork*.saveAs(modelPath);
-    }
-
-    public saveIfBetter:(inout this) = {
-        if isBetter {
-            save();
+    public save:(inout this, onlyIfBetter: bool) = {
+        if !onlyIfBetter || isBetter {
+            neuralNetwork*.saveAs(modelPath);
             isBetter = false;
         }
     }
@@ -242,17 +238,15 @@ Ai: type = {
     }
 
     public processEndGame:(override inout this) = {
-        if randomness == 1 {  // Only process on "accurate" game.
-            if hasWon {  // CPP2 workaround: Conditional operator not yet supported.
-                lastGameWon.push_back(1);
-                sumOfLastGameWon += 1;
-            } else {
-                lastGameWon.push_back(0);
-            }
-            if (lastGameWon.size() > numberOfGames) {
-                sumOfLastGameWon -= lastGameWon.front();
-                lastGameWon.pop_front();
-            }
+        if hasWon {  // CPP2 workaround: Conditional operator not yet supported.
+            lastGameWon.push_back(1);
+            sumOfLastGameWon += 1;
+        } else {
+            lastGameWon.push_back(0);
+        }
+        if (lastGameWon.size() > numberOfGames) {
+            sumOfLastGameWon -= lastGameWon.front();
+            lastGameWon.pop_front();
         }
         if lastGameWon.ssize() > 100 {
             interface*.printLater("AI winrate: "+ std::to_string(calculateWinrate() * 100.0f) +" %");
@@ -262,6 +256,6 @@ Ai: type = {
         oss: std::ostringstream = ();
         oss << "AI learning rate: " << std::scientific << std::setprecision(2) << optimizer*.learningRate;
         interface*.printLater(oss.str());
-        interface*.printLater("AI randomness: " + std::to_string(randomness));
+        interface*.printLater("AI Top-k: " + std::to_string(topK));
     }
 }
