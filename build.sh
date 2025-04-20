@@ -1,23 +1,17 @@
 #!/bin/bash
 
-set -e  # Arrêter l'exécution en cas d'erreur
+set -e
 
 BUILD_TYPE="Debug"
 RUN="run"
-PROG_ARG=""
+PROG_ARG="$3"
 
-# Vérifier les arguments
 if [[ "$1" == "Release" ]]; then
     BUILD_TYPE="Release"
 fi
 if [[ "$2" == "norun" ]]; then
     RUN="norun"
 fi
- 
-if [[ "$3" == "nogui" ]]; then
-    PROG_ARG="nogui"
-fi
-
 
 BUILD_DIR="./build/$BUILD_TYPE"
 DEBUG_ARG=""
@@ -57,10 +51,8 @@ fi
 mkdir -p "$BUILD_DIR/bin/images"
 cp -f ./resources/images/*  "$BUILD_DIR/bin/images"
 
-mkdir -p "$BUILD_DIR/bin/snn_models"
-cp -rf ./snn_models/*  "$BUILD_DIR/bin/snn_models"
+ln -sfn "$(realpath --relative-to="$BUILD_DIR/bin" ./snn_models)" "$BUILD_DIR/bin/snn_models"
 
-# Configurer et compiler avec CMake et Ninja
 cmake -S . -B $BUILD_DIR -G"Unix Makefiles" \
     -DCMAKE_CXX_COMPILER=g++-14 \
     -DCMAKE_C_COMPILER=gcc-14 \
@@ -71,6 +63,6 @@ mv -f "$BUILD_DIR/gopp2" "$BUILD_DIR/bin/" 2>/dev/null || true
 
 if [[ "$RUN" != "norun" ]]; then
     cd "$BUILD_DIR/bin"
-    "$BUILD_DIR/gopp2" "$PROG_ARG"
+    ./gopp2 "$PROG_ARG"
     cd ../../..
 fi
