@@ -24,6 +24,7 @@ createAi:() = {
 Ai: type = {
     this: Player;
     public topK: i16; // Randomly select a move from the K best moves.
+    public margin: i8; // Randomly select a move with less than N percentage margin from the best move.
 
     private modelPath: std::string;
     private neuralNetwork: std::shared_ptr<snn::StraightforwardNeuralNetwork>;
@@ -35,18 +36,20 @@ Ai: type = {
     private previousWinrate: float = 0.0f;
     private isBetter: bool = false;
 
-    public operator=:(out this, i: *Interface, c: Color, r: i16, path: std::string) = {
+    public operator=:(out this, i: *Interface, c: Color, path: std::string) = {
         Player = (i, c);
-        topK = r;
+        topK = 1;
+        margin = 0;
         modelPath = path;
         neuralNetwork = shared.new<snn::StraightforwardNeuralNetwork>(snn::StraightforwardNeuralNetwork::loadFrom(modelPath));
         optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
         lastGameWon = ();
     }
 
-    public operator=:(out this, i: *Interface, c: Color, r: i16, in ai: Ai) = {
+    public operator=:(out this, i: *Interface, c: Color, in ai: Ai) = {
         Player = (i, c);
-        topK = r;
+        topK = 1;
+        margin = 0;
         modelPath = "";
         neuralNetwork = ai.neuralNetwork;
         optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
@@ -56,6 +59,7 @@ Ai: type = {
     public operator=:(out this, that) = {
         Player = (that);
         topK = that.topK;
+        margin = that.margin;
         neuralNetwork = that.neuralNetwork;
         optimizer = that.optimizer;
         modelPath = that.modelPath;
@@ -116,7 +120,21 @@ Ai: type = {
             }
         }
         std::ranges::sort(estimatedPositions, std::ranges::greater(), Stone::estimation&);
-        dist: std::uniform_int_distribution<i64> = (0, topK-1);
+
+        count: i16 = 0;
+        best: float = estimatedPositions[0].estimation;
+        if best > 0 {
+            while count < numberOfPositions
+            next count++
+            {
+                current:= estimatedPositions[count].estimation;
+                if current < best * (1.0f - (margin / 100.0f)) {
+                    break;
+                }
+            }
+        }
+        pickSize:= std::max((topK-1) as i64, count as i64);
+        dist: std::uniform_int_distribution<i64> = (0, pickSize);
         pickedIndex:= dist(rng);
         s:= estimatedPositions[pickedIndex];
         m:= Move(s);

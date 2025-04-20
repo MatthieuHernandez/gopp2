@@ -70,7 +70,7 @@ Game: type = {
             player = nullptr;
         } else if (selection == "-1" && color == ColorWhite) {
             ai:= std::dynamic_pointer_cast<Ai>(blackPlayer);
-            player = shared.new<Itself>(interface, color, 4, ai*);
+            player = shared.new<Itself>(interface, color, ai*);
         } else if (selection == "0") {
             player = shared.new<Human>(interface, color);
         } else if (selection == "1") {
@@ -78,7 +78,7 @@ Game: type = {
         } else if (selection == "2") {
             player = shared.new<Random>(interface, color);
         } else {
-            ai:= shared.new<Ai>(interface, color, 1, selection);
+            ai:= shared.new<Ai>(interface, color, selection);
             interface*.softClear();
             interface*.print(ai*.summary());
             interface*.wait();

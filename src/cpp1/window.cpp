@@ -13,11 +13,13 @@
 void Window::loadAiParameters() {
     const auto ai1 = dynamic_cast<Ai*>(this->game->blackPlayer.get());
     if (ai1 != nullptr) {
-        ai1->topK = static_cast<int16_t>(player1TopKBox->value());
+        ai1->topK = static_cast<int16_t>(this->player1TopKBox->value());
+        ai1->margin = static_cast<int16_t>(this->player1MarginBox->value());
     }
     const auto ai2 = dynamic_cast<Ai*>(this->game->whitePlayer.get());
     if (ai2 != nullptr) {
-        ai2->topK = static_cast<int16_t>(player2TopKBox->value());
+        ai2->topK = static_cast<int16_t>(this->player2TopKBox->value());
+        ai2->margin = static_cast<int16_t>(this->player2MarginBox->value());
     }
     this->game->saveOnlyIfBetter = this->saveBox->checkState() == Qt::Checked ? true : false;
 }
@@ -41,19 +43,21 @@ void Window::refreshButtons() {
         if (this->selectPlayer1->currentIndex() < 3) {
             this->player1Button->setEnabled(false);
             this->player1TopKBox->setEnabled(false);
+            this->player1MarginBox->setEnabled(false);
         } else {
             this->player1Button->setEnabled(true);
             this->player1TopKBox->setEnabled(true);
+            this->player1MarginBox->setEnabled(true);
         }
         if (this->selectPlayer2->currentIndex() < 4) {
             this->player2Button->setEnabled(false);
             this->player2TopKBox->setEnabled(false);
+            this->player2MarginBox->setEnabled(false);
         } else {
             this->player2Button->setEnabled(true);
             this->player2TopKBox->setEnabled(true);
+            this->player2MarginBox->setEnabled(true);
         }
-        
-
     }
 }
 
@@ -284,7 +288,19 @@ void Window::displayTopK() {
 }
 
 void Window::displayMargin() {
-
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
+    auto* marginText = new QLabel("Margin:", this);
+    this->player1MarginBox = new QSpinBox(this);
+    this->player2MarginBox = new QSpinBox(this);
+    this->player1MarginBox->setEnabled(false);
+    this->player2MarginBox->setEnabled(false);
+    this->player1MarginBox->setRange(0, 100);
+    this->player2MarginBox->setRange(0, 100);
+    lineLayout->addWidget(marginText);
+    lineLayout->addWidget(this->player1MarginBox);
+    lineLayout->addItem(new QSpacerItem(40, 0));
+    lineLayout->addWidget(this->player2MarginBox);
 }
 
 void Window::displaySaveButton() {

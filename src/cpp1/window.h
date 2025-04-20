@@ -40,6 +40,8 @@ class Window : public QMainWindow {
     QPushButton* player2Button = nullptr;
     QSpinBox* player1TopKBox = nullptr;
     QSpinBox* player2TopKBox = nullptr;
+    QSpinBox* player1MarginBox = nullptr;
+    QSpinBox* player2MarginBox = nullptr;
     QCheckBox* saveBox = nullptr;
     QComboBox* selectTime = nullptr;
     QPushButton* trainButton = nullptr;
