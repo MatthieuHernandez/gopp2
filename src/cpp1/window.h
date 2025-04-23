@@ -43,6 +43,7 @@ class Window : public QMainWindow {
     QSpinBox* player1MarginBox = nullptr;
     QSpinBox* player2MarginBox = nullptr;
     QCheckBox* saveBox = nullptr;
+    QLabel* winRateText = nullptr;
     QComboBox* selectTime = nullptr;
     QPushButton* trainButton = nullptr;
     QPushButton* evaluateButton = nullptr;
@@ -71,6 +72,7 @@ class Window : public QMainWindow {
             this->future.cancel();
             this->future.waitForFinished();
         }
+        this->refreshWinRate();
     }
 
     void closeEvent(QCloseEvent *event) override {
@@ -80,6 +82,8 @@ class Window : public QMainWindow {
     }
 
     void loadAiParameters();
+
+    void refreshWinRate();
 
     void refreshButtons();
 

@@ -178,7 +178,7 @@ Ai: type = {
 
     private computeLearningRate:(inout this, gameLength: i16)-> float = {
         learningRate:= defaultLearningRate;
-        if calculateWinrate() > 0.8 {
+        if calculateWinRate() > 0.8 {
             learningRate /= 2;
         }
         return learningRate;
@@ -237,8 +237,15 @@ Ai: type = {
         }
     }
 
-    private calculateWinrate:(in this) -> float = {
-        return sumOfLastGameWon / (float)(lastGameWon.size());
+    public resetWinRate:(inout this) = {
+        lastGameWon.clear();
+    }
+
+    public calculateWinRate:(in this) -> float = {
+        if (!lastGameWon.empty()) {
+            return sumOfLastGameWon / (float)(lastGameWon.size());
+        }
+        return 0;
     }
 
     public processStartGame:(override inout this) = {
@@ -246,7 +253,7 @@ Ai: type = {
             std::cout << "INVALID MODEL !" << std::endl;
             std::exit(0);
         }
-        currentWinRate:= calculateWinrate();
+        currentWinRate:= calculateWinRate();
         if lastGameWon.ssize() == numberOfGames
         && currentWinRate > previousWinrate {
             previousWinrate = currentWinRate;
@@ -267,7 +274,7 @@ Ai: type = {
             lastGameWon.pop_front();
         }
         if lastGameWon.ssize() > 100 {
-            interface*.printLater("AI winrate: "+ std::to_string(calculateWinrate() * 100.0f) +" %");
+            interface*.printLater("AI winrate: "+ std::to_string(calculateWinRate() * 100.0f) +" %");
         } else {
             interface*.print("AI winrate: ...");
         }

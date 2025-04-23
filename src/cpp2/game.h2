@@ -241,13 +241,10 @@ Game: type = {
         numberOfGame: i16 = 1000;
         numberOfGameWon: i16 = 0;
         interface*.hardClear();
-        (copy i: i32 = 0)
+        i: i32 = 0;
         while i < numberOfGame
         next i++
         {
-            if i == (numberOfGame / 2) {
-                switchPlayerColor();
-            }
             if gobanSize == 9 {
                 e:= shared.new<Engine<9>>();
                 play<false, 9>(e);
@@ -268,10 +265,13 @@ Game: type = {
             if interface*.stopRequested() {
                 break;
             }
+            switchPlayerColor();
+        }
+        if i%2 == 1 {
+            switchPlayerColor();
         }
         interface*.printLater("The first player won " + numberOfGameWon as std::string +
                     "/" + numberOfGame as std::string + " games againt the 2nd player.");
-        switchPlayerColor();
         end:= std::chrono::steady_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         interface*.printLater("The evaluation lasted " + duration as std::string + " ms.");

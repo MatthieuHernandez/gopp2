@@ -4,6 +4,7 @@
 #include <QFont>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListView>
 #include <QScrollBar>
 #include <QTabWidget>
@@ -22,6 +23,19 @@ void Window::loadAiParameters() {
         ai2->margin = static_cast<int16_t>(this->player2MarginBox->value());
     }
     this->game->saveOnlyIfBetter = this->saveBox->checkState() == Qt::Checked ? true : false;
+}
+
+void Window::refreshWinRate() {
+    if(this->winRateText != nullptr) {
+        const auto ai1 = dynamic_cast<Ai*>(this->game->blackPlayer.get());
+        if (ai1 != nullptr) {
+            auto winrate = QString::number(ai1->calculateWinRate() * 100.0, 'g', 4) + "%";
+            this->winRateText->setText(winrate);
+        }
+        else {
+            this->winRateText->setText("--,--%");
+        }
+    }
 }
 
 void Window::refreshButtons() {
@@ -59,6 +73,7 @@ void Window::refreshButtons() {
             this->player2MarginBox->setEnabled(true);
         }
     }
+    this->refreshWinRate();
 }
 
 void Window::refreshPlayer1List() {
@@ -228,13 +243,13 @@ void Window::displayPlayerSelection() {
     this->refreshPlayer1List();
     this->connect(this->selectPlayer1, &QComboBox::currentIndexChanged, [=](int index) {
         const auto selection = this->selectPlayer1->itemData(index).toString().toStdString();
-        this->refreshPlayer2List();
         this->game->selectPlayer(ColorBlack, selection);
+        this->refreshPlayer2List();
     });
     this->connect(this->selectPlayer2, &QComboBox::currentIndexChanged, [=](int index) {
         const auto selection = this->selectPlayer2->itemData(index).toString().toStdString();
-        this->refreshButtons();
         this->game->selectPlayer(ColorWhite, selection);
+        this->refreshButtons();
     });
     this->selectPlayer1->setCurrentIndex(0);
     this->selectPlayer2->setCurrentIndex(0);
@@ -269,7 +284,6 @@ void Window::displayPlayerSummay() {
         });
     });
 }
-
 
 void Window::displayTopK() {
     auto* lineLayout = new QHBoxLayout();
@@ -308,11 +322,24 @@ void Window::displaySaveButton() {
     this->menuLayout->addLayout(lineLayout);
     auto* saveText = new QLabel("Save model:", this);
     this->saveBox = new QCheckBox("Only if better", this);
+    auto* bestText = new QLabel("Best:", this);
+    this->winRateText = new QLabel("--,--%", this);
+    auto* resetButton = new QPushButton("Reset", this);
+    resetButton->setFixedWidth(48);
     lineLayout->addWidget(saveText);
     lineLayout->addWidget(this->saveBox);
-    lineLayout->addItem(new QSpacerItem(120, 0));
+    lineLayout->addItem(new QSpacerItem(10, 0));
+    lineLayout->addWidget(bestText);
+    lineLayout->addWidget(winRateText);
+    lineLayout->addWidget(resetButton);
+    this->connect(resetButton, &QPushButton::clicked, this, [=]() {
+        const auto ai1 = dynamic_cast<Ai*>(this->game->blackPlayer.get());
+        if (ai1 != nullptr) {
+            ai1->resetWinRate();
+        }
+        this->refreshWinRate();
+    });
 }
-
 
 void Window::displayMoveTime() {
     auto* lineLayout = new QHBoxLayout();
