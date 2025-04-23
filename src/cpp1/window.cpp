@@ -307,6 +307,8 @@ void Window::displayMargin() {
     auto* marginText = new QLabel("Margin:", this);
     this->player1MarginBox = new QSpinBox(this);
     this->player2MarginBox = new QSpinBox(this);
+    this->player1MarginBox->setSuffix("%");
+    this->player2MarginBox->setSuffix("%");
     this->player1MarginBox->setEnabled(false);
     this->player2MarginBox->setEnabled(false);
     this->player1MarginBox->setRange(0, 100);
@@ -315,6 +317,16 @@ void Window::displayMargin() {
     lineLayout->addWidget(this->player1MarginBox);
     lineLayout->addItem(new QSpacerItem(40, 0));
     lineLayout->addWidget(this->player2MarginBox);
+}
+
+void Window::displayLearningRate() {
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
+    auto* learningRateText = new QLabel("Learning rate:", this);
+    auto* learningRateBox= new LearningRateBox(this);
+    lineLayout->addWidget(learningRateText);
+    lineLayout->addWidget(learningRateBox);
+    lineLayout->addItem(new QSpacerItem(130, 0));
 }
 
 void Window::displaySaveButton() {

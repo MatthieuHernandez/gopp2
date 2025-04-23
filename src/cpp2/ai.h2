@@ -25,6 +25,7 @@ Ai: type = {
     this: Player;
     public topK: i16; // Randomly select a move from the K best moves.
     public margin: i8; // Randomly select a move with less than N percentage margin from the best move.
+    public learningRate: float = 1e-4f;
 
     private modelPath: std::string;
     private neuralNetwork: std::shared_ptr<snn::StraightforwardNeuralNetwork>;
@@ -32,7 +33,6 @@ Ai: type = {
     private lastGameWon: std::deque<int>;
     private numberOfGames: const size_t = 1000; // To calculate winrate.
     private sumOfLastGameWon: size_t = 0;
-    private defaultLearningRate: float = 1e-4f;
     private previousWinrate: float = 0.0f;
     private isBetter: bool = false;
 
@@ -65,7 +65,7 @@ Ai: type = {
         modelPath = that.modelPath;
         lastGameWon = that.lastGameWon;
         sumOfLastGameWon = that.sumOfLastGameWon;
-        defaultLearningRate = that.defaultLearningRate;
+        learningRate = that.learningRate;
         previousWinrate = that.previousWinrate;
         isBetter = that.isBetter;
     }
@@ -145,7 +145,7 @@ Ai: type = {
         while index2 < numberOfPositions
         next index2++
         {
-            if (index2 != pickedIndex) {
+            if (index2 != pickedIndex) { /// MAYBE A BUG HERE
                 s2:= estimatedPositions[index2];
                 m2:= Move(s2);
                 if engine.isValidMove(m2) {
@@ -176,20 +176,12 @@ Ai: type = {
         return getMove<19>(engine);
     }
 
-    private computeLearningRate:(inout this, gameLength: i16)-> float = {
-        learningRate:= defaultLearningRate;
-        if calculateWinRate() > 0.8 {
-            learningRate /= 2;
-        }
-        return learningRate;
-    }
-
     public train:<Size: i8>(inout this, in engine: Engine<Size>) = {
         if (engine.moves.ssize() > 291) {
             return;
         }
         gameLength: i16 = unchecked_narrow<i16>(engine.moves.size());
-        optimizer*.learningRate = computeLearningRate(gameLength);
+        optimizer*.learningRate = learningRate;
         size:= Size * Size;
         expectedBlack: float;
         expectedWhite: float;

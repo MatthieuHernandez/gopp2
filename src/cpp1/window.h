@@ -14,6 +14,7 @@
 #include <QThread>
 
 #include "goban_widget.h"
+#include "learning_rate_box.h"
 
 #include "interface.h"
 #include "io.h"
@@ -111,6 +112,8 @@ class Window : public QMainWindow {
 
     void displayMargin();
 
+    void displayLearningRate();
+
     void displaySaveButton();
 
     void displayMoveTime();
@@ -139,6 +142,7 @@ class Window : public QMainWindow {
         this->displayPlayerSummay();
         this->displayTopK();
         this->displayMargin();
+        this->displayLearningRate();
         this->displaySaveButton();
         this->displayMoveTime();
         this->displayPlayButton();

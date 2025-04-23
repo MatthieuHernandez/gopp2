@@ -26,6 +26,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Concurrent Widgets)
 
 add_executable(gopp2 ./src/cpp1/cpp2_sources.cpp
                      ./src/cpp1/goban_widget.cpp
+                     ./src/cpp1/learning_rate_box.cpp
                      ./src/cpp1/window.cpp
                      ./src/generated/main.cpp)
 
