@@ -43,6 +43,7 @@ class Window : public QMainWindow {
     QSpinBox* player2TopKBox = nullptr;
     QSpinBox* player1MarginBox = nullptr;
     QSpinBox* player2MarginBox = nullptr;
+    LearningRateBox* learningRateBox = nullptr;
     QCheckBox* saveBox = nullptr;
     QLabel* winRateText = nullptr;
     QComboBox* selectTime = nullptr;

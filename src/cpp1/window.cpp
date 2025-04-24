@@ -16,6 +16,7 @@ void Window::loadAiParameters() {
     if (ai1 != nullptr) {
         ai1->topK = static_cast<int16_t>(this->player1TopKBox->value());
         ai1->margin = static_cast<int16_t>(this->player1MarginBox->value());
+        ai1->learningRate = static_cast<float>(this->player2TopKBox->value());
     }
     const auto ai2 = dynamic_cast<Ai*>(this->game->whitePlayer.get());
     if (ai2 != nullptr) {
@@ -58,10 +59,12 @@ void Window::refreshButtons() {
             this->player1Button->setEnabled(false);
             this->player1TopKBox->setEnabled(false);
             this->player1MarginBox->setEnabled(false);
+            this->learningRateBox->setEnabled(false);
         } else {
             this->player1Button->setEnabled(true);
             this->player1TopKBox->setEnabled(true);
             this->player1MarginBox->setEnabled(true);
+            this->learningRateBox->setEnabled(true);
         }
         if (this->selectPlayer2->currentIndex() < 4) {
             this->player2Button->setEnabled(false);
@@ -323,9 +326,9 @@ void Window::displayLearningRate() {
     auto* lineLayout = new QHBoxLayout();
     this->menuLayout->addLayout(lineLayout);
     auto* learningRateText = new QLabel("Learning rate:", this);
-    auto* learningRateBox= new LearningRateBox(this);
+    this->learningRateBox= new LearningRateBox(this);
     lineLayout->addWidget(learningRateText);
-    lineLayout->addWidget(learningRateBox);
+    lineLayout->addWidget(this->learningRateBox);
     lineLayout->addItem(new QSpacerItem(130, 0));
 }
 
