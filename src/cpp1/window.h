@@ -20,6 +20,7 @@
 #include "io.h"
 #include "game.h"
 
+using namespace std::chrono;
 using namespace std::literals::chrono_literals;
 
 inline constexpr int gobanImageSize = 429;
@@ -137,6 +138,7 @@ class Window : public QMainWindow {
         : QMainWindow(parent),
           interface(interface),
           game(game) {
+        this->last = steady_clock::now();
         this->displayTabLayouts();
         this->displayGobanButton();
         this->displayPlayerSelection();
@@ -163,9 +165,8 @@ class Window : public QMainWindow {
 
     template<int8_t Size>
     void refreshGoban(std::shared_ptr<Engine<Size>> engine) {
-        using namespace std::chrono;
         const auto duration = duration_cast<milliseconds>(steady_clock::now() - this->last);
-        if (duration.count() < 100 && !engine->isFinish()) {
+        if (duration.count() < 90 && !engine->isFinish()) {
             return; // Prevents the GUI from being saturated with signals.
         }
         if constexpr (Size == 9) {

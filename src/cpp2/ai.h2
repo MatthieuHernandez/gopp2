@@ -177,7 +177,7 @@ Ai: type = {
     }
 
     public train:<Size: i8>(inout this, in engine: Engine<Size>) = {
-        if (engine.moves.ssize() > 291) {
+        if (engine.moves.ssize() > 230) {
             return;
         }
         gameLength: i16 = unchecked_narrow<i16>(engine.moves.size());
@@ -223,6 +223,10 @@ Ai: type = {
     }
 
     public save:(inout this, onlyIfBetter: bool) = {
+        if neuralNetwork*.isValid() != snn::errorType::noError {
+            std::cout << "INVALID MODEL !" << std::endl;
+            std::exit(0);
+        }
         if !onlyIfBetter || isBetter {
             neuralNetwork*.saveAs(modelPath);
             isBetter = false;
@@ -241,10 +245,6 @@ Ai: type = {
     }
 
     public processStartGame:(override inout this) = {
-        if neuralNetwork*.isValid() != snn::errorType::noError {
-            std::cout << "INVALID MODEL !" << std::endl;
-            std::exit(0);
-        }
         currentWinRate:= calculateWinRate();
         if lastGameWon.ssize() == numberOfGames
         && currentWinRate > previousWinrate {

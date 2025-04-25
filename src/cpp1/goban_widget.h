@@ -70,16 +70,8 @@ class GobanWidget : public QWidget {
 
     template<int8_t Size>
     void refresh(std::shared_ptr<Engine<Size>> engine) {
+        QCoreApplication::processEvents();
         const auto& goban = engine->goban;
-        int numberOfLib = 0;
-        for (int8_t col = 0; col < Size; ++col) {
-            for (int8_t row = 0; row < Size; ++row) {
-                if (goban.state[col][row].color != ColorBlack && 
-                    goban.state[col][row].color != ColorWhite){
-                    numberOfLib++;
-                }
-            }
-        }
         this->resetLayout();
         constexpr int8_t maxIndex = Size - 1;
         QPixmap* img = nullptr;
@@ -140,7 +132,6 @@ class GobanWidget : public QWidget {
                 this->gridLayout->addWidget(label, row, col);
             }
         }
-        QCoreApplication::processEvents();
     }
 
     void mousePressEvent(QMouseEvent *event) override {

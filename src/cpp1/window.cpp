@@ -16,7 +16,7 @@ void Window::loadAiParameters() {
     if (ai1 != nullptr) {
         ai1->topK = static_cast<int16_t>(this->player1TopKBox->value());
         ai1->margin = static_cast<int16_t>(this->player1MarginBox->value());
-        ai1->learningRate = static_cast<float>(this->player2TopKBox->value());
+        ai1->learningRate = static_cast<float>(this->learningRateBox->value());
     }
     const auto ai2 = dynamic_cast<Ai*>(this->game->whitePlayer.get());
     if (ai2 != nullptr) {
@@ -44,7 +44,7 @@ void Window::refreshButtons() {
         if (this->selectPlayer1->currentIndex() == 0 || this->selectPlayer2->currentIndex() == 0 ) {
             this->trainButton->setEnabled(false);
             this->evaluateButton->setEnabled(false);
-            this->selectTime->setCurrentIndex(0);
+            this->selectTime->setCurrentIndex(1);
             this->selectTime->setEnabled(false);
         } else if (this->selectPlayer1->currentIndex() < 3) {
             this->trainButton->setEnabled(false);
