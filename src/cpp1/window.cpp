@@ -30,12 +30,14 @@ void Window::refreshWinRate() {
     if(this->winRateText != nullptr) {
         const auto ai1 = dynamic_cast<Ai*>(this->game->blackPlayer.get());
         if (ai1 != nullptr) {
-            auto winrate = QString::number(ai1->calculateWinRate() * 100.0, 'g', 4) + "%";
-            this->winRateText->setText(winrate);
+            const auto wr = ai1->calculateWinRate();
+            if(wr >= 0) {
+                auto winrate =  QString::number( wr * 100.0, 'g', 4) + "%";
+                this->winRateText->setText(winrate);
+                return;
+            }
         }
-        else {
-            this->winRateText->setText("--,--%");
-        }
+        this->winRateText->setText("--,--%");
     }
 }
 

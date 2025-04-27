@@ -233,13 +233,14 @@ Ai: type = {
 
     public resetWinRate:(inout this) = {
         lastGameWon.clear();
+        sumOfLastGameWon = 0;
     }
 
     public calculateWinRate:(in this) -> float = {
         if (!lastGameWon.empty()) {
             return sumOfLastGameWon / (float)(lastGameWon.size());
         }
-        return 0;
+        return -1;
     }
 
     public processStartGame:(override inout this) = {
