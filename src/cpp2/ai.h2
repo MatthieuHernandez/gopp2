@@ -3,17 +3,15 @@
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(16, 3, snn::activation::ReLU),
-                                            snn::Convolution(32, 3, snn::activation::ReLU),
-                                            snn::Convolution(64, 3, snn::activation::ReLU),
-                                            snn::Convolution(128, 3, snn::activation::ReLU),
+                                            snn::Convolution(8, 5, snn::activation::ReLU),
+                                            snn::FullyConnected(280, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
     /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
                                             snn::FullyConnected(1000, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));*/
     optimizer:= snn::StochasticGradientDescent(1e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/model_02.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/model_03.snn");
     if neuralNetwork.isValid() != snn::errorType::noError {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);
@@ -187,11 +185,11 @@ Ai: type = {
         expectedWhite: float;
         if (hasWon && color == ColorBlack) ||
            (!hasWon && color == ColorWhite) {  // CPP2 workaround: Conditional operator not yet supported.
-            expectedBlack = 1.0f;
-            expectedWhite = -1.0f;
+            expectedBlack = 0.9f;
+            expectedWhite = -1.1f;
         } else {
-            expectedBlack = -1.0f;
-            expectedWhite = 1.0f;
+            expectedBlack = -0.9f;
+            expectedWhite = 1.1f;
         }
         (copy i: i16 = 0)
         while i < (engine.moves.ssize())
