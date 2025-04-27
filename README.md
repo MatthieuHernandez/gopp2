@@ -1,10 +1,11 @@
 # gopp2
-A simple command-line go game, developed in C++ Syntax 2. This software's future goal is to be able to train an AI to play go but, for the moment it's only possible to play against random.
+A simple go game, developed in C++ Syntax 2. This software's future goal is to be able to train an AI to play go but, for the moment the AI models are not even 20 kyu.
 
 ## Presentation
-<img src="./resources/menu.png" style="width:330px;height:auto;text-align: top">
+This inferface is designed to run on a Raspberry PI with a 320x480 screen.
 
-<img src="./resources/game_human.png" style="width:330px;height:auto;"> <img src="./resources/game_random.png" style="width:330px;height:auto;">
+<img src="./resources/menu_gui.png"> <img src="./resources/summary_gui.png">
+<img src="./resources/game_9x9_gui.png"> <img src="./resources/game_19x19_gui.png">
 
 
 
