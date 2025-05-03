@@ -3,8 +3,8 @@
 
 createAi:() = {
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(8, 5, snn::activation::ReLU),
-                                            snn::FullyConnected(280, snn::activation::ReLU),
+                                            snn::FullyConnected(2000, snn::activation::ReLU),
+                                            snn::FullyConnected(2000, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));
     /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
                                             snn::FullyConnected(1000, snn::activation::ReLU),
@@ -85,13 +85,19 @@ Ai: type = {
             next row++
             {
                 if state[col][row].color == color {
-                    vec.push_back(1.0);
-                }
-                else if state[col][row].color == ColorNone {
+                    if color == ColorBlack {
+                        vec.push_back(0.9);
+                    } else {
+                        vec.push_back(1.1);
+                    }
+                } else if state[col][row].color == ColorNone {
                     vec.push_back(0.0);
-                }
-                else {
-                    vec.push_back(-1.0);
+                } else {
+                    if color == ColorBlack {
+                        vec.push_back(-0.9);
+                    } else {
+                        vec.push_back(-1.1);
+                    }
                 }
             }
         }
@@ -185,11 +191,11 @@ Ai: type = {
         expectedWhite: float;
         if (hasWon && color == ColorBlack) ||
            (!hasWon && color == ColorWhite) {  // CPP2 workaround: Conditional operator not yet supported.
-            expectedBlack = 0.9f;
-            expectedWhite = -1.1f;
+            expectedBlack = 1.0f;
+            expectedWhite = -1.0f;
         } else {
-            expectedBlack = -0.9f;
-            expectedWhite = 1.1f;
+            expectedBlack = -1.0f;
+            expectedWhite = 1.0f;
         }
         (copy i: i16 = 0)
         while i < (engine.moves.ssize())
