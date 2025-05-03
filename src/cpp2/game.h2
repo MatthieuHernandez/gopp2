@@ -219,7 +219,7 @@ Game: type = {
                 return;
             }
             switchPlayerColor();
-            if i % 100 == 0 {
+            if i % 100 == 99 {
                 isSaving = true;
                 player1*.save(saveOnlyIfBetter);
                 isSaving = false;
