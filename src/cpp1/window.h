@@ -50,14 +50,19 @@ class Window : public QMainWindow {
     QComboBox* selectTime = nullptr;
     QPushButton* trainButton = nullptr;
     QPushButton* evaluateButton = nullptr;
-    Interface* interface = nullptr;
-    Game* game = nullptr;
     QTextEdit* logText = nullptr;
     QTextEdit* summaryText = nullptr;
     QEventLoop* loop = nullptr;
+    QPushButton* undoButton;
+    QPushButton* passButton;
 
     QFuture<void> future;
     std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
+
+    Interface* interface = nullptr;
+    Game* game = nullptr;
+    Move currentMove;
+    bool bothPlayersAreHuman;
 
     void stop() {
         this->interface->stopGame(true);
@@ -97,6 +102,8 @@ class Window : public QMainWindow {
     void displayTabLayouts();
 
     void displayGoban();
+
+    void displayUndoButton();
 
     void displayPassButton();
 
@@ -152,6 +159,7 @@ class Window : public QMainWindow {
         this->displayTrainButton();
         this->displayEvaluateButton();
         this->displayGoban();
+        this->displayUndoButton();
         this->displayPassButton();
         this->displayStopButton();
         this->displayLogText();
@@ -170,36 +178,35 @@ class Window : public QMainWindow {
             return; // Prevents the GUI from being saturated with signals.
         }
         if constexpr (Size == 9) {
-            Q_EMIT  refreshGoban9Signal(engine);
+            Q_EMIT refreshGoban9Signal(engine);
         } else if constexpr (Size == 13) {
-            Q_EMIT  refreshGoban13Signal(engine);
+            Q_EMIT refreshGoban13Signal(engine);
         } else if constexpr (Size == 19) {
-            Q_EMIT  refreshGoban19Signal(engine);
+            Q_EMIT refreshGoban19Signal(engine);
         }
         this->last = steady_clock::now();
         QThread::msleep(this->selectTime->currentData().toInt());
     }
 
     void addLog(const std::string& message) {
-        Q_EMIT  addLogSignal(message);
+        Q_EMIT addLogSignal(message);
     }
 
     void clearLog() {
-        Q_EMIT  clearLogSignal();
+        Q_EMIT clearLogSignal();
     }
 
     Move waitClickOnGoban() {
         this->loop = new QEventLoop();
-        auto move = Move::pass(ColorNone);
         QObject::connect(gobanWidget, &GobanWidget::clicked, this,
             [&](Move m) {
-                move = m;
+                this->currentMove = m;
                 this->loop->quit();
             });
         this->loop->exec();
         QThread::msleep(5);
-        move.stone.color = interface->colorTurn();
-        return move;
+        this->currentMove.stone.color = interface->colorTurn();
+        return this->currentMove;
     }
 
   /*signals:*/

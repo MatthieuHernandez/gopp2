@@ -60,6 +60,14 @@ getInputMove:<Size: i8>(color: Color) -> Move = {
     std::cout << std::endl << colorName(color) << " to play:" << std::endl << "> ";
     std::cin >> input;
     clearInput();
+    if (input == "undo1") {
+        setNextMessage("Undo the last move.");
+        return Move::undo(1);
+    }
+    if (input == "undo2") {
+        setNextMessage("Undo the 2 last move.");
+        return Move::undo(2);
+    }
     if (input == "pass") {
         setNextMessage("Player pass.");
         return Move::pass(color);

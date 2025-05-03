@@ -146,7 +146,7 @@ class GobanWidget : public QWidget {
                     gridLayout->getItemPosition(i, &x, &col, &rowSpan, &colSpan);
                     auto row = (size - 1) - (x % size);
                     auto m = Move(ColorNone, col, row);
-                    Q_EMIT  clicked(m);
+                    Q_EMIT clicked(m);
                     return;
                 }
             }

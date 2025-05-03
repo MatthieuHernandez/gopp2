@@ -7,12 +7,11 @@ Goban:<Size: i8> type = {
     public lockedPosition: Stone = ();
     private maxIndex: i8 = Size - 1;
 
-    // On lock et unlock la pos du Move puis ensuite la lockedPosition du goban = celle du Move jouer.
-    // On ne peut fait que un lock et unlock sur le Move.
-    // Et selement confirm et isLockedPosition sur le goban.
-    // Enfin on test que ça fonctionne.
-
     operator=:(out this) = {
+        clear();
+    }
+
+    public clear:(inout this) = {
         (copy col: i8 = 0)
         while col < state.ssize()
         next col++
@@ -24,6 +23,7 @@ Goban:<Size: i8> type = {
                 state[col][row] = Stone(ColorNone, col, row);
             }
         }
+        lockedPosition = ();
     }
 
     public getAdjacentStone:(in this, in s: Stone, in processedStones: State<bool, Size>, count: bool = true) -> std::vector<Stone>  = {

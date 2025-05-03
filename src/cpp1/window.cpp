@@ -10,6 +10,7 @@
 #include <QTabWidget>
 
 #include "ai.h"
+#include "human.h"
 
 void Window::loadAiParameters() {
     const auto ai1 = dynamic_cast<Ai*>(this->game->blackPlayer.get());
@@ -42,22 +43,30 @@ void Window::refreshWinRate() {
 }
 
 void Window::refreshButtons() {
+    const auto indexPlayer1 = this->selectPlayer1->currentIndex();
+    const auto indexPlayer2 = this->selectPlayer2->currentIndex();
+    this->bothPlayersAreHuman = indexPlayer1 == 0 && indexPlayer2 == 0;
     if (this->trainButton != nullptr && this->evaluateButton != nullptr) {
-        if (this->selectPlayer1->currentIndex() == 0 || this->selectPlayer2->currentIndex() == 0 ) {
+        if (indexPlayer1== 0 || indexPlayer2 == 0 ) {
             this->trainButton->setEnabled(false);
             this->evaluateButton->setEnabled(false);
             this->selectTime->setCurrentIndex(1);
             this->selectTime->setEnabled(false);
-        } else if (this->selectPlayer1->currentIndex() < 3) {
-            this->trainButton->setEnabled(false);
-            this->evaluateButton->setEnabled(true);
-            this->selectTime->setEnabled(true); 
+            this->undoButton->setEnabled(true);
+            this->passButton->setEnabled(true);
         } else {
-            this->trainButton->setEnabled(true);
             this->evaluateButton->setEnabled(true);
+            this->selectTime->setCurrentIndex(0);
             this->selectTime->setEnabled(true);
+            this->undoButton->setEnabled(false);
+            this->passButton->setEnabled(false);
+            if (indexPlayer1 < 3) {
+                this->trainButton->setEnabled(false);
+            } else {
+                this->trainButton->setEnabled(true);
+            }
         }
-        if (this->selectPlayer1->currentIndex() < 3) {
+        if (indexPlayer1 < 3) {
             this->player1Button->setEnabled(false);
             this->player1TopKBox->setEnabled(false);
             this->player1MarginBox->setEnabled(false);
@@ -170,12 +179,26 @@ void Window::displayGoban() {
     this->connect(this, &Window::refreshGoban19Signal, this->gobanWidget, &GobanWidget::refresh<19>);
 }
 
+void Window::displayUndoButton() {
+    auto* lineLayout = new QHBoxLayout();
+    this->mainLayout->addLayout(lineLayout);
+    this->undoButton = new QPushButton("Undo", this);
+    lineLayout->addWidget(this->undoButton, 1);
+    this->connect(this->undoButton, &QPushButton::clicked, this, [=]() {
+        this->currentMove = Move::undo(bothPlayersAreHuman ? 1 : 2);
+        if (this->loop != nullptr) {
+            this->loop->quit();
+        }
+    });
+}
+
 void Window::displayPassButton() {
     auto* lineLayout = new QHBoxLayout();
     this->mainLayout->addLayout(lineLayout);
-    auto* passButton = new QPushButton("Pass", this);
-    lineLayout->addWidget(passButton, 1);
-    this->connect(passButton, &QPushButton::clicked, this, [=]() {
+    this->passButton = new QPushButton("Pass", this);
+    lineLayout->addWidget(this->passButton, 1);
+    this->connect(this->passButton, &QPushButton::clicked, this, [=]() {
+        this->currentMove = Move::pass(ColorNone);
         if (this->loop != nullptr) {
             this->loop->quit();
         }

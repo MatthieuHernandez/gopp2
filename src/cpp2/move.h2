@@ -4,6 +4,7 @@
 Move: type = {
     public stone: Stone;
     public isPass: bool;
+    public undoLast: i8;
     public isValid: bool;
     public captureStones: bool;
     public lockedPosition: Stone = ();
@@ -11,13 +12,15 @@ Move: type = {
     public operator=:(out this) = {
         stone = ();
         isPass = false;
+        undoLast = 0;
         isValid = false;
         captureStones = false;
     }
 
-    public operator=:(out this, color: Color, col: i8, row: i8, pas: bool = false) = {
+    public operator=:(out this, color: Color, col: i8, row: i8, u: i8 = 0, pas: bool = false) = {
         stone = (color, col, row);
         isPass = pas;
+        undoLast = u;
         isValid = false;
         captureStones = false;
     }
@@ -25,31 +28,41 @@ Move: type = {
     public operator=:(out this, in s: Stone) = {
         stone = s;
         isPass = false;
+        undoLast = 0;
         isValid = false;
         captureStones = false;
     }
 
     public name:(in this) -> std::string = {
-        if !isPass {
-            colName: char = stone.col;
-            colName +=  65;
-            if stone.col > 7 { // No I column
-                colName++;
-            }
-            n:= colName + (stone.row + 1) as std::string;
-            return n;
+        if isPass {
+            return "pass";
         }
-        return "pass";
+        if undoLast {
+            return "undo";
+        }
+        colName: char = stone.col;
+        colName +=  65;
+        if stone.col > 7 { // No I column
+            colName++;
+        }
+        n:= colName + (stone.row + 1) as std::string;
+        return n;
+
     }
 
     public operator=:(out this, that) = {
         stone = that.stone;
         isPass = that.isPass;
+        undoLast = that.undoLast;
         isValid = that.isValid;
         captureStones = that.captureStones;
     }
 
     public pass:(color: Color) -> Move = {
-        return Move(color, -1, -1, true);
+        return Move(color, -1, -1, 0, true);
+    }
+
+    public undo:(n: i8) -> Move = {
+        return Move(ColorNone, -1, -1, n, false);
     }
 }

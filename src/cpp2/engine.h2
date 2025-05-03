@@ -18,9 +18,12 @@ Engine:<Size: i8> type = {
         states.push_back(state);
     }
 
-    public playMove:(inout this, inout m: Move) = {
-        if isValidMove(m)
-        {
+    public playMove:(inout this, inout m: Move, isReplay: bool = false) = {
+        if isValidMove(m) {
+            if(m.undoLast > 0) {
+                undoLastMoves(m.undoLast);
+                return;
+            }
             if !m.isPass {
                 col:= m.stone.col;
                 row:= m.stone.row;
@@ -32,8 +35,28 @@ Engine:<Size: i8> type = {
             if goban.lockedPosition.color == m.stone.color {
                 goban.unlockPosition();
             }
-            moves.push_back(m);
+            if !isReplay {
+                moves.push_back(m);
+            }
             states.push_back(goban.state);
+        }
+    }
+
+    private undoLastMoves:(inout this, n: i8) = {
+        if moves.ssize() > n {
+            moves.erase(moves.end() - n, moves.end());
+        } else {
+            moves.clear();
+        }
+        goban.clear();
+        states.clear();
+        replayGame();
+    }
+
+    private replayGame:(inout this) = {
+        for moves
+        do (inout m) {
+            playMove(m, true);
         }
     }
 
@@ -129,7 +152,7 @@ Engine:<Size: i8> type = {
     }
 
     public isValidMove:(in this, inout m: Move) -> bool = {
-        if m.isValid || m.isPass {
+        if m.isValid || m.isPass || m.undoLast > 0 {
             m.isValid = true;
             return true;
         }
