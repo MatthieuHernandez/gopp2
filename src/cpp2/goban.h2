@@ -3,9 +3,9 @@
 
 State: <T: type, Size: i8> type == std::array<std::array<T, Size>, Size>;
 
-rotate90:<Size: i8>(inout state: State<Stone, Size>) = {
+rotate90:<Size: i8>(in state: State<Stone, Size>) -> State<Stone, Size> = {
     maxIndex: i8 = Size - 1;
-    oldState: State<Stone, Size> = state;
+    newState: State<Stone, Size> = state;
     (copy col: i8 = 0)
     while col < Size
     next col++
@@ -14,15 +14,16 @@ rotate90:<Size: i8>(inout state: State<Stone, Size>) = {
         while row < Size
         next row++
         {
-            state[col][maxIndex - row].color = oldState[row][col].color;
-            state[col][maxIndex - row].estimation = oldState[row][col].estimation;
+            newState[col][maxIndex - row].color = state[row][col].color;
+            newState[col][maxIndex - row].estimation = state[row][col].estimation;
         }
     }
+    return newState;
 }
 
-rotate180:<Size: i8>(inout state: State<Stone, Size>) = {
+rotate180:<Size: i8>(in state: State<Stone, Size>) -> State<Stone, Size> = {
     maxIndex: i8 = Size - 1;
-    oldState: State<Stone, Size> = state;
+    newState: State<Stone, Size> = state;
     (copy col: i8 = 0)
     while col < Size
     next col++
@@ -31,15 +32,16 @@ rotate180:<Size: i8>(inout state: State<Stone, Size>) = {
         while row < Size
         next row++
         {
-            state[maxIndex - col][maxIndex - row].color = oldState[col][row].color;
-            state[maxIndex - col][maxIndex - row].estimation = oldState[col][row].estimation;
+            newState[maxIndex - col][maxIndex - row].color = state[col][row].color;
+            newState[maxIndex - col][maxIndex - row].estimation = state[col][row].estimation;
         }
     }
+    return newState;
 }
 
-rotate270:<Size: i8>(inout state: State<Stone, Size>) = {
+rotate270:<Size: i8>(in state: State<Stone, Size>) -> State<Stone, Size> = {
     maxIndex: i8 = Size - 1;
-    oldState: State<Stone, Size> = state;
+    newState: State<Stone, Size> = state;
     (copy col: i8 = 0)
     while col < Size
     next col++
@@ -48,15 +50,16 @@ rotate270:<Size: i8>(inout state: State<Stone, Size>) = {
         while row < Size
         next row++
         {
-            state[maxIndex - col][row].color = oldState[row][col].color;
-            state[maxIndex - col][row].estimation = oldState[row][col].estimation;
+            newState[maxIndex - col][row].color = state[row][col].color;
+            newState[maxIndex - col][row].estimation = state[row][col].estimation;
         }
     }
+    return newState;
 }
 
-flipHorizontal:<Size: i8>(inout state: State<Stone, Size>) = {
+flipHorizontal:<Size: i8>(in state: State<Stone, Size>) -> State<Stone, Size> = {
     maxIndex: i8 = Size - 1;
-    oldState: State<Stone, Size> = state;
+    newState: State<Stone, Size> = state;
     (copy col: i8 = 0)
     while col < Size
     next col++
@@ -65,15 +68,16 @@ flipHorizontal:<Size: i8>(inout state: State<Stone, Size>) = {
         while row < Size
         next row++
         {
-            state[col][row].color = oldState[maxIndex - col][row].color;
-            state[col][row].estimation = oldState[maxIndex - col][row].estimation;
+            newState[col][row].color = state[maxIndex - col][row].color;
+            newState[col][row].estimation = state[maxIndex - col][row].estimation;
         }
     }
+    return newState;
 }
 
-flipVertical:<Size: i8>(inout state: State<Stone, Size>) = {
+flipVertical:<Size: i8>(in state: State<Stone, Size>) -> State<Stone, Size> = {
     maxIndex: i8 = Size - 1;
-    oldState: State<Stone, Size> = state;
+    newState: State<Stone, Size> = state;
     (copy col: i8 = 0)
     while col < Size
     next col++
@@ -82,24 +86,26 @@ flipVertical:<Size: i8>(inout state: State<Stone, Size>) = {
         while row < Size
         next row++
         {
-            state[col][row].color = oldState[col][maxIndex - row].color;
-            state[col][row].estimation = oldState[col][maxIndex - row].estimation;
+            newState[col][row].color = state[col][maxIndex - row].color;
+            newState[col][row].estimation = state[col][maxIndex - row].estimation;
         }
     }
+    return newState;
 }
 
-transform:<Size: i8>(inout state, in t1: Transformation) = {
+transform:<Size: i8>(in state, in t1: Transformation) -> State<Stone, Size> = {
     if t1 == Rotate90 {
-        rotate90<Size>(state);
+        return rotate90<Size>(state);
     } else if t1 == Rotate180 {
-        rotate180<Size>(state);
+        return rotate180<Size>(state);
     }else if t1 == Rotate270 {
-        rotate270<Size>(state);
+        return rotate270<Size>(state);
     }else if t1 == FlipHorizontal {
-        flipHorizontal<Size>(state);
+        return flipHorizontal<Size>(state);
     }else if t1 == FlipVertical {
-        flipVertical<Size>(state);
+        return flipVertical<Size>(state);
     }
+    return state;
 }
 
 Goban:<Size: i8> type = {
@@ -195,7 +201,7 @@ Goban:<Size: i8> type = {
     }
 
     public transform:(inout this, in t1: Transformation) = {
-        transform<Size>(state, t1);
+        state = transform<Size>(state, t1);
         lockedPosition.transform<Size>(t1);
     }
 }
