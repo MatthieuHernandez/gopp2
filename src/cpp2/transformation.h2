@@ -1,0 +1,21 @@
+Transformation: type = {
+    public value: i8;
+
+    public operator=:(out this, v: i8) = {
+        value = v;
+    }
+
+    public operator=:(out this, that) = {
+        value = that.value;
+    }
+
+    public operator<=>:(this, that) -> std::strong_ordering;
+}
+
+NoRotate: Transformation = (0);
+Rotate90: Transformation = (1);
+Rotate180: Transformation = (2);
+Rotate270: Transformation = (3);
+NoFlip: Transformation = (4);
+FlipHorizontal: Transformation = (5);
+FlipVertical: Transformation = (6);

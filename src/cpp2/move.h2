@@ -1,10 +1,12 @@
 #include "stone.h2"
+#include "transformation.h2"
 
 
 Move: type = {
     public stone: Stone;
     public isPass: bool;
     public undoLast: i8;
+    public transformation: Transformation = (-1);
     public isValid: bool;
     public captureStones: bool;
     public lockedPosition: Stone = ();
@@ -17,12 +19,13 @@ Move: type = {
         captureStones = false;
     }
 
-    public operator=:(out this, color: Color, col: i8, row: i8, u: i8 = 0, pas: bool = false) = {
+    public operator=:(out this, color: Color, col: i8, row: i8, u: i8 = 0, pas: bool = false, t: Transformation = -1) = {
         stone = (color, col, row);
         isPass = pas;
         undoLast = u;
         isValid = false;
         captureStones = false;
+        transformation = t;
     }
 
     public operator=:(out this, in s: Stone) = {
@@ -31,6 +34,7 @@ Move: type = {
         undoLast = 0;
         isValid = false;
         captureStones = false;
+        transformation = -1;
     }
 
     public name:(in this) -> std::string = {
@@ -39,6 +43,9 @@ Move: type = {
         }
         if undoLast {
             return "undo";
+        }
+        if transformation > -1 {
+            return "transform";
         }
         colName: char = stone.col;
         colName +=  65;
@@ -56,13 +63,18 @@ Move: type = {
         undoLast = that.undoLast;
         isValid = that.isValid;
         captureStones = that.captureStones;
+        transformation = that.transformation;
     }
 
     public pass:(color: Color) -> Move = {
-        return Move(color, -1, -1, 0, true);
+        return Move(color, -1, -1, 0, true, -1);
     }
 
     public undo:(n: i8) -> Move = {
-        return Move(ColorNone, -1, -1, n, false);
+        return Move(ColorNone, -1, -1, n, false, -1);
+    }
+
+    public applyTransformation:(t: Transformation) -> Move = {
+        return Move(ColorNone, -1, -1, 0, false, t);
     }
 }

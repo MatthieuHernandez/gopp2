@@ -20,13 +20,20 @@ Engine:<Size: i8> type = {
 
     public playMove:(inout this, inout m: Move, isReplay: bool = false) = {
         if isValidMove(m) {
-            if(m.undoLast > 0) {
+            if m.transformation.value > -1  {
+                goban.transform(m.transformation);
+                if !isReplay {
+                    moves.push_back(m);
+                }
+                return;
+            }
+            if m.undoLast > 0  {
                 undoLastMoves(m.undoLast);
                 return;
             }
-            if !m.isPass {
-                col:= m.stone.col;
-                row:= m.stone.row;
+            col:= m.stone.col;
+            row:= m.stone.row;
+            if !m.isPass && col >= 0 && row >= 0 {
                 goban.state[col][row] = m.stone;
                 if m.captureStones {
                     _ = captureStones(m.stone);
@@ -152,7 +159,7 @@ Engine:<Size: i8> type = {
     }
 
     public isValidMove:(in this, inout m: Move) -> bool = {
-        if m.isValid || m.isPass || m.undoLast > 0 {
+        if m.isValid || m.isPass || m.undoLast > 0 || m.transformation > -1 {
             m.isValid = true;
             return true;
         }

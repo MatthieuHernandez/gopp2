@@ -19,6 +19,7 @@ if [[ "$BUILD_TYPE" == "Debug" ]]; then
     DEBUG_ARG="-d"
 fi
 
+cppfront -cwd ./src/generated ../cpp2/transformation.h2 -pure-cpp2 $DebugArg |
 cppfront -cwd ./src/generated ../cpp2/color.h2 -pure-cpp2 $DebugArg |
 cppfront -cwd ./src/generated ../cpp2/stone.h2 -pure-cpp2 $DebugArg |
 cppfront -cwd ./src/generated ../cpp2/move.h2 -pure-cpp2 $DebugArg |

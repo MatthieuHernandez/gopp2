@@ -130,12 +130,14 @@ Game: type = {
             }
             if engine*.isValidMove(m) {
                 engine*.playMove(m);
-                if m.undoLast == 0 {
-                    moveNumber++;
-                } else if m.undoLast < moveNumber {
-                    moveNumber -= m.undoLast;
-                } else {
-                    moveNumber = 1;
+                if m.transformation == -1 {
+                    if m.undoLast == 0 {
+                        moveNumber++;
+                    } else if m.undoLast < moveNumber {
+                        moveNumber -= m.undoLast;
+                    } else {
+                        moveNumber = 1;
+                    }
                 }
                 if constexpr verbose {
                     interface*.printLater(colorName(m.stone.color) + " played " + m.name() + ".");

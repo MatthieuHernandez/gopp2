@@ -9,6 +9,7 @@ $DebugArg = ""
 
 if ($BuildType -eq "Debug") { $DebugArg = "-d" }
 
+cppfront -cwd ./src/generated ../cpp2/transformation.h2 -pure-cpp2 $DebugArg |
 cppfront -cwd ./src/generated ../cpp2/color.h2 -pure-cpp2 $DebugArg |
 cppfront -cwd ./src/generated ../cpp2/stone.h2 -pure-cpp2 $DebugArg |
 cppfront -cwd ./src/generated ../cpp2/move.h2 -pure-cpp2 $DebugArg |

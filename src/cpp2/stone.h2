@@ -1,4 +1,5 @@
 #include "color.h2"
+#include "Transformation.h2"
 
 Stone: type = {
     public color: Color;
@@ -31,4 +32,46 @@ Stone: type = {
     }
 
     public operator<=>: (this, that) -> std::strong_ordering;
+
+    public rotate90:<Size: i8>(inout this) = {
+        col = row;
+        row = Size - 1 - col;
+    }
+
+    private rotate180:<Size: i8>(inout this) = {
+        col = Size - 1 - col;
+        row = Size - 1 - row;
+    }
+
+    private rotate270:<Size: i8>(inout this) = {
+        col = Size - 1 - row;
+        row = col;
+    }
+
+    private flipHorizontal:<Size: i8>(inout this) = {
+        col = Size - 1 - col;
+        row = row;
+    }
+
+    private flipVertical:<Size: i8>(inout this) = {
+        col = col;
+        row = Size - 1 - row;
+    }
+
+    public transform:<Size: i8>(inout this, in t1: Transformation) = {
+        if col < 0 || row < 0 {
+            return;
+        }
+        if t1 == Rotate90 {
+            rotate90<Size>();
+        } else if t1 == Rotate180 {
+            rotate180<Size>();
+        }else if t1 == Rotate270 {
+            rotate270<Size>();
+        }else if t1 == FlipHorizontal {
+            flipHorizontal<Size>();
+        }else if t1 == FlipVertical {
+            flipVertical<Size>();
+        }
+    }
 }

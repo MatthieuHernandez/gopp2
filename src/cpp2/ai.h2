@@ -117,7 +117,7 @@ Ai: type = {
             while row < Size
             next row++
             {
-                estimation:= nnOutput[index];
+                estimation:= nnOutput[index]; // FLIP THE GOBAN WITH 8 COMBINASON
                 stone:=  Stone(color, col, row, estimation);
                 estimatedPositions.push_back(stone);
                 index++;
