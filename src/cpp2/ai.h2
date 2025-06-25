@@ -7,10 +7,9 @@ createAi:() = {
                                             snn::FullyConnected(2000, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));*/
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(8, 3, snn::activation::ReLU, 0.0F),
-                                            snn::Convolution(16, 3, snn::activation::ReLU, 0.0F),
-                                            snn::Convolution(32, 3, snn::activation::ReLU, 0.0F),
+                                            snn::Convolution(8, 5, snn::activation::ReLU, 0.0F),
                                             snn::Convolution(128, 3, snn::activation::ReLU, 0.0F),
+                                            snn::Convolution(256, 3, snn::activation::ReLU, 0.0F),
                                             snn::FullyConnected(81, snn::activation::tanh));
     optimizer:= snn::StochasticGradientDescent(1e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
