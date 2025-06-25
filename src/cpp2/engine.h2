@@ -184,8 +184,9 @@ Engine:<Size: i8> type = {
 
     public isFinish:(this) -> bool = {
         if moves.ssize() > 1 {
-            if moves[moves.ssize() - 1].isPass == true
-            && moves[moves.ssize() - 2].isPass == true {
+            if (moves[moves.ssize() - 1].isPass == true
+             && moves[moves.ssize() - 2].isPass == true)
+             || goban.getStoneDifference() >= 2 * Size {
                 return true;
             }
         }
@@ -229,7 +230,7 @@ Engine:<Size: i8> type = {
     public countScore:(inout this) = {
         processedStones1: State<bool, Size> = ();
         blackPoint = 0;
-        whitePoint = 7;
+        whitePoint = 7; // The komi is 7.5.
         (copy col: i8 = 0)
         while col < goban.state.ssize()
         next col++

@@ -204,4 +204,26 @@ Goban:<Size: i8> type = {
         state = transform<Size>(state, t1);
         lockedPosition.transform<Size>(t1);
     }
+
+    public getStoneDifference:(in this) -> i16 = {
+        numberOfBlackStones: i16 = 0;
+        numberOfWhiteStones: i16 = 0;
+        (copy col: i8 = 0)
+        while col < Size
+        next col++
+        {
+            (copy row: i8 = 0)
+            while row < Size
+            next row++
+            {
+                if state[col][row].color == ColorBlack {
+                    numberOfBlackStones++;
+                }
+                else if state[col][row].color == ColorWhite {
+                    numberOfWhiteStones++;
+                }
+            }
+        }
+        return abs(numberOfBlackStones - numberOfWhiteStones);
+    }
 }
