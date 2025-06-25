@@ -184,6 +184,8 @@ Ai: type = {
         if (engine.moves.ssize() > 230) {
             return;
         }
+        distRotate: std::uniform_int_distribution<i64> = (0, 3);
+        distFlip: std::uniform_int_distribution<i64> = (4, 6);
         gameLength: i16 = unchecked_narrow<i16>(engine.moves.size());
         optimizer*.learningRate = learningRate;
         size:= Size * Size;
@@ -204,7 +206,20 @@ Ai: type = {
             if (engine.moves[i].isPass == true) {
                 return;
             }
-            inputs:= getGobanState<Size>(engine.states[i]);
+
+            // Rotate and Flip the goban state.
+            t1 := Transformation(distRotate(rng));
+            t2 := Transformation(distFlip(rng));
+            state := transform<Size>(engine.states[i], t1);
+            state = transform<Size>(state, t2);
+            inputs:= getGobanState<Size>(state);
+
+            // Rotate and Flip the stone played.
+            stone := engine.moves[i].stone;
+            stone.transform<Size>(t1);
+            stone.transform<Size>(t2);
+            expectedIndex:= stone.getIndex<Size>();
+
             expectedOutputs:= std::vector<float>(size, NAN);
             weighting:= std::vector<float>(size, 1.0f);
             (copy j: i16 = 0)
@@ -216,7 +231,6 @@ Ai: type = {
                     weighting[j] = 1e-3f;
                 }
             }
-            expectedIndex:= engine.moves[i].stone.getIndex<Size>();
             if i % 2 == 0 {
                 expectedOutputs[expectedIndex] = expectedBlack;
             } else {
