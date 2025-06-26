@@ -34,28 +34,38 @@ Stone: type = {
     public operator<=>: (this, that) -> std::strong_ordering;
 
     public rotate90:<Size: i8>(inout this) = {
-        col = row;
-        row = Size - 1 - col;
+        new_col := row;
+        new_row := Size - 1 - col;
+        col = new_col;
+        row = new_row;
     }
 
     private rotate180:<Size: i8>(inout this) = {
-        col = Size - 1 - col;
-        row = Size - 1 - row;
+        new_col := Size - 1 - col;
+        new_row := Size - 1 - row;
+        col = new_col;
+        row = new_row;
     }
 
     private rotate270:<Size: i8>(inout this) = {
-        col = Size - 1 - row;
-        row = col;
+        new_col := Size - 1 - row;
+        new_row := col;
+        col = new_col;
+        row = new_row;
     }
 
     private flipHorizontal:<Size: i8>(inout this) = {
-        col = Size - 1 - col;
-        row = row;
+        new_col := Size - 1 - col;
+        new_row := row;
+        col = new_col;
+        row = new_row;
     }
 
     private flipVertical:<Size: i8>(inout this) = {
-        col = col;
-        row = Size - 1 - row;
+        new_col := col;
+        new_row := Size - 1 - row;
+        col = new_col;
+        row = new_row;
     }
 
     public transform:<Size: i8>(inout this, in t1: Transformation) = {
