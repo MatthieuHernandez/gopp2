@@ -6,14 +6,20 @@ createAi:() = {
                                             snn::FullyConnected(2000, snn::activation::ReLU),
                                             snn::FullyConnected(2000, snn::activation::ReLU),
                                             snn::FullyConnected(81, snn::activation::tanh));*/
+    /*layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
+                                            snn::Convolution(16, 5, snn::activation::ReLU, 0.0F),
+                                            snn::Convolution(64, 3, snn::activation::GELU, 0.0F),
+                                            snn::Convolution(256, 3, snn::activation::GELU, 0.0F),
+                                            snn::FullyConnected(81, snn::activation::tanh));*/
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(8, 5, snn::activation::ReLU, 0.0F),
-                                            snn::Convolution(128, 3, snn::activation::ReLU, 0.0F),
-                                            snn::Convolution(256, 3, snn::activation::ReLU, 0.0F),
+                                            snn::Convolution(16, 3, snn::activation::tanh, 0.0F, snn::ErrorMultiplier(2)),
+                                            snn::Convolution(32, 3, snn::activation::tanh, 0.0F, snn::ErrorMultiplier(2)),
+                                            snn::Convolution(64, 3, snn::activation::tanh, 0.0F, snn::ErrorMultiplier(2)),
+                                            snn::Convolution(512, 3, snn::activation::tanh, 0.0F, snn::ErrorMultiplier(2)),
                                             snn::FullyConnected(81, snn::activation::tanh));
     optimizer:= snn::StochasticGradientDescent(1e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/model_01.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/model_big.snn");
     if neuralNetwork.isValid() != snn::errorType::noError {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);
@@ -182,6 +188,17 @@ Ai: type = {
         return getMove<19>(engine);
     }
 
+    
+    private computeLearningRate:(inout this)-> float = {
+        newLearningRate:= learningRate;
+        winrate := calculateWinRate();
+        if (lastGameWon.ssize() > 100 && winrate < 1.0F && ((hasWon && winrate > 0.5F)
+        || (!hasWon && winrate < 0.5F))) {
+            newLearningRate *= (1.0F - winrate);
+        }
+        return newLearningRate;
+    }
+
     public train:<Size: i8>(inout this, in engine: Engine<Size>) = {
         if (engine.moves.ssize() > 230) {
             return;
@@ -189,7 +206,7 @@ Ai: type = {
         distRotate: std::uniform_int_distribution<i64> = (0, 3);
         distFlip: std::uniform_int_distribution<i64> = (4, 6);
         gameLength: i16 = unchecked_narrow<i16>(engine.moves.size());
-        optimizer*.learningRate = learningRate;
+        optimizer*.learningRate = computeLearningRate();
         size:= Size * Size;
         expectedBlack: float;
         expectedWhite: float;
@@ -208,38 +225,49 @@ Ai: type = {
             if (engine.moves[i].isPass == true) {
                 return;
             }
-
-            // Rotate and Flip the goban state.
-            t1 := Transformation(distRotate(rng));
-            t2 := Transformation(distFlip(rng));
-            state := engine.states[i];
-            state = transform<Size>(state, t1);
-            state = transform<Size>(state, t2);
-            inputs:= getGobanState<Size>(state);
-
-            // Rotate and Flip the stone played.
-            stone := engine.moves[i].stone;
-            stone.transform<Size>(t1);
-            stone.transform<Size>(t2);
-            expectedIndex:= stone.getIndex<Size>();
-
-            expectedOutputs:= std::vector<float>(size, NAN);
-            weighting:= std::vector<float>(size, 1.0f);
-            (copy j: i16 = 0)
-            while j < size
-            next j++
+            inputs: std::vector<float> = ();
+            expectedIndex: i16 = ();
+            (copy t: i16 = 0)
+            while t < 2
+            next t++
             {
-                if inputs[j] != 0.0 {
-                    expectedOutputs[j] = 0;
-                    weighting[j] = 1e-3f;
+                state := engine.states[i];
+                stone := engine.moves[i].stone;
+                if t == 0 {
+                    inputs = getGobanState<Size>(state);
+                    expectedIndex = stone.getIndex<Size>();
+                } else if t == 1 {
+                    t1 := Transformation(distRotate(rng));
+                    t2 := Transformation(distFlip(rng));
+                    // Rotate and Flip the goban state.
+                    state = transform<Size>(state, t1);
+                    state = transform<Size>(state, t2);
+                    inputs = getGobanState<Size>(state);
+                    // Rotate and Flip the stone played.
+                    stone.transform<Size>(t1);
+                    stone.transform<Size>(t2);
+                    expectedIndex = stone.getIndex<Size>();
+                } else {
+                    return;
                 }
+                expectedOutputs:= std::vector<float>(size, NAN);
+                weighting:= std::vector<float>(size, 1.0f);
+                (copy j: i16 = 0)
+                while j < size
+                next j++
+                {
+                    if inputs[j] != 0.0 {
+                        expectedOutputs[j] = 0;
+                        weighting[j] = 1e-3f;
+                    }
+                }
+                if i % 2 == 0 {
+                    expectedOutputs[expectedIndex] = expectedBlack;
+                } else {
+                    expectedOutputs[expectedIndex] = expectedWhite;
+                }
+                neuralNetwork*.trainOnce(inputs, expectedOutputs, weighting);
             }
-            if i % 2 == 0 {
-                expectedOutputs[expectedIndex] = expectedBlack;
-            } else {
-                expectedOutputs[expectedIndex] = expectedWhite;
-            }
-            neuralNetwork*.trainOnce(inputs, expectedOutputs, weighting);
         }
     }
 
