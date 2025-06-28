@@ -47,8 +47,9 @@ cliApp:() -> int = {
     signal(SIGINT, signalHandler);
     do {
         size:= game*.getGobanSize();
+        atariGo := game*.playAtariGo;
         players:= game*.getPlayerNames();
-        selection:= cli::printMenuAndSelect(size, players);
+        selection:= cli::printMenuAndSelect(size, atariGo, players);
         if selection == 0 {
             cliInterface.softClear();
             cliInterface.print("Bye.");
@@ -60,6 +61,7 @@ cliApp:() -> int = {
             game*.setGobanSize(19);
         } else if (game*.getGobanSize() == 19) {
             game*.setGobanSize(9);
+            game*.playAtariGo = !game*.playAtariGo;
         }
         } else if selection == 2 {
             selection:= cli::printPlayersAndSelect(size, ColorBlack);

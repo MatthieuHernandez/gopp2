@@ -238,6 +238,14 @@ void Window::displayLogText() {
 void Window::displayGobanButton() {
     auto* lineLayout = new QHBoxLayout();
     this->menuLayout->addLayout(lineLayout);
+    QLabel* selectGameText = new QLabel("Game:", this);
+    QComboBox* selectGame = new QComboBox(this);
+    selectGame->insertItem(0, "Atari Go");
+    selectGame->insertItem(1, "Go");
+    selectGame->setCurrentIndex(1);
+    lineLayout->addWidget(selectGameText);
+    lineLayout->addWidget(selectGame);
+    lineLayout->addItem(new QSpacerItem(40, 0));
     QLabel* selectGobanText = new QLabel("Goban size:", this);
     QComboBox* selectGoban = new QComboBox(this);
     selectGoban->insertItem(0, "9x9", 9);
@@ -245,7 +253,10 @@ void Window::displayGobanButton() {
     selectGoban->insertItem(2, "19x19", 19);
     lineLayout->addWidget(selectGobanText);
     lineLayout->addWidget(selectGoban);
-    lineLayout->addItem(new QSpacerItem(100, 0));
+    this->connect(selectGame, &QComboBox::currentIndexChanged, [=](int index) {
+        const auto selection = selectGoban->itemData(index).toInt();
+        this->game->playAtariGo = (index == 0) ? true : false;
+    });
     this->connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
         const auto selection = selectGoban->itemData(index).toInt();
         this->game->setGobanSize(selection);

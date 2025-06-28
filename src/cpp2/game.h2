@@ -16,6 +16,8 @@ Game: type = {
     public blackPlayer: std::shared_ptr<Player> = nullptr; // CPP2 workaround: Not able to make unique_ptr work.
     public whitePlayer: std::shared_ptr<Player> = nullptr;
 
+    public playAtariGo: bool = false;
+
     public operator=:(out this, i: *Interface) = {
         interface = i;
     }
@@ -175,12 +177,15 @@ Game: type = {
         }
         if gobanSize == 9 {
             e:= shared.new<Engine<9>>();
+            e*.useAtariGoRules = playAtariGo;
             play<true, 9>(e);
         } else if gobanSize == 13 {
             e:= shared.new<Engine<13>>();
+            e*.useAtariGoRules = playAtariGo;
             play<true, 13>(e);
         } else if gobanSize == 19 {
             e:= shared.new<Engine<19>>();
+            e*.useAtariGoRules = playAtariGo;
             play<true, 19>(e);
         } else {
             return;
@@ -207,14 +212,17 @@ Game: type = {
         do {
             if gobanSize == 9 {
                 e:= shared.new<Engine<9>>();
+                e*.useAtariGoRules = playAtariGo;
                 play<false, 9>(e);
                 player1*.train<9>(e*);
             } else if gobanSize == 13 {
                 e:= shared.new<Engine<13>>();
+                e*.useAtariGoRules = playAtariGo;
                 play<false, 13>(e);
                 player1*.train<13>(e*);
             } else if gobanSize == 19 {
                 e:= shared.new<Engine<19>>();
+                e*.useAtariGoRules = playAtariGo;
                 play<false, 19>(e);
                 player1*.train<19>(e*);
             } else{
@@ -255,14 +263,17 @@ Game: type = {
         {
             if gobanSize == 9 {
                 e:= shared.new<Engine<9>>();
+                e*.useAtariGoRules = playAtariGo;
                 play<false, 9>(e);
             }
             else if gobanSize == 13 {
                 e:= shared.new<Engine<13>>();
+                e*.useAtariGoRules = playAtariGo;
                 play<false, 13>(e);
             }
             else if gobanSize == 19 {
                 e:= shared.new<Engine<19>>();
+                e*.useAtariGoRules = playAtariGo;
                 play<false, 19>(e);
             } else {
                 return;

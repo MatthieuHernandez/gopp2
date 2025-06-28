@@ -12,6 +12,12 @@ Engine:<Size: i8> type = {
     public blackPoint: i16 = 0;
     public whitePoint: i16 = 0;
 
+    public useAtariGoRules: bool = false;
+    public numberOfCapturesToWin: i8 = 1;
+    public blackStonesCaptured: i16 = 0;
+    public whiteStonesCaptured: i16 = 0;
+
+    // CPP2 workaround: Cannot have constructor with 1 parameter.
     public operator=:(out this) = {
         iterations = 0;
         state: State<Stone, Size> = ();
@@ -138,6 +144,11 @@ Engine:<Size: i8> type = {
                 }
             }
         }
+        if stone.color == ColorBlack {
+            blackStonesCaptured += count;
+        } else {
+            whiteStonesCaptured += count;
+        }
         return count;
     }
 
@@ -184,15 +195,13 @@ Engine:<Size: i8> type = {
 
     public isFinish:(this) -> bool = {
         if moves.ssize() > 1 {
-            if (moves[moves.ssize() - 1].isPass == true
-             && moves[moves.ssize() - 2].isPass == true)
-             || goban.getStoneDifference() >= 2 * Size {
+            havePassed: bool = moves[moves.ssize() - 1].isPass == true && moves[moves.ssize() - 2].isPass == true;
+            tooManyPointsAhead: bool = goban.getStoneDifference() >= 2 * Size;
+            atariGoOver : bool = useAtariGoRules && (blackStonesCaptured >= numberOfCapturesToWin || whiteStonesCaptured >= numberOfCapturesToWin);
+            tooMuchMoves : bool =  moves.ssize() > Size * Size * 3; // Only to prevent an eventual triple ko.
+            if havePassed || tooManyPointsAhead || atariGoOver || tooMuchMoves {
                 return true;
             }
-        }
-        maximumMoves: const i16 = Size * Size * 3; // Only to prevent an eventual triple ko.
-        if moves.ssize() > maximumMoves {
-            return true;
         }
         return false;
     }
