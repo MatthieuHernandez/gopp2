@@ -52,12 +52,18 @@ ninja -C $BuildDir
 
 if (!$?) { Exit $LASTEXITCODE }
 
-New-Item -Force -Path "$BuildDir\bin" -Name "images" -ItemType "directory"
-Copy-Item "resources\images\*" -Destination "$BuildDir\bin\images" -Recurse -Force
+if (!(Test-Path "$BuildDir\bin\images")) {
+    New-Item -Path "$BuildDir\bin" -Name "images" -ItemType "directory"
+}
+Copy-Item -Force -Recurse "resources\images\*" -Destination "$BuildDir\bin\images"
 
-cmd /c mklink /d "$BuildDir\bin\snn_models" "..\..\..\snn_models"
+if (!(Test-Path "$BuildDir\bin\snn_models")) {
+    cmd /c mklink /d "$BuildDir\bin\snn_models" "..\..\..\snn_models"
+}
 
-New-Item -Force -Path "$BuildDir\bin" -Name "platforms" -ItemType "directory"
+if (!(Test-Path "$BuildDir\bin\platforms")) {
+    New-Item -Path "$BuildDir\bin" -Name "platforms" -ItemType "directory"
+}
 if ($BuildType -eq "Debug") {
     Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\plugins\platforms\qwindowsd.dll" -Destination "$BuildDir\bin\platforms"
     Copy-Item -Force "C:\Programming\Qt\6.8.2\msvc2022_64\bin\Qt6Cored.dll" -Destination "$BuildDir\bin"
