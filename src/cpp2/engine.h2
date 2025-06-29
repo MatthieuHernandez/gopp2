@@ -237,6 +237,11 @@ Engine:<Size: i8> type = {
     }
 
     public countScore:(inout this) = {
+        if useAtariGoRules {
+            blackPoint = blackStonesCaptured;
+            whitePoint = whiteStonesCaptured;
+            return;
+        }
         processedStones1: State<bool, Size> = ();
         blackPoint = 0;
         whitePoint = 7; // The komi is 7.5.
