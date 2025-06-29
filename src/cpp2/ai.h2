@@ -12,14 +12,12 @@ createAi:() = {
                                             snn::Convolution(256, 3, snn::activation::GELU, 0.0F),
                                             snn::FullyConnected(81, snn::activation::tanh));*/
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(16, 3, snn::activation::tanh, 0.0F, snn::ErrorMultiplier(2)),
-                                            snn::Convolution(32, 3, snn::activation::tanh, 0.0F, snn::ErrorMultiplier(2)),
-                                            snn::Convolution(64, 3, snn::activation::tanh, 0.0F, snn::ErrorMultiplier(2)),
-                                            snn::Convolution(512, 3, snn::activation::tanh, 0.0F, snn::ErrorMultiplier(2)),
+                                            snn::Convolution(8, 3, snn::activation::GELU),
+                                            snn::FullyConnected(250, snn::activation::GELU),
                                             snn::FullyConnected(81, snn::activation::tanh));
     optimizer:= snn::StochasticGradientDescent(1e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/model_big.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/TM_AG_07.snn");
     if neuralNetwork.isValid() != snn::errorType::noError {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);
@@ -80,7 +78,7 @@ Ai: type = {
         return neuralNetwork*.summary();
     }
 
-    private getGobanState:<Size: i8>(in this, in state: State<Stone, Size>) -> std::vector<float> = {
+    private getGobanState:<Size: i8>(in state: State<Stone, Size>, in c: Color) -> std::vector<float> = {
         vec: std::vector<float> = ();
         size:= state.ssize() * state.ssize();
         vec.reserve(size);
@@ -92,8 +90,8 @@ Ai: type = {
             while row < state[col].ssize()
             next row++
             {
-                if state[col][row].color == color {
-                    if color == ColorBlack {
+                if state[col][row].color == c {
+                    if c == ColorBlack {
                         vec.push_back(0.9);
                     } else {
                         vec.push_back(1.1);
@@ -101,7 +99,7 @@ Ai: type = {
                 } else if state[col][row].color == ColorNone {
                     vec.push_back(0.0);
                 } else {
-                    if color == ColorBlack {
+                    if c == ColorBlack {
                         vec.push_back(-0.9);
                     } else {
                         vec.push_back(-1.1);
@@ -169,8 +167,7 @@ Ai: type = {
     }
 
     private getMove:<Size: i8>(inout this, inout engine: Engine<Size>) -> Move = {
-
-        input:= getGobanState<Size>(engine.goban.state);
+        input:= getGobanState<Size>(engine.goban.state, color);
         output:= neuralNetwork*.computeOutput(input);
         m:= chooseBestMove<Size>(output, engine);
         return m;
@@ -188,19 +185,17 @@ Ai: type = {
         return getMove<19>(engine);
     }
 
-    
     private computeLearningRate:(inout this)-> float = {
         newLearningRate:= learningRate;
         winrate := calculateWinRate();
-        if (lastGameWon.ssize() > 100 && winrate < 1.0F && ((hasWon && winrate > 0.5F)
-        || (!hasWon && winrate < 0.5F))) {
-            newLearningRate *= (1.0F - winrate);
+        if (lastGameWon.ssize() > 100 && winrate < 1.0F && (hasWon && winrate > 0.5F)) {
+            newLearningRate *= (1.0F - winrate) / winrate;
         }
         return newLearningRate;
     }
 
     public train:<Size: i8>(inout this, in engine: Engine<Size>) = {
-        if (engine.moves.ssize() > 230) {
+        if engine.moves.ssize() > 230 && engine.useAtariGoRules == false {
             return;
         }
         distRotate: std::uniform_int_distribution<i64> = (0, 3);
@@ -218,7 +213,11 @@ Ai: type = {
             expectedBlack = -1.0f;
             expectedWhite = 1.0f;
         }
-        (copy i: i16 = 0)
+        //(copy i: i16 = unchecked_narrow<i16>(engine.moves.size() - 6))
+        i: i16 = 0;
+        /*if engine.moves.ssize() >= 30 {
+            i = engine.moves.size() - 30;
+        }*/
         while i < (engine.moves.ssize())
         next i++
         {
@@ -227,14 +226,14 @@ Ai: type = {
             }
             inputs: std::vector<float> = ();
             expectedIndex: i16 = ();
-            (copy t: i16 = 0)
+            (copy t: i16 = 1)
             while t < 2
             next t++
             {
                 state := engine.states[i];
                 stone := engine.moves[i].stone;
                 if t == 0 {
-                    inputs = getGobanState<Size>(state);
+                    inputs = getGobanState<Size>(state, stone.color);
                     expectedIndex = stone.getIndex<Size>();
                 } else if t == 1 {
                     t1 := Transformation(distRotate(rng));
@@ -242,7 +241,7 @@ Ai: type = {
                     // Rotate and Flip the goban state.
                     state = transform<Size>(state, t1);
                     state = transform<Size>(state, t2);
-                    inputs = getGobanState<Size>(state);
+                    inputs = getGobanState<Size>(state, stone.color);
                     // Rotate and Flip the stone played.
                     stone.transform<Size>(t1);
                     stone.transform<Size>(t2);
