@@ -174,7 +174,7 @@ class Window : public QMainWindow {
     template<int8_t Size>
     void refreshGoban(std::shared_ptr<Engine<Size>> engine) {
         const auto duration = duration_cast<milliseconds>(steady_clock::now() - this->last);
-        if (duration.count() < 90 && !engine->isFinish()) {
+        if ((duration.count() < 90 && !engine->isFinish()) || duration.count() < 10) {
             return; // Prevents the GUI from being saturated with signals.
         }
         if constexpr (Size == 9) {
