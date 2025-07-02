@@ -93,7 +93,7 @@ flipVertical:<Size: i8>(in state: State<Stone, Size>) -> State<Stone, Size> = {
     return newState;
 }
 
-transform:<Size: i8>(in state, in t1: Transformation) -> State<Stone, Size> = {
+transformState:<Size: i8>(in state, in t1: Transformation) -> State<Stone, Size> = {
     if t1 == Rotate90 {
         return rotate90<Size>(state);
     } else if t1 == Rotate180 {
@@ -201,7 +201,7 @@ Goban:<Size: i8> type = {
     }
 
     public transform:(inout this, in t1: Transformation) = {
-        state = transform<Size>(state, t1);
+        state = transformState<Size>(state, t1);
         lockedPosition.transform<Size>(t1);
     }
 

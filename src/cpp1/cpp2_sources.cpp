@@ -31,6 +31,10 @@
 #include "cli_interface.h"
 #include "cli_interface.hpp"
 
+template class Goban<9>;
+template class Goban<13>;
+template class Goban<19>;
+
 template class Engine<9>;
 template class Engine<13>;
 template class Engine<19>;

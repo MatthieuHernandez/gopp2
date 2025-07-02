@@ -1,5 +1,5 @@
 #include "color.h2"
-#include "Transformation.h2"
+#include "transformation.h2"
 
 Stone: type = {
     public color: Color;

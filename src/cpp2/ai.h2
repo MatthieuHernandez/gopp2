@@ -239,8 +239,8 @@ Ai: type = {
                     t1 := Transformation(distRotate(rng));
                     t2 := Transformation(distFlip(rng));
                     // Rotate and Flip the goban state.
-                    state = transform<Size>(state, t1);
-                    state = transform<Size>(state, t2);
+                    state = transformState<Size>(state, t1);
+                    state = transformState<Size>(state, t2);
                     inputs = getGobanState<Size>(state, stone.color);
                     // Rotate and Flip the stone played.
                     stone.transform<Size>(t1);
