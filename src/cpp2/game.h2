@@ -176,16 +176,13 @@ Game: type = {
             return;
         }
         if gobanSize == 9 {
-            e:= shared.new<Engine<9>>();
-            e*.useAtariGoRules = playAtariGo;
+            e:= shared.new<Engine<9>>(playAtariGo);
             play<true, 9>(e, true);
         } else if gobanSize == 13 {
-            e:= shared.new<Engine<13>>();
-            e*.useAtariGoRules = playAtariGo;
+            e:= shared.new<Engine<13>>(playAtariGo);
             play<true, 13>(e, true);
         } else if gobanSize == 19 {
-            e:= shared.new<Engine<19>>();
-            e*.useAtariGoRules = playAtariGo;
+            e:= shared.new<Engine<19>>(playAtariGo);
             play<true, 19>(e, true);
         } else {
             return;
@@ -211,18 +208,15 @@ Game: type = {
         i: i32 = 0;
         do {
             if gobanSize == 9 {
-                e:= shared.new<Engine<9>>();
-                e*.useAtariGoRules = playAtariGo;
+                e:= shared.new<Engine<9>>(playAtariGo);
                 play<false, 9>(e, true);
                 player1*.train<9>(e*);
             } else if gobanSize == 13 {
-                e:= shared.new<Engine<13>>();
-                e*.useAtariGoRules = playAtariGo;
+                e:= shared.new<Engine<13>>(playAtariGo);
                 play<false, 13>(e, true);
                 player1*.train<13>(e*);
             } else if gobanSize == 19 {
-                e:= shared.new<Engine<19>>();
-                e*.useAtariGoRules = playAtariGo;
+                e:= shared.new<Engine<19>>(playAtariGo);
                 play<false, 19>(e, true);
                 player1*.train<19>(e*);
             } else{
@@ -263,18 +257,15 @@ Game: type = {
         {
             forceRefresh := i%10 == 0;
             if gobanSize == 9 {
-                e:= shared.new<Engine<9>>();
-                e*.useAtariGoRules = playAtariGo;
+                e:= shared.new<Engine<9>>(playAtariGo);
                 play<false, 9>(e, forceRefresh);
             }
             else if gobanSize == 13 {
-                e:= shared.new<Engine<13>>();
-                e*.useAtariGoRules = playAtariGo;
+                e:= shared.new<Engine<13>>(playAtariGo);
                 play<false, 13>(e, forceRefresh);
             }
             else if gobanSize == 19 {
-                e:= shared.new<Engine<19>>();
-                e*.useAtariGoRules = playAtariGo;
+                e:= shared.new<Engine<19>>(playAtariGo);
                 play<false, 19>(e, forceRefresh);
             } else {
                 return;

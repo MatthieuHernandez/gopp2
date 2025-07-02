@@ -18,10 +18,17 @@ Engine:<Size: i8> type = {
     public whiteStonesCaptured: i16 = 0;
 
     // CPP2 workaround: Cannot have constructor with 1 parameter.
-    public operator=:(out this) = {
+    public operator=:(out this, playAtariGo: bool) = {
         iterations = 0;
         state: State<Stone, Size> = ();
-        states.push_back(state);
+        useAtariGoRules = playAtariGo;
+        if useAtariGoRules {
+            goban.state[Size/2][Size/2].color = ColorWhite;
+            goban.state[Size/2+1][Size/2].color = ColorBlack;
+            goban.state[Size/2][Size/2+1].color = ColorBlack;
+            goban.state[Size/2+1][Size/2+1].color = ColorWhite;
+        }
+        states.push_back(goban.state);
     }
 
     public playMove:(inout this, inout m: Move, isReplay: bool = false) = {
@@ -178,6 +185,9 @@ Engine:<Size: i8> type = {
         }
         col:= m.stone.col;
         row:= m.stone.row;
+        if col < 0 || row < 0 {
+            return false;
+        }
         if goban.state[col][row].color == ColorNone && !goban.isTrueEye(m.stone) {
             if !goban.isLockedPosition(m.stone) {
                 if canCaptureStones(m.stone) {

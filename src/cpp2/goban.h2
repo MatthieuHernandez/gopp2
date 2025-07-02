@@ -113,8 +113,14 @@ Goban:<Size: i8> type = {
     public lockedPosition: Stone = ();
     private maxIndex: i8 = Size - 1;
 
-    operator=:(out this) = {
+    operator=:(implicit out this) = {
         clear();
+    }
+
+    public operator=:(out this, that) = {
+        state = that.state;
+        lockedPosition = that.lockedPosition;
+        maxIndex = that.maxIndex;
     }
 
     public clear:(inout this) = {
