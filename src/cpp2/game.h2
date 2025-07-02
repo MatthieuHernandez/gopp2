@@ -112,7 +112,7 @@ Game: type = {
         }
     }
 
-    private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>) = {
+    private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>, forceRefresh: bool) = {
         start:= std::chrono::steady_clock::now();
         interface*.stopGame(false);
         interface*.hardClear();
@@ -122,7 +122,7 @@ Game: type = {
         do {
             if constexpr verbose {
                 interface*.softClear();
-                interface*.refreshGoban(engine);
+                interface*.refreshGoban(engine, false);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_ptr work.
             if moveNumber % 2 == 1 {
@@ -168,7 +168,7 @@ Game: type = {
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
         interface*.softClear();
-        interface*.refreshGoban(engine);
+        interface*.refreshGoban(engine, forceRefresh);
     }
 
     public playOne:(inout this) = {
@@ -178,15 +178,15 @@ Game: type = {
         if gobanSize == 9 {
             e:= shared.new<Engine<9>>();
             e*.useAtariGoRules = playAtariGo;
-            play<true, 9>(e);
+            play<true, 9>(e, true);
         } else if gobanSize == 13 {
             e:= shared.new<Engine<13>>();
             e*.useAtariGoRules = playAtariGo;
-            play<true, 13>(e);
+            play<true, 13>(e, true);
         } else if gobanSize == 19 {
             e:= shared.new<Engine<19>>();
             e*.useAtariGoRules = playAtariGo;
-            play<true, 19>(e);
+            play<true, 19>(e, true);
         } else {
             return;
         }
@@ -213,17 +213,17 @@ Game: type = {
             if gobanSize == 9 {
                 e:= shared.new<Engine<9>>();
                 e*.useAtariGoRules = playAtariGo;
-                play<false, 9>(e);
+                play<false, 9>(e, true);
                 player1*.train<9>(e*);
             } else if gobanSize == 13 {
                 e:= shared.new<Engine<13>>();
                 e*.useAtariGoRules = playAtariGo;
-                play<false, 13>(e);
+                play<false, 13>(e, true);
                 player1*.train<13>(e*);
             } else if gobanSize == 19 {
                 e:= shared.new<Engine<19>>();
                 e*.useAtariGoRules = playAtariGo;
-                play<false, 19>(e);
+                play<false, 19>(e, true);
                 player1*.train<19>(e*);
             } else{
                 return;
@@ -261,20 +261,21 @@ Game: type = {
         while i < numberOfGame
         next i++
         {
+            forceRefresh := i%10 == 0;
             if gobanSize == 9 {
                 e:= shared.new<Engine<9>>();
                 e*.useAtariGoRules = playAtariGo;
-                play<false, 9>(e);
+                play<false, 9>(e, forceRefresh);
             }
             else if gobanSize == 13 {
                 e:= shared.new<Engine<13>>();
                 e*.useAtariGoRules = playAtariGo;
-                play<false, 13>(e);
+                play<false, 13>(e, forceRefresh);
             }
             else if gobanSize == 19 {
                 e:= shared.new<Engine<19>>();
                 e*.useAtariGoRules = playAtariGo;
-                play<false, 19>(e);
+                play<false, 19>(e, forceRefresh);
             } else {
                 return;
             }

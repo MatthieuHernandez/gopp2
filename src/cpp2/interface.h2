@@ -11,11 +11,11 @@ Interface: type = {
 
     public hardClear:(virtual inout this);
 
-    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<9>>);
+    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<9>>, force: bool);
 
-    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<13>>);
+    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<13>>, force: bool);
 
-    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<19>>);
+    public refreshGoban:(virtual inout this, in engine: std::shared_ptr<Engine<19>>, force: bool);
 
     public wait:(virtual inout this);
 

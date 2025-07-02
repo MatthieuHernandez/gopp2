@@ -172,9 +172,9 @@ class Window : public QMainWindow {
     virtual ~Window() = default;
 
     template<int8_t Size>
-    void refreshGoban(std::shared_ptr<Engine<Size>> engine) {
+    void refreshGoban(std::shared_ptr<Engine<Size>> engine, bool force) {
         const auto duration = duration_cast<milliseconds>(steady_clock::now() - this->last);
-        if ((duration.count() < 90 && !engine->isFinish()) || duration.count() < 10) {
+        if (duration.count() < 90 && !force) {
             return; // Prevents the GUI from being saturated with signals.
         }
         if constexpr (Size == 9) {
