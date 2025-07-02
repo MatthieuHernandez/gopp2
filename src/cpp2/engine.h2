@@ -135,9 +135,11 @@ Engine:<Size: i8> type = {
             if nextStone.color == color {
                 l:= numberOfLiberties(nextStone);
                 if l == 0 {
+                    if nextStone.color == color {
+                        goban.removeStone(nextStone);
+                        count++;
+                    }
                     removeGroup(nextStone, count, processedStones);
-                    goban.removeStone(nextStone);
-                    count++;
                     if count == 1 {
                         goban.lockPosition(nextStone, color);
                     }
