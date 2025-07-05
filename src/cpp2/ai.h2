@@ -13,11 +13,12 @@ createAi:() = {
                                             snn::FullyConnected(81, snn::activation::tanh));*/
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
                                             snn::Convolution(8, 3, snn::activation::GELU),
-                                            snn::FullyConnected(250, snn::activation::GELU),
+                                            snn::Convolution(16, 3, snn::activation::GELU),
+                                            snn::Convolution(64, 3, snn::activation::GELU),
                                             snn::FullyConnected(81, snn::activation::tanh));
     optimizer:= snn::StochasticGradientDescent(1e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/TM_AG_07.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/TM_GO_01.snn");
     if neuralNetwork.isValid() != snn::errorType::noError {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);
