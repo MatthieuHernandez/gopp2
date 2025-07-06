@@ -13,22 +13,20 @@
 class GobanWidget : public QWidget {
     Q_OBJECT
   private:
-    QPixmap* middle = nullptr;
-    QPixmap* hoshi = nullptr;
-    QPixmap* left = nullptr;
-    QPixmap* right = nullptr;
-    QPixmap* top = nullptr;
-    QPixmap* bottom = nullptr;
-    QPixmap* conerTopLeft = nullptr;
-    QPixmap* conerBottomLeft = nullptr;
-    QPixmap* conerTopRight = nullptr;
-    QPixmap* conerBottomRight = nullptr;
-    QPixmap* blackStone = nullptr;
-    QPixmap* whiteStone = nullptr;
+    QPixmap middle{"./images/middle.png"};
+    QPixmap hoshi{"./images/hoshi.png"};
+    QPixmap left{"./images/left.png"};
+    QPixmap right{"./images/right.png"};
+    QPixmap top{"./images/top.png"};
+    QPixmap bottom{"./images/bottom.png"};
+    QPixmap conerTopLeft{"./images/coner_top_left.png"};
+    QPixmap conerBottomLeft{"./images/coner_bottom_left.png"};
+    QPixmap conerTopRight{"./images/coner_top_right.png"};
+    QPixmap conerBottomRight{"./images/coner_bottom_right.png"};
+    QPixmap blackStone{"./images/black_stone.png"};
+    QPixmap whiteStone{"./images/white_stone.png"};
 
     QGridLayout* gridLayout = nullptr;
-
-    std::map<QLabel*, Move> moveMap;
 
     void resetLayout() {
         if (this->gridLayout == nullptr) {
@@ -37,7 +35,7 @@ class GobanWidget : public QWidget {
         while (this->gridLayout->count() > 0) {
             auto* item = this->gridLayout->takeAt(0);
             if (item != nullptr && item->widget() != nullptr) {
-                item->widget()->deleteLater();
+                delete item->widget();
                 delete item;
             }
         }
@@ -46,19 +44,6 @@ class GobanWidget : public QWidget {
   public:
     GobanWidget(QWidget *parent = nullptr)
         : QWidget(parent) {
-        this->middle = new QPixmap("./images/middle.png");
-        this->hoshi = new QPixmap("./images/hoshi.png");
-        this->left = new QPixmap("./images/left.png");
-        this->right = new QPixmap("./images/right.png");
-        this->top = new QPixmap("./images/top.png");
-        this->bottom = new QPixmap("./images/bottom.png");
-        this->conerTopLeft = new QPixmap("./images/coner_top_left.png");
-        this->conerBottomLeft = new QPixmap("./images/coner_bottom_left.png");
-        this->conerTopRight = new QPixmap("./images/coner_top_right.png");
-        this->conerBottomRight = new QPixmap("./images/coner_bottom_right.png");
-        this->blackStone = new QPixmap("./images/black_stone.png");
-        this->whiteStone = new QPixmap("./images/white_stone.png");
-
         this->gridLayout = new QGridLayout(this);
         this->gridLayout->setContentsMargins(0, 0, 0, 0);
         this->gridLayout->setSpacing(0);
@@ -80,9 +65,9 @@ class GobanWidget : public QWidget {
             for (int8_t x = 0; x < Size; x++) {
                 row = maxIndex - (x % Size);
                 if (goban.state[col][x].color == ColorBlack) {
-                    img = this->blackStone;
+                    img = &this->blackStone;
                 } else if (goban.state[col][x].color == ColorWhite){
-                    img = this->whiteStone;
+                    img = &this->whiteStone;
                 } else {
                     if ((Size == 9 &&
                         ((row == 2 && (col == 2 || col == 6)) ||
@@ -95,32 +80,32 @@ class GobanWidget : public QWidget {
                         ((row == 15 && (col == 3 || col == 9 || col == 15)) ||
                         (row == 9 && (col == 3 || col == 9 || col == 15)) ||
                         (row ==  3 && (col == 3 || col == 9 || col == 15)))) ) {
-                            img = hoshi;
+                            img = &hoshi;
                     } else {
                         if (row == maxIndex) {
                             if (col == 0) {
-                                img = this->conerBottomLeft;
+                                img = &this->conerBottomLeft;
                             } 
                             else if (col == maxIndex) {
-                                img = this->conerBottomRight;
+                                img = &this->conerBottomRight;
                             } else {
-                                img = this->bottom;
+                                img = &this->bottom;
                             }
                         } else if (row == 0) {
                             if (col == 0) {
-                                img = this->conerTopLeft;
+                                img = &this->conerTopLeft;
                             } else if (col == maxIndex) {
-                                img = this->conerTopRight;
+                                img = &this->conerTopRight;
                             } else {
-                                img = this->top;
+                                img = &this->top;
                             }
                         } else {
                             if (col == 0) {
-                                img = this->left;
+                                img = &this->left;
                             } else if (col == maxIndex) {
-                                img = this->right;
+                                img = &this->right;
                             } else {
-                                img = this->middle;
+                                img = &this->middle;
                             }
                         }
                     }
