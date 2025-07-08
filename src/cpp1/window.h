@@ -53,8 +53,9 @@ class Window : public QMainWindow {
     QTextEdit* logText = nullptr;
     QTextEdit* summaryText = nullptr;
     QEventLoop* loop = nullptr;
-    QPushButton* undoButton;
-    QPushButton* passButton;
+    QPushButton* undoButton = nullptr;
+    QPushButton* passButton = nullptr;
+    QTimer* scrollTimer = nullptr;
 
     QFuture<void> future;
     std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();

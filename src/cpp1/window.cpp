@@ -223,12 +223,16 @@ void Window::displayLogText() {
     this->logText = new QTextEdit(this);
     this->logText->setReadOnly(true);
     lineLayout->addWidget(this->logText, 1);
+    this->scrollTimer = new QTimer(this);
+    this->scrollTimer->setSingleShot(true);
+    this->scrollTimer->setInterval(30); // Short delay.
+    this->connect(this->scrollTimer, &QTimer::timeout, this, [=]() {
+        auto* bar = logText->verticalScrollBar();
+        bar->setValue(bar->maximum());
+    });
     this->connect(this, &Window::addLogSignal, this, [=](const std::string& message) {
         this->logText->append(QString::fromStdString(message));
-        QTimer::singleShot(5, this, [=]() {
-            QScrollBar* bar = this->logText->verticalScrollBar();
-            bar->setValue(bar->maximum());
-        });
+        this->scrollTimer->start();
     });
     this->connect(this, &Window::clearLogSignal, this, [=]() {
         this->logText->clear();

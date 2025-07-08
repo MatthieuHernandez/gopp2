@@ -22,6 +22,12 @@ Engine:<Size: i8> type = {
         iterations = 0;
         state: State<Stone, Size> = ();
         useAtariGoRules = playAtariGo;
+        initialize();
+    }
+
+    private initialize:(inout this) = {
+        goban.clear();
+        states.clear();
         if useAtariGoRules {
             goban.state[Size/2][Size/2].color = ColorWhite;
             goban.state[Size/2+1][Size/2].color = ColorBlack;
@@ -68,8 +74,7 @@ Engine:<Size: i8> type = {
         } else {
             moves.clear();
         }
-        goban.clear();
-        states.clear();
+        initialize();
         replayGame();
     }
 
