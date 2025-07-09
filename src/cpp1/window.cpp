@@ -177,6 +177,27 @@ void Window::displayGoban() {
     this->connect(this, &Window::refreshGoban9Signal, this->gobanWidget, &GobanWidget::refresh<9>);
     this->connect(this, &Window::refreshGoban13Signal, this->gobanWidget, &GobanWidget::refresh<13>);
     this->connect(this, &Window::refreshGoban19Signal, this->gobanWidget, &GobanWidget::refresh<19>);
+
+    this->gobanTimer = new QTimer(this);
+    this->gobanTimer->setInterval(90); // Minimum interval between refreshes.
+    this->gobanTimer->setSingleShot(false);
+    this->connect(gobanTimer, &QTimer::timeout, this, [=]() {
+        if (!pendingRefresh) {
+            return;
+        }
+        this->pendingRefresh = false;
+        std::visit([&](auto&& engine) {
+            using T = std::decay_t<decltype(engine)>;
+            if constexpr (std::is_same_v<T, std::shared_ptr<Engine<9>>>) {
+                Q_EMIT refreshGoban9Signal(engine);
+            } else if constexpr (std::is_same_v<T, std::shared_ptr<Engine<13>>>) {
+                Q_EMIT refreshGoban13Signal(engine);
+            } else if constexpr (std::is_same_v<T, std::shared_ptr<Engine<19>>>) {
+                Q_EMIT refreshGoban19Signal(engine);
+            }
+        }, pendingEngine);
+    });
+    this->gobanTimer->start();
 }
 
 void Window::displayUndoButton() {

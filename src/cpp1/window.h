@@ -2,6 +2,7 @@
 #define QT_NO_KEYWORDS
 #include <chrono>
 #include <memory>
+#include <variant>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
@@ -56,10 +57,12 @@ class Window : public QMainWindow {
     QPushButton* undoButton = nullptr;
     QPushButton* passButton = nullptr;
     QTimer* scrollTimer = nullptr;
+    QTimer* gobanTimer = nullptr;
 
+    std::variant<std::shared_ptr<Engine<9>>, std::shared_ptr<Engine<13>>, std::shared_ptr<Engine<19>>> pendingEngine;
+    bool pendingRefresh = false;
     QFuture<void> future;
     std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
-
     Interface* interface = nullptr;
     Game* game = nullptr;
     Move currentMove;
@@ -174,19 +177,22 @@ class Window : public QMainWindow {
 
     template<int8_t Size>
     void refreshGoban(std::shared_ptr<Engine<Size>> engine, bool force) {
-        const auto duration = duration_cast<milliseconds>(steady_clock::now() - this->last);
-        if (duration.count() < 90 && !force) {
-            return; // Prevents the GUI from being saturated with signals.
+        if (force) {
+            if constexpr (Size == 9) {
+                Q_EMIT refreshGoban9Signal(engine);
+            } else if constexpr (Size == 13) {
+                Q_EMIT refreshGoban13Signal(engine);
+            } else if constexpr (Size == 19) {
+                Q_EMIT refreshGoban19Signal(engine);
+            }
+            this->last = steady_clock::now();
+            return;
         }
-        if constexpr (Size == 9) {
-            Q_EMIT refreshGoban9Signal(engine);
-        } else if constexpr (Size == 13) {
-            Q_EMIT refreshGoban13Signal(engine);
-        } else if constexpr (Size == 19) {
-            Q_EMIT refreshGoban19Signal(engine);
+        if (this->selectTime->currentData().toInt() > 0) {
+            QThread::msleep(this->selectTime->currentData().toInt());
         }
-        this->last = steady_clock::now();
-        QThread::msleep(this->selectTime->currentData().toInt());
+        this->pendingEngine = engine;
+        this->pendingRefresh = true;
     }
 
     void addLog(const std::string& message) {
