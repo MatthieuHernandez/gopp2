@@ -18,6 +18,8 @@ Game: type = {
 
     public playAtariGo: bool = false;
 
+    public refreshRate: i8 = 1; // Refresh interface every n game.
+
     public operator=:(out this, i: *Interface) = {
         interface = i;
     }
@@ -112,17 +114,19 @@ Game: type = {
         }
     }
 
-    private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>, forceRefresh: bool) = {
+    private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>, refreshInterface: bool) = {
         start:= std::chrono::steady_clock::now();
         interface*.stopGame(false);
-        interface*.hardClear();
+        if refreshInterface {
+            interface*.hardClear();
+        }
         blackPlayer*.processStartGame();
         whitePlayer*.processStartGame();
         moveNumber: i16 = 1;
         do {
             if constexpr verbose {
                 interface*.softClear();
-                interface*.refreshGoban(engine, false);
+                interface*.refreshGoban(engine);
             }
             m: Move = (); // CPP2 workaround: Not able to make unique_ptr work.
             if moveNumber % 2 == 1 {
@@ -151,24 +155,34 @@ Game: type = {
             }
         } while !engine*.isFinish() && !interface*.stopRequested();
         engine*.countScore();
-        interface*.printLater("The game ends after " + moveNumber as std::string + " moves.");
+        if refreshInterface {
+            interface*.printLater("The game ends after " + moveNumber as std::string + " moves.");
+        }
         if (engine*.blackPoint > engine*.whitePoint) {
             blackPlayer*.hasWon = true;
             whitePlayer*.hasWon = false;
-            interface*.printLater("Black win " + engine*.blackPoint as std::string + " to " + engine*.whitePoint as std::string + ".5.");
+            if refreshInterface {
+                interface*.printLater("Black win " + engine*.blackPoint as std::string + " to " + engine*.whitePoint as std::string + ".5.");
+            }
         } else {
             whitePlayer*.hasWon = true;
             blackPlayer*.hasWon = false;
-            interface*.printLater("White win " + engine*.whitePoint as std::string + ".5 to " + engine*.blackPoint as std::string + ".");
+            if refreshInterface {
+                interface*.printLater("White win " + engine*.whitePoint as std::string + ".5 to " + engine*.blackPoint as std::string + ".");
+            }
         }
         end:= std::chrono::steady_clock::now();
         duration:= std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        interface*.printLater("The game lasted " + duration as std::string + " ms.");
-        interface*.printLater("After " + iterations as std::string + " iterations.");
+        if refreshInterface {
+            interface*.printLater("The game lasted " + duration as std::string + " ms.");
+            interface*.printLater("After " + iterations as std::string + " iterations.");
+        }
         blackPlayer*.processEndGame();
         whitePlayer*.processEndGame();
-        interface*.softClear();
-        interface*.refreshGoban(engine, forceRefresh);
+        if refreshInterface {
+            interface*.softClear();
+            interface*.refreshGoban(engine);
+        }
     }
 
     public playOne:(inout this) = {
@@ -207,17 +221,18 @@ Game: type = {
         }
         i: i32 = 0;
         do {
+            refreshInterface:= i%refreshRate == 0;
             if gobanSize == 9 {
                 e:= shared.new<Engine<9>>(playAtariGo);
-                play<false, 9>(e, true);
+                play<false, 9>(e, refreshInterface);
                 player1*.train<9>(e*);
             } else if gobanSize == 13 {
                 e:= shared.new<Engine<13>>(playAtariGo);
-                play<false, 13>(e, true);
+                play<false, 13>(e, refreshInterface);
                 player1*.train<13>(e*);
             } else if gobanSize == 19 {
                 e:= shared.new<Engine<19>>(playAtariGo);
-                play<false, 19>(e, true);
+                play<false, 19>(e, refreshInterface);
                 player1*.train<19>(e*);
             } else{
                 return;
@@ -255,18 +270,18 @@ Game: type = {
         while i < numberOfGame
         next i++
         {
-            forceRefresh := i%10 == 0;
+            refreshInterface:= i%refreshRate == 0;
             if gobanSize == 9 {
                 e:= shared.new<Engine<9>>(playAtariGo);
-                play<false, 9>(e, forceRefresh);
+                play<false, 9>(e, refreshInterface);
             }
             else if gobanSize == 13 {
                 e:= shared.new<Engine<13>>(playAtariGo);
-                play<false, 13>(e, forceRefresh);
+                play<false, 13>(e, refreshInterface);
             }
             else if gobanSize == 19 {
                 e:= shared.new<Engine<19>>(playAtariGo);
-                play<false, 19>(e, forceRefresh);
+                play<false, 19>(e, refreshInterface);
             } else {
                 return;
             }

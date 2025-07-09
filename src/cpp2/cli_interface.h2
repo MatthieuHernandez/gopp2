@@ -20,15 +20,15 @@ CliInterface: type = {
     public hardClear:(override inout this) = {
     }
 
-    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<9>>, force: bool) = {
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<9>>) = {
         cli::printGoban<9>(engine*.goban);
     }
 
-    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<13>>, force: bool) = {
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<13>>) = {
         cli::printGoban<13>(engine*.goban);
     }
 
-    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<19>>, force: bool) = {
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<19>>) = {
         cli::printGoban<19>(engine*.goban);
     }
 

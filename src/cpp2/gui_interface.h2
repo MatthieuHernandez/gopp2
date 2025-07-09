@@ -21,16 +21,16 @@ GuiInterface: type = {
         window*.clearLog();
     }
 
-    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<9>>, force: bool) = {
-        window*.refreshGoban(engine, force);
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<9>>) = {
+        window*.refreshGoban(engine);
     }
 
-    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<13>>, force: bool) = {
-        window*.refreshGoban(engine, force);
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<13>>) = {
+        window*.refreshGoban(engine);
     }
 
-    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<19>>, force: bool) = {
-        window*.refreshGoban(engine, force);
+    public refreshGoban:(override inout this, in engine: std::shared_ptr<Engine<19>>) = {
+        window*.refreshGoban(engine);
     }
 
     public wait:(override inout this) = {

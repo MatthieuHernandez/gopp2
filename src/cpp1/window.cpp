@@ -50,7 +50,7 @@ void Window::refreshButtons() {
         if (indexPlayer1== 0 || indexPlayer2 == 0 ) {
             this->trainButton->setEnabled(false);
             this->evaluateButton->setEnabled(false);
-            this->selectTime->setCurrentIndex(1);
+            this->selectTime->setCurrentIndex(2);
             this->selectTime->setEnabled(false);
             this->undoButton->setEnabled(true);
             this->passButton->setEnabled(true);
@@ -181,7 +181,7 @@ void Window::displayGoban() {
     this->gobanTimer = new QTimer(this);
     this->gobanTimer->setInterval(90); // Minimum interval between refreshes.
     this->gobanTimer->setSingleShot(false);
-    this->connect(gobanTimer, &QTimer::timeout, this, [=]() {
+    this->connect(this->gobanTimer, &QTimer::timeout, this, [=]() {
         if (!pendingRefresh) {
             return;
         }
@@ -279,7 +279,6 @@ void Window::displayGobanButton() {
     lineLayout->addWidget(selectGobanText);
     lineLayout->addWidget(selectGoban);
     this->connect(selectGame, &QComboBox::currentIndexChanged, [=](int index) {
-        const auto selection = selectGoban->itemData(index).toInt();
         this->game->playAtariGo = (index == 0) ? true : false;
     });
     this->connect(selectGoban, &QComboBox::currentIndexChanged, [=](int index) {
@@ -428,8 +427,26 @@ void Window::displayMoveTime() {
     this->selectTime->insertItem(3, "500 ms", 500);
     this->selectTime->insertItem(4, "1000 ms", 1000);
     lineLayout->addWidget(selectTimeText);
-    lineLayout->addWidget(selectTime);
+    lineLayout->addWidget(this->selectTime);
     lineLayout->addItem(new QSpacerItem(100, 0));
+}
+
+void Window::displayRefreshRate() {
+    auto* lineLayout = new QHBoxLayout();
+    this->menuLayout->addLayout(lineLayout);
+    QLabel* selectRefreshText = new QLabel("Refresh after:", this);
+    this->selectRefresh = new QComboBox(this);
+    this->selectRefresh->insertItem(0, "1 game", 1);
+    this->selectRefresh->insertItem(1, "10 game", 10);
+    this->selectRefresh->insertItem(2, "30 game", 30);
+    this->selectRefresh->insertItem(3, "100 game", 100);
+    lineLayout->addWidget(selectRefreshText);
+    lineLayout->addWidget(this->selectRefresh);
+    lineLayout->addItem(new QSpacerItem(100, 0));
+    this->connect(this->selectRefresh, &QComboBox::currentIndexChanged, [=](int index) {
+        const auto selection = this->selectRefresh->itemData(index).toInt();
+        this->game->refreshRate = selection;
+    });
 }
 
 void Window::displayPlayButton() {

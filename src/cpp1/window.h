@@ -49,6 +49,7 @@ class Window : public QMainWindow {
     QCheckBox* saveBox = nullptr;
     QLabel* winRateText = nullptr;
     QComboBox* selectTime = nullptr;
+    QComboBox* selectRefresh = nullptr;
     QPushButton* trainButton = nullptr;
     QPushButton* evaluateButton = nullptr;
     QTextEdit* logText = nullptr;
@@ -62,7 +63,6 @@ class Window : public QMainWindow {
     std::variant<std::shared_ptr<Engine<9>>, std::shared_ptr<Engine<13>>, std::shared_ptr<Engine<19>>> pendingEngine;
     bool pendingRefresh = false;
     QFuture<void> future;
-    std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
     Interface* interface = nullptr;
     Game* game = nullptr;
     Move currentMove;
@@ -131,6 +131,8 @@ class Window : public QMainWindow {
 
     void displayMoveTime();
 
+    void displayRefreshRate();
+
     void displayPlayButton();
 
     void displayTrainButton();
@@ -149,7 +151,6 @@ class Window : public QMainWindow {
         : QMainWindow(parent),
           interface(interface),
           game(game) {
-        this->last = steady_clock::now();
         this->displayTabLayouts();
         this->displayGobanButton();
         this->displayPlayerSelection();
@@ -159,6 +160,7 @@ class Window : public QMainWindow {
         this->displayLearningRate();
         this->displaySaveButton();
         this->displayMoveTime();
+        this->displayRefreshRate();
         this->displayPlayButton();
         this->displayTrainButton();
         this->displayEvaluateButton();
@@ -176,18 +178,7 @@ class Window : public QMainWindow {
     virtual ~Window() = default;
 
     template<int8_t Size>
-    void refreshGoban(std::shared_ptr<Engine<Size>> engine, bool force) {
-        if (force) {
-            if constexpr (Size == 9) {
-                Q_EMIT refreshGoban9Signal(engine);
-            } else if constexpr (Size == 13) {
-                Q_EMIT refreshGoban13Signal(engine);
-            } else if constexpr (Size == 19) {
-                Q_EMIT refreshGoban19Signal(engine);
-            }
-            this->last = steady_clock::now();
-            return;
-        }
+    void refreshGoban(std::shared_ptr<Engine<Size>> engine) {
         if (this->selectTime->currentData().toInt() > 0) {
             QThread::msleep(this->selectTime->currentData().toInt());
         }
