@@ -44,5 +44,5 @@ Player: type = {
 
     public processStartGame:(virtual inout this) = {}
 
-    public processEndGame:(virtual inout this) = {}
+    public processEndGame:(virtual inout this, refreshInterface: bool) = {}
 }

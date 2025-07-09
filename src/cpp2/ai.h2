@@ -304,7 +304,7 @@ Ai: type = {
         }
     }
 
-    public processEndGame:(override inout this) = {
+    public processEndGame:(override inout this, refreshInterface: bool) = {
         if hasWon {  // CPP2 workaround: Conditional operator not yet supported.
             lastGameWon.push_back(1);
             sumOfLastGameWon += 1;
@@ -315,14 +315,16 @@ Ai: type = {
             sumOfLastGameWon -= lastGameWon.front();
             lastGameWon.pop_front();
         }
-        if lastGameWon.ssize() > 100 {
-            interface*.printLater("AI winrate: "+ std::to_string(calculateWinRate() * 100.0f) +" %");
-        } else {
-            interface*.print("AI winrate: ...");
+        if refreshInterface {
+            if lastGameWon.ssize() > 100 {
+                interface*.printLater("AI winrate: "+ std::to_string(calculateWinRate() * 100.0f) +" %");
+            } else {
+                interface*.printLater("AI winrate: ...");
+            }
+            oss: std::ostringstream = ();
+            oss << "AI learning rate: " << std::scientific << std::setprecision(2) << optimizer*.learningRate;
+            interface*.printLater(oss.str());
+            interface*.printLater("AI Top-k: " + std::to_string(topK));
         }
-        oss: std::ostringstream = ();
-        oss << "AI learning rate: " << std::scientific << std::setprecision(2) << optimizer*.learningRate;
-        interface*.printLater(oss.str());
-        interface*.printLater("AI Top-k: " + std::to_string(topK));
     }
 }
