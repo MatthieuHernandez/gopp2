@@ -117,8 +117,10 @@ Game: type = {
     private play:<verbose: bool, Size: i8>(inout this, engine: std::shared_ptr<Engine<Size>>, refreshInterface: bool) = {
         start:= std::chrono::steady_clock::now();
         interface*.stopGame(false);
-        if refreshInterface {
-            interface*.hardClear();
+        if constexpr verbose {
+            if refreshInterface {
+                interface*.hardClear();
+            }
         }
         blackPlayer*.processStartGame();
         whitePlayer*.processStartGame();
@@ -155,6 +157,11 @@ Game: type = {
             }
         } while !engine*.isFinish() && !interface*.stopRequested();
         engine*.countScore();
+        if constexpr !verbose {
+            if refreshInterface {
+                interface*.hardClear();
+            }
+        }
         if refreshInterface {
             interface*.printLater("The game ends after " + moveNumber as std::string + " moves.");
         }
@@ -225,6 +232,9 @@ Game: type = {
             if gobanSize == 9 {
                 e:= shared.new<Engine<9>>(playAtariGo);
                 play<false, 9>(e, refreshInterface);
+                if refreshInterface {
+                    interface*.print("Black trained on " + i as std::string + " games.");
+                }
                 player1*.train<9>(e*);
             } else if gobanSize == 13 {
                 e:= shared.new<Engine<13>>(playAtariGo);
