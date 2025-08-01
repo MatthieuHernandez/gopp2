@@ -17,7 +17,6 @@ Engine:<Size: i8> type = {
     public blackStonesCaptured: i16 = 0;
     public whiteStonesCaptured: i16 = 0;
 
-    // CPP2 workaround: Cannot have constructor with 1 parameter.
     public operator=:(out this, playAtariGo: bool) = {
         iterations = 0;
         state: State<Stone, Size> = ();
