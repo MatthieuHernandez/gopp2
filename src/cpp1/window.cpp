@@ -24,6 +24,10 @@ void Window::loadAiParameters() {
         ai2->topK = static_cast<int16_t>(this->player2TopKBox->value());
         ai2->margin = static_cast<int16_t>(this->player2MarginBox->value());
     }
+    const auto itself2 = dynamic_cast<Itself*>(this->game->whitePlayer.get());
+    if (itself2 != nullptr) {
+        itself2->copy(*ai1);
+    }
     this->game->saveOnlyIfBetter = this->saveBox->checkState() == Qt::Checked ? true : false;
 }
 
@@ -50,7 +54,7 @@ void Window::refreshButtons() {
         if (indexPlayer1== 0 || indexPlayer2 == 0 ) {
             this->trainButton->setEnabled(false);
             this->evaluateButton->setEnabled(false);
-            this->selectTime->setCurrentIndex(2);
+            this->selectTime->setCurrentIndex(1);
             this->selectTime->setEnabled(false);
             this->undoButton->setEnabled(true);
             this->passButton->setEnabled(true);

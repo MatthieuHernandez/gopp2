@@ -6,8 +6,12 @@ Itself: type = {
     public ai: Ai;
 
     public operator=:(out this, i: *Interface, c: Color, in aiToCopy: Ai) = {
-         Player = (i, c);
-         ai = Ai(i, c, aiToCopy);
+        Player = (i, c);
+        ai = Ai(interface, color, aiToCopy);
+    }
+    
+    public copy:(inout this, in aiToCopy: Ai) = {
+         ai = Ai(interface, color, aiToCopy);
     }
 
     public setColor:(virtual inout this, c: Color) = {

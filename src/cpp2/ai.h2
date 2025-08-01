@@ -12,13 +12,12 @@ createAi:() = {
                                             snn::Convolution(256, 3, snn::activation::GELU, 0.0F),
                                             snn::FullyConnected(81, snn::activation::tanh));*/
     layers: std::vector<snn::LayerModel> = (snn::Input(1, 9, 9),
-                                            snn::Convolution(8, 3, snn::activation::GELU),
                                             snn::Convolution(16, 3, snn::activation::GELU),
                                             snn::Convolution(64, 3, snn::activation::GELU),
                                             snn::FullyConnected(81, snn::activation::tanh));
     optimizer:= snn::StochasticGradientDescent(1e-4f, 0.0f);
     neuralNetwork:= snn::StraightforwardNeuralNetwork(layers, optimizer);
-    neuralNetwork.saveAs("./snn_models/9x9/TM_GO_01.snn");
+    neuralNetwork.saveAs("./snn_models/9x9/TM_AG_02.snn");
     if neuralNetwork.isValid() != snn::errorType::noError {
         std::cout << "INVALID MODEL !" << std::endl;
         std::exit(0);
@@ -37,7 +36,7 @@ Ai: type = {
     private optimizer: std::shared_ptr<snn::internal::StochasticGradientDescent>;
     private lastGameWon: std::deque<int>;
     private lastBlackGameWon: std::deque<int>;
-    private numberOfGames: const size_t = 1000; // To calculate winrate.
+    private numberOfGames: size_t = 1000; // To calculate winrate.
     private sumOfLastGameWon: size_t = 0;
     private sumOfLastBlackGameWon: size_t = 0;
     private previousWinrate: float = 0.0f;
@@ -56,8 +55,8 @@ Ai: type = {
 
     public operator=:(out this, i: *Interface, c: Color, in ai: Ai) = {
         Player = (i, c);
-        topK = 1;
-        margin = 0;
+        topK = ai.topK;
+        margin = ai.margin;
         modelPath = "";
         neuralNetwork = ai.neuralNetwork;
         optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
@@ -192,31 +191,33 @@ Ai: type = {
         return getMove<19>(engine);
     }
 
-    private computeLearningRate:(inout this)-> float = {
+    private computeLearningRate:(inout this, numberOfMoves: size_t)-> float = {
+        if lastGameWon.ssize() < 100 {
+            return learningRate;
+        }
         newLearningRate:= learningRate;
         winrate := calculateWinRate();
-        if lastGameWon.ssize() > 100 && winrate < 1.0F && (hasWon && winrate > 0.5F) {
+        if winrate < 1.0F && (hasWon && winrate > 0.5F) {
             newLearningRate *= (1.0F - winrate) / winrate;
         }
         blackWinrate := calculateBlackWinRate();
-        if color == ColorBlack && blackWinrate < 1.0F && blackWinrate > 0.5F {
+        blackHasWon := (hasWon && color == ColorBlack) || (!hasWon && color == ColorWhite);
+        if blackHasWon && blackWinrate < 1.0F && blackWinrate > 0.5F {
             newLearningRate *= (1.0F - blackWinrate) / blackWinrate;
         }
         whiteWinrate := 1 - blackWinrate;
-        if color == ColorWhite && whiteWinrate < 1.0F && whiteWinrate > 0.5F {
+        if !blackHasWon && whiteWinrate < 1.0F && whiteWinrate > 0.5F {
             newLearningRate *= (1.0F - whiteWinrate) / whiteWinrate;
         }
         return newLearningRate;
     }
 
     public train:<Size: i8>(inout this, in engine: Engine<Size>) = {
-        if engine.moves.ssize() > 230 && engine.useAtariGoRules == false {
-            return;
-        }
+        numberOfMoves := engine.moves.ssize();
         distRotate: std::uniform_int_distribution<i64> = (0, 3);
         distFlip: std::uniform_int_distribution<i64> = (4, 6);
         gameLength: i16 = unchecked_narrow<i16>(engine.moves.size());
-        optimizer*.learningRate = computeLearningRate();
+        optimizer*.learningRate = computeLearningRate(numberOfMoves);
         size:= Size * Size;
         expectedBlack: float;
         expectedWhite: float;

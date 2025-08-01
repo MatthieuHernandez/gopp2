@@ -190,6 +190,8 @@ Game: type = {
             interface*.softClear();
             interface*.refreshGoban(engine);
         }
+        //using std::chrono_literals::_;
+        //std::this_thread::sleep_for(1s);
     }
 
     public playOne:(inout this) = {
@@ -233,7 +235,7 @@ Game: type = {
                 e:= shared.new<Engine<9>>(playAtariGo);
                 play<false, 9>(e, refreshInterface);
                 if refreshInterface {
-                    interface*.print("Black trained on " + i as std::string + " games.");
+                    interface*.printLater("Black trained on " + i as std::string + " games.");
                 }
                 player1*.train<9>(e*);
             } else if gobanSize == 13 {
