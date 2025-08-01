@@ -36,8 +36,10 @@ Ai: type = {
     private neuralNetwork: std::shared_ptr<snn::StraightforwardNeuralNetwork>;
     private optimizer: std::shared_ptr<snn::internal::StochasticGradientDescent>;
     private lastGameWon: std::deque<int>;
+    private lastBlackGameWon: std::deque<int>;
     private numberOfGames: const size_t = 1000; // To calculate winrate.
     private sumOfLastGameWon: size_t = 0;
+    private sumOfLastBlackGameWon: size_t = 0;
     private previousWinrate: float = 0.0f;
     private isBetter: bool = false;
 
@@ -49,6 +51,7 @@ Ai: type = {
         neuralNetwork = shared.new<snn::StraightforwardNeuralNetwork>(snn::StraightforwardNeuralNetwork::loadFrom(modelPath));
         optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
         lastGameWon = ();
+        lastBlackGameWon = ();
     }
 
     public operator=:(out this, i: *Interface, c: Color, in ai: Ai) = {
@@ -59,6 +62,7 @@ Ai: type = {
         neuralNetwork = ai.neuralNetwork;
         optimizer = std::static_pointer_cast<snn::internal::StochasticGradientDescent>(neuralNetwork*.optimizer);
         lastGameWon = ();
+        lastBlackGameWon = ();
     }
 
     public operator=:(out this, that) = {
@@ -70,6 +74,8 @@ Ai: type = {
         modelPath = that.modelPath;
         lastGameWon = that.lastGameWon;
         sumOfLastGameWon = that.sumOfLastGameWon;
+        lastBlackGameWon = that.lastBlackGameWon;
+        sumOfLastBlackGameWon = that.sumOfLastBlackGameWon;
         learningRate = that.learningRate;
         previousWinrate = that.previousWinrate;
         isBetter = that.isBetter;
@@ -189,8 +195,16 @@ Ai: type = {
     private computeLearningRate:(inout this)-> float = {
         newLearningRate:= learningRate;
         winrate := calculateWinRate();
-        if (lastGameWon.ssize() > 100 && winrate < 1.0F && (hasWon && winrate > 0.5F)) {
+        if lastGameWon.ssize() > 100 && winrate < 1.0F && (hasWon && winrate > 0.5F) {
             newLearningRate *= (1.0F - winrate) / winrate;
+        }
+        blackWinrate := calculateBlackWinRate();
+        if color == ColorBlack && blackWinrate < 1.0F && blackWinrate > 0.5F {
+            newLearningRate *= (1.0F - blackWinrate) / blackWinrate;
+        }
+        whiteWinrate := 1 - blackWinrate;
+        if color == ColorWhite && whiteWinrate < 1.0F && whiteWinrate > 0.5F {
+            newLearningRate *= (1.0F - whiteWinrate) / whiteWinrate;
         }
         return newLearningRate;
     }
@@ -284,12 +298,21 @@ Ai: type = {
 
     public resetWinRate:(inout this) = {
         lastGameWon.clear();
+        lastBlackGameWon.clear();
         sumOfLastGameWon = 0;
+        sumOfLastBlackGameWon = 0;
     }
 
     public calculateWinRate:(in this) -> float = {
         if (!lastGameWon.empty()) {
             return sumOfLastGameWon / (float)(lastGameWon.size());
+        }
+        return -1;
+    }
+    
+    public calculateBlackWinRate:(in this) -> float = {
+        if (!lastBlackGameWon.empty()) {
+            return sumOfLastBlackGameWon / (float)(lastBlackGameWon.size());
         }
         return -1;
     }
@@ -311,15 +334,26 @@ Ai: type = {
         } else {
             lastGameWon.push_back(0);
         }
+        if (hasWon && color == ColorBlack) ||
+           (!hasWon && color == ColorWhite)  { // If black won the game.
+            lastBlackGameWon.push_back(1);
+            sumOfLastBlackGameWon += 1;
+        } else {
+            lastBlackGameWon.push_back(0);
+        }
         if (lastGameWon.size() > numberOfGames) {
             sumOfLastGameWon -= lastGameWon.front();
+            sumOfLastBlackGameWon -= lastBlackGameWon.front();
             lastGameWon.pop_front();
+            lastBlackGameWon.pop_front();
         }
         if refreshInterface {
             if lastGameWon.ssize() > 100 {
-                interface*.printLater("AI winrate: "+ std::to_string(calculateWinRate() * 100.0f) +" %");
+                interface*.printLater("AI winrate:    "+ std::to_string(calculateWinRate() * 100.0f) +" %");
+                interface*.printLater("Black winrate: "+ std::to_string(calculateBlackWinRate() * 100.0f) +" %");
             } else {
-                interface*.printLater("AI winrate: ...");
+                interface*.printLater("AI winrate:    ...");
+                interface*.printLater("Black winrate: ...");
             }
             oss: std::ostringstream = ();
             oss << "AI learning rate: " << std::scientific << std::setprecision(2) << optimizer*.learningRate;
